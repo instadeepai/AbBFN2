@@ -13,14 +13,20 @@ from abbfn2.data.data_mode_handler import save_samples
 from abbfn2.bfn import BFN, get_bfn
 from abbfn2.sample.functions.twisted_sde_sample import TwistedSDESampleFn
 from abbfn2.sample.inpaint_masks import ConditionDataModeMaskFn, PredictDataModeMaskFn
-from abbfn2.utils.inference_utils import pad_and_reshape, configure_output_dirs, get_input_samples, generate_random_mask_from_array_visible_pad, flatten_and_crop, show_conditioning_settings
+from abbfn2.utils.inference_utils import (
+    load_params,
+    pad_and_reshape,
+    configure_output_dir,
+    get_input_samples,
+    generate_random_mask_from_array_visible_pad,
+    flatten_and_crop,
+    show_conditioning_settings
+)
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from tabulate import tabulate
 from tqdm import tqdm
 import warnings
-import boto3
-import io
 
 warnings.filterwarnings(
     "ignore",
@@ -28,7 +34,7 @@ warnings.filterwarnings(
     category=UserWarning
 )
 
-@hydra.main(version_base="1.1", config_path="./configs", config_name="partial_inpaint.yaml")
+@hydra.main(version_base="1.1", config_path="./configs", config_name="inpaint.yaml")
 def main(full_config: DictConfig) -> None:
     """Main function.
 
@@ -46,16 +52,7 @@ def main(full_config: DictConfig) -> None:
 
     bfn.init(bfn_key)
 
-    if cfg.load_from_hf:
-        s3_path = "s3://protbfn-checkpoint/waffle-abbfn2/BFN-3482/model_params.pkl"
-        s3_bucket = s3_path.split('/')[2]
-        s3_key = '/'.join(s3_path.split('/')[3:])
-        s3 = boto3.client('s3')
-        response = s3.get_object(Bucket=s3_bucket, Key=s3_key)
-        params = pickle.load(io.BytesIO(response['Body'].read()))
-    else:
-        with open("/Users/m.braganca/Documents/waffle/outputs/2025-02-24/17-43-05/model_params.pkl", "rb") as f:
-            params = pickle.load(f)
+    params = load_params(cfg)
 
     # Initialise the data mode handlers.
     dm_handlers = {
@@ -63,7 +60,7 @@ def main(full_config: DictConfig) -> None:
     }
 
     # Prepare output directory.
-    local_output_dir = configure_output_dirs(cfg.output)
+    local_output_dir = configure_output_dir(cfg.output)
 
 
     # ======================== CREATE INPUT SAMPLES =======================

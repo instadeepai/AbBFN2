@@ -8,21 +8,22 @@ import jax
 import jax.numpy as jnp
 import jax.random as random
 import numpy as np
-from abbfn2.bfn import (
-    BFN,
-    get_bfn,
-)
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from tqdm import tqdm
-import pickle
 import warnings
-import boto3
-import io
-from abbfn2.utils.inference_utils import pad_and_reshape, get_input_samples, flatten_and_crop, show_conditioning_settings
+from abbfn2.bfn import BFN, get_bfn
+from abbfn2.utils.inference_utils import (
+    pad_and_reshape,
+    get_input_samples,
+    flatten_and_crop,
+    show_conditioning_settings,
+    load_params,
+)
 from abbfn2.utils.prehumanization.igblast import run_igblast_pipeline
 from abbfn2.utils.prehumanization.create_fasta import create_fasta_from_sequences
 from abbfn2.utils.prehumanization.pre_humanisation import process_prehumanisation
+from omegaconf import OmegaConf
 
 
 warnings.filterwarnings(
@@ -143,23 +144,12 @@ def main(full_config: DictConfig) -> None:
 
     key = random.PRNGKey(cfg.sampling.seed)
 
-    # Build model.
     bfn: BFN = get_bfn(cfg_run.data_mode, cfg_run.output_network)
     key, bfn_key = random.split(key, 2)
 
     bfn.init(bfn_key)
 
-    if cfg.load_from_s3:
-        s3_path = "s3://protbfn-checkpoint/waffle-abbfn2/BFN-3482/model_params.pkl"
-        s3_bucket = s3_path.split('/')[2]
-        s3_key = '/'.join(s3_path.split('/')[3:])
-        s3 = boto3.client('s3')
-        response = s3.get_object(Bucket=s3_bucket, Key=s3_key)
-        params = pickle.load(io.BytesIO(response['Body'].read()))
-
-    else:
-        with open("/Users/m.braganca/Documents/waffle/outputs/2025-02-24/17-43-05/model_params.pkl", "rb") as f:
-            params = pickle.load(f)
+    params = load_params(cfg)
 
     # Initialise the data mode handlers.
     dm_handlers = {
@@ -172,7 +162,6 @@ def main(full_config: DictConfig) -> None:
     logging.info(f"Found {NUM_DEVICES} local devices.")
 
     # ================= FIXED HYPERPARAMETERS ==================
-
     TMP_DIR = Path("./tmp")
     TMP_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -185,8 +174,10 @@ def main(full_config: DictConfig) -> None:
     CDR_DMS = ["h_cdr1_seq", "h_cdr2_seq", "h_cdr3_seq", "l_cdr1_seq", "l_cdr2_seq", "l_cdr3_seq"]
     SAMPLING_CFG = {"delta_decay_to": 0.5, "delta_decay_over": 5, "min_cond": 0.25, "hum_cond_logit_bounds": (0,1)}
 
-    cfg.sampling.inpaint_fn._target_ = 'abbfnx.sample.functions.sde_sample.SDESampleFn'
-    cfg.input.dm_overwrites = {"species":"human"}
+    OmegaConf.set_struct(cfg, False)
+
+    cfg.sampling.inpaint_fn._target_ = 'abbfn2.sample.functions.sde_sample.SDESampleFn'
+    cfg.input.dm_overwrites = {"species": "human"}
     cfg.input.path = None
 
     cfg.sampling.mask_fn.data_modes = ["species"]
@@ -196,18 +187,20 @@ def main(full_config: DictConfig) -> None:
 
     cfg.enforce_cdr_sequence = True
 
+    OmegaConf.set_struct(cfg, True)
+
     fasta_file = TMP_DIR / "sequences.fasta"
 
     # ==================== PRE-HUMANIZATION ========================
-    Lstring = cfg.input.Lstring
-    Hstring = cfg.input.Hstring
+    l_string = cfg.input.l_string
+    h_string = cfg.input.h_string
 
     # IgBLAST
-    if cfg.input.h_vfams is None or cfg.input.l_vfams is None:
-        create_fasta_from_sequences(Lstring, Hstring, fasta_file) # Dumps L and H string into a fasta format.
-        vfams = run_igblast_pipeline(fasta_file, cfg.igblast.output_file, cfg.igblast.species, cfg.igblast.n_alignments, platform=cfg.igblast.platform, tmp_dir=TMP_DIR)
-        h_vfams = vfams[0::2]  # Take even indices (0, 2, 4, ...) for heavy chain
-        l_vfams = vfams[1::2]  # Take odd indices (1, 3, 5, ...) for light chain
+    if "h_vfams" not in cfg.input or "l_vfams" not in cfg.input:
+        create_fasta_from_sequences(l_string, h_string, fasta_file) # Dumps L and H string into a fasta format.
+        vfams = run_igblast_pipeline(fasta_file) #tmp_dir=TMP_DIR)
+        h_vfams = vfams[0::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take even indices (0, 2, 4, ...) for heavy chain
+        l_vfams = vfams[1::2] if "l_vfams" not in cfg.input else cfg.input.l_vfams # Take odd indices (1, 3, 5, ...) for light chain
     else:
         h_vfams = cfg.input.h_vfams
         l_vfams = cfg.input.l_vfams
@@ -216,7 +209,7 @@ def main(full_config: DictConfig) -> None:
     cfg.input.num_input_samples = len(l_vfams)
 
     # Pre-Humanization
-    prehumanised_data, non_prehumanised_data = process_prehumanisation([Hstring], [Lstring], h_vfams, l_vfams)
+    prehumanised_data, non_prehumanised_data = process_prehumanisation([h_string], [l_string], h_vfams, l_vfams)
 
     # Prepare input samples and masks.
     with jax.default_device(jax.devices("cpu")[0]):
@@ -301,8 +294,10 @@ def main(full_config: DictConfig) -> None:
         np.clip(x1, SAMPLING_CFG["min_cond"], 1.0)
         return x1
 
-    age_cond = jax.tree_util.tree_map(threshold_age_cond, age_cond, ages) # Create the conditioning factors based on humanness
-    hum_cond = {k: np.clip(v * hum_cond_vals, SAMPLING_CFG["min_cond"], 1.0) for k, v in override_masks.items()} # Combine these into the final conditioning masks
+    age_cond = jax.tree_util.tree_map(threshold_age_cond, age_cond, ages)
+
+    # Create the conditioning factors based on humanness
+    hum_cond = {k: np.clip(v * hum_cond_vals, SAMPLING_CFG["min_cond"], 1.0) for k, v in override_masks.items()}
     cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), age_cond, hum_cond)
     cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), cond_masks, prehum_positions)
 
@@ -352,8 +347,6 @@ def main(full_config: DictConfig) -> None:
         
         # Create the conditioning factors based on humanness
         hum_cond = {k: np.clip(v * hum_cond_vals, SAMPLING_CFG["min_cond"], 1.0) for k, v in override_masks.items()}
-
-        # Combine these into the final conditioning masks
         cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), age_cond, hum_cond)
         cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), cond_masks, prehum_positions)
 

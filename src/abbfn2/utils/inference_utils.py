@@ -16,7 +16,9 @@ from abbfn2.bfn.types import (
 from datetime import datetime
 from pathlib import Path
 from cloudpathlib import AnyPath
-import tabulate
+from tabulate import tabulate
+import pickle
+from huggingface_hub import hf_hub_download
 
 def show_conditioning_settings(num_samples, samples, masks):
     log_str = f"Loaded {num_samples} samples and masks:"
@@ -35,13 +37,13 @@ def show_conditioning_settings(num_samples, samples, masks):
     log_str += "\n\t" + tab_str.replace("\n", "\n\t")
     logging.info(log_str)
 
-def flatten_and_crop(x, inputs_info):
+def flatten_and_crop(x, inputs_info=None):
     nb, bs, *dims = x.shape
     trg_shp = [
         nb * bs,
     ] + dims
     x = x.reshape(*trg_shp)
-    return x[: inputs_info["num_samples"]]
+    return x[: inputs_info["num_samples"]] if inputs_info is not None else x
 
 def pad_and_reshape(x, num_samples_padded, num_batches):
     """Pads the input array to a specified size and reshapes it for batch processing across multiple devices.
@@ -351,3 +353,14 @@ def configure_output_dir(
         ), f"Local output directory {local_output_dir} already exists."
 
     return local_output_dir
+
+
+def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
+    if cfg.load_from_hf:
+        file_path = hf_hub_download(repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl")
+        with open(file_path, "rb") as f:
+            params = pickle.load(f)
+    else:
+        with open("/Users/m.braganca/Documents/AbBFN2/params.pkl", "rb") as f:
+            params = pickle.load(f)
+    return params

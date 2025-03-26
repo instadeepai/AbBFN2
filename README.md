@@ -2,14 +2,16 @@
 Welcome to the inference code for the AbBFN2 paper.
 
 ## Overview
-Insert cool description about Antibodies and BFNs
+\<Insert cool description about Antibodies and BFNs>
 
 ## Getting Started
-Just run docker
+type "make build"
 
 ## Experiments
+This repo contains three experiments. 
+
 ### Unconditional Generation
-Click run, get letters and numbers
+Click run, get sequences and numbers
 
 ### Conditional Genearion
 Put sequences and numbers in the config, click run, wait, get sequences and numbers

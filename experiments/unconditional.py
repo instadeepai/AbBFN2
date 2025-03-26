@@ -9,10 +9,7 @@ from abbfn2.bfn.factory import BFN, get_bfn
 from hydra.utils import instantiate
 import jax.numpy as jnp
 from abbfn2.data.data_mode_handler import save_samples
-from abbfn2.utils.inference_utils import configure_output_dir
-import pickle
-import boto3
-import io
+from abbfn2.utils.inference_utils import configure_output_dir, load_params
 import warnings
 
 warnings.filterwarnings(
@@ -37,16 +34,7 @@ def main(full_config: DictConfig) -> None:
     key, bfn_key = random.split(key, 2)
     bfn.init(bfn_key)
 
-    if cfg.load_from_hf: # TODO: HuggingFace Checkpoint?
-        s3_path = "s3://protbfn-checkpoint/waffle-abbfn2/BFN-3482/model_params.pkl"
-        s3_bucket = s3_path.split('/')[2]
-        s3_key = '/'.join(s3_path.split('/')[3:])
-        s3 = boto3.client('s3')
-        response = s3.get_object(Bucket=s3_bucket, Key=s3_key)
-        params = pickle.load(io.BytesIO(response['Body'].read()))
-    else: # TODO: Remove
-        with open("/Users/m.braganca/Documents/waffle/outputs/2025-02-24/17-43-05/model_params.pkl", "rb") as f:
-            params = pickle.load(f)
+    params = load_params(cfg)
 
     # Initialise the data mode handlers.
     dm_handlers = {

@@ -36,9 +36,7 @@ cfg:
       time_schedule:
         _target_: abbfn2.sample.schedules.LinearScheduleFn
     mask_fn:
-      _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn
-
-  # For inpaint_mask_fn/condition_data_mode or predict_data_mode
+      _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn  # For inpaint_mask_fn/condition_data_mode or predict_data_mode
       data_modes:
         - "h_cdr1_seq"
         - "h_cdr2_seq"
@@ -50,4 +48,4 @@ cfg:
     overwrite_local_if_exists: true
     save_raw: false
 
-  load_from_hf: true
+  load_from_hf: false
