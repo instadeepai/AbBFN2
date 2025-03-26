@@ -1,0 +1,205 @@
+from typing import Any
+
+import distrax
+import jax.numpy as jnp
+from distrax import Normal
+from jax import Array
+from jax.random import PRNGKey
+
+from abbfn2.bfn.base import BFNBase
+from abbfn2.bfn.types import OutputNetworkPredictionContinuous, ThetaContinuous
+
+
+class ContinuousBFN(BFNBase):
+    """Continuous-variable Bayesian Flow Network."""
+
+    def get_prior_input_distribution(self) -> ThetaContinuous:
+        """Initialises the parameters of an uninformed input distribution."""
+        mu = jnp.zeros(self.cfg.variables_shape)
+        rho = jnp.ones(self.cfg.variables_shape)
+        return ThetaContinuous(mu=mu, rho=rho)
+
+    def apply_output_network(
+        self,
+        params: Any,
+        key: PRNGKey,
+        theta: ThetaContinuous,
+        t: float,
+        mask: Array | None = None,
+        pred_cond: OutputNetworkPredictionContinuous | None = None,
+        t_cond: float | None = None,
+    ) -> OutputNetworkPredictionContinuous:
+        """Apply the output network to compute parameters of the output distribution.
+
+        Args:
+            params (Any): The learnable params of the BFN
+            key (PRNGKey): A random seed for the output network
+            theta (Theta): Parameters of the input distribution over the variables.
+            t (float): The time.
+            mask (Optional[Array]): Optional per-variable mask for the output network.  Default is None
+              which is no masking.  Valid masks match variables shape and are 1 (0) if a variable visible (masked).
+            pred_cond (Optional[OutputNetworkPredictionContinuous]): Output network prediction for self-conditioning.  Default is None.
+            t_cond (Optional[float]): Time for self-conditioning.  Default is None.
+
+        Returns:
+            OutputNetworkPredictionContinuous: A prediction of the ground truth data.
+
+        Note:
+            This function implements the CTS_OUTPUT_PREDICTION agorithm from pg. 19 Graves et al.
+        """
+        beta = self.compute_beta(params, t)
+        if "output_network" in params:
+            params = params["output_network"]
+        return self._apply_output_network_fn(
+            params, key, theta.mu, mask, t, beta, pred_cond, t_cond
+        )
+
+    def sample_sender_distribution(
+        self,
+        x: Array,
+        alpha: Array,
+        key: PRNGKey,
+    ) -> Array:
+        """Generate a noise sample for the ground-truth (x) from the sender distribution.
+
+        Specifically, this function samples y ~ p_S(y|x;α) = N(y|x,I/α).
+
+        Args:
+            x (Array): The ground truth data of shape [...var_shape...].
+            alpha (Array): A per-variable accuracy parameter (shape [...var_shape...]).
+            key: PRNGKey for sampling.
+
+        Returns:
+            y (Array): The sample from the sender distribution (shape [...var_shape...]).
+
+        Notes:
+            The equations implemented here are described in eq 86 of Graves et al.
+        """
+        # y ~ p_S(y|x;α) = N(y|x,I/α) --> y = x + z/α; z ~ N(0,I)
+        z = distrax.Normal(0, 1).sample(seed=key, sample_shape=x.shape)
+        y = x + (z / jnp.sqrt(alpha))  # Note: Normal has scale = s.d. hence sqrt.
+        return y
+
+    def sample_receiver_distribution(
+        self,
+        pred: OutputNetworkPredictionContinuous,
+        alpha: Array,
+        key: PRNGKey,
+    ) -> Array:
+        """Generate a sample from the receiver distribution.
+
+        Specifically, this function samples y ~ p_R(y|θ;t,α) = N(y|x(θ,t),I/α).
+
+        Args:
+            pred (OutputNetworkPrediction): Prediction of the output network.
+            alpha (Array): A per-variable accuracy parameter (shape [...var_shape...]).
+            key: PRNGKey for sampling.
+
+        Returns:
+            y (Array): The sample from the receiver distribution (shape [...var_shape...]).
+
+        Notes:
+            - The equations implemented here are described in eq 87-88 of Graves et al.
+            - As it has the same form as the sampling of the sender distribution, we re-use
+              this function internally.
+        """
+        return self.sample_sender_distribution(pred.x, alpha, key)
+
+    def sample_flow_distribution(
+        self,
+        x: Array,
+        beta: Array,
+        key: PRNGKey,
+    ) -> ThetaContinuous:
+        """Generate the ground-truth (x) and accuracy schedule (β(t)), sample from the Bayesian flow distribution.
+
+        Specifically, this function is sampling;
+            µ ~ N(µ|γ(t)x, γ(t)(1-γ(t))I)
+        where θ={µ,ρ}.
+
+        Args:
+            x (Array): The ground truth data (shape [...var_shape...]).
+            beta (Array): A per-variable value of the accuracy schedule (shape [...var_shape...]).
+            key: PRNGKey for sampling.
+
+        Returns:
+            theta (Theta): Input parameters to the network (with µ ~ p_F(...) and ρ=1+β(t)).
+        """
+        gamma = beta / (1 + beta)
+
+        # µ ~ N(µ|γ(t)x, γ(t)(1-γ(t))I) --> µ = γ(t)x + γ(t)(1-γ(t)) * z; z ~ N(0,I)
+        # Note sqrt[ γ(t)(1-γ(t)) ] is used as the scale parameter for Normal is s.d.
+        z = distrax.Normal(0, 1).sample(seed=key, sample_shape=x.shape)
+        mu = gamma * x + jnp.sqrt(gamma * (1 - gamma)) * z
+
+        # ρ is entirely defined by t, so the network doesn't model it explicitly.
+        # However, we return it anyway in ThetaContinuous as we already have the value here.
+        rho = 1 + beta
+
+        return ThetaContinuous(mu=mu, rho=rho)
+
+    def update_distribution(
+        self,
+        theta: ThetaContinuous,
+        y: Array,
+        alpha: Array | None = None,
+        conditional_score: Array | None = None,
+        conditional_mask: Array | None = None,
+    ) -> ThetaContinuous:
+        """Apply update to distribution parameters given sample of receiver distribution.
+
+        Args:
+            theta (ThetaContinuous): Parameters of the distribution.
+            y (Array): The sample from the sender distribution (shape [...var_shape...]).
+            alpha (Array): A per-variable accuracy parameter (shape [...var_shape...]).
+            conditional_score (Optional[Array]): Per-variable conditional score
+                (gradient of log prob of conditional data wrt input parameters)
+                used to update the input parameters for conditional SDE sampling.
+                If None, update reverts to unconditional.
+            conditional_mask (Optional[Array]): Per-variable mask for conditional sampling.
+                The conditional update only happens where the mask is False
+                (no need if the mask is True since the ground truth is already known).
+
+        Returns:
+            theta (ThetaContinuous): Updated parameters of the distribution.
+        """
+        mu = (theta.rho * theta.mu + alpha * y) / (theta.rho + alpha)
+        rho = theta.rho + alpha
+        if conditional_score is not None:
+            old_variance = 1 / theta.rho
+            new_variance = 1 / rho
+            mu_delta = (old_variance - new_variance) * conditional_score.mu
+            if conditional_mask is not None:
+                mu_delta = jnp.where(conditional_mask, 0, mu_delta)
+            mu += mu_delta
+
+        return ThetaContinuous(mu=mu, rho=rho)
+
+    def conditional_log_prob(
+        self,
+        pred: OutputNetworkPredictionContinuous,
+        x: Array | None,
+        mask: Array | None,
+        theta: ThetaContinuous,
+    ) -> float:
+        """Calculate log p(x|theta) (used to determine the conditional score for SDE sampling).
+
+        Args:
+            pred (OutputNetworkPredictionContinuous): Prediction of the output network.
+            x(Optional[Array]): Conditioning data.
+            mask (Optional[Array]): Per-variable boolean mask for the conditioning data.
+                    Valid masks can be broadcast the shape of x and are True (False) if a conditional variable is used (unused).
+            theta (ThetaContinuous): Parameters of the input distribution.
+
+
+        Returns:
+            The summed log prob over all the variables in x where mask=True. Returns 0 if x is None
+        """
+        if x is None:
+            return 0
+        else:
+            mean = pred.x
+            std_dev = 1.0 / jnp.sqrt(theta.rho)
+            output_distribution = Normal(mean, std_dev)
+            log_prob_per_variable = output_distribution.log_prob(x)
+            return jnp.sum(log_prob_per_variable, where=mask)

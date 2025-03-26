@@ -1,0 +1,29 @@
+name: abbfn2
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.11
+  - anarci
+  - hmmer
+  - abnumber
+  - pip
+  - pip:
+    - aiobotocore==2.17.0
+    - boto3
+    - biopython==1.84
+    - distrax==0.1.4
+    - flax==0.8.4
+    - hydra-core
+    - numpy
+    - omegaconf
+    - orbax-checkpoint==0.5.20
+    - s3fs==2024.6.1
+    - tabulate
+    - tqdm
+    - h5py==3.11.0
+    - setuptools
+    - regex
+    - cloudpathlib
+    - "humatch @ git+https://github.com/oxpig/Humatch.git"

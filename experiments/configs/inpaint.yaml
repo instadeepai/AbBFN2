@@ -1,0 +1,53 @@
+defaults:
+  - run: run
+  - _self_
+
+cfg:
+  hydra:
+    searchpath:
+      - file://./configs
+    job:
+      chdir: false
+
+  input:
+    path: null
+    num_input_samples: 2
+    override_masks_file: null
+
+    mask_weight_overrides: null
+    soft_inpaint_strategy: soft # random or soft
+
+    dm_overwrites: # Select the data mode for the input samples.
+      h_cdr1_seq: GYTFTSHA
+      h_cdr2_seq: ISPYRGDT
+      h_cdr3_seq: ARDAGVPLDY
+
+  sampling:
+    seed: 0
+    num_samples_per_batch: 1
+    padding_visible: false
+    force_conditioning_information: true
+    inpaint_fn:
+      _target_: abbfn2.sample.functions.twisted_sde_sample.TwistedSDESampleFn
+      greedy: true
+      num_steps: 1 # 300-1000
+      twist_scale: 1.0
+      num_particles: 1 # 4-8
+      time_schedule:
+        _target_: abbfn2.sample.schedules.LinearScheduleFn
+    mask_fn:
+      _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn
+
+  # For inpaint_mask_fn/condition_data_mode or predict_data_mode
+      data_modes:
+        - "h_cdr1_seq"
+        - "h_cdr2_seq"
+        - "h_cdr3_seq"
+
+  output:
+    local_validation_dir: "./validation"
+    exp_name: null
+    overwrite_local_if_exists: true
+    save_raw: false
+
+  load_from_hf: true
