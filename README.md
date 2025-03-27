@@ -1,54 +1,110 @@
 # AbBFN2: A flexible antibody foundation model based on Bayesian Flow Networks
-Welcome to the inference code of AbBFN2.
+
+Welcome to the inference code of AbBFN2, a state-of-the-art model for antibody sequence generation and optimization.
 
 ## Overview
-\<Insert awesome description about BFNs and Antibodies >
 
-## Getting Started
-To get started, you need to modify Makefile to use your accelerator. For example, if you are using a GPU, you would modify the Makefile:
 
+## Prerequisites
+- Docker installed on your system
+- Sufficient computational resources (GPU recommended)
+- Basic understanding of antibody structure and sequence notation
+
+## Installation
+
+### Hardware Configuration
+First, configure your accelerator in the Makefile:
+```bash
+ACCELERATOR = GPU  # Options: CPU, TPU, or GPU
 ```
-ACCELERATOR = GPU
-```
 
-You can choose between CPU, TPU and GPU accelerators. Please note that multi-host inference is not supported by this code release, and you should therefore restrict your hardware usage to single-host settings. Once you have configured your accelerator, simply run:
+Note: Multi-host inference is not supported in this release. Please use single-host settings only.
 
-```
+### Building the Docker Image
+Run the following command to build the AbBFN2 Docker image:
+```bash
 make build
 ```
+This process typically takes 5-20 minutes depending on your hardware.
 
-to build the abbfn docker image. We typically find that this step takes 5-20 minutes to run, depending on your hardware.
+## Usage
 
-## Experiments
-AbBFN2 has three generation modes.
+AbBFN2 supports three main generation modes, each with its own configuration file in the `experiments/configs/` directory.
 
-### Unconditional Generation
-Set up the 'unconditional.yaml' config file with the desired number of samples per batch and number of batches. 
-Set the number of sampling steps.
+### 1. Unconditional Generation
+Generate novel antibody sequences without any constraints.
+
+Configuration (`unconditional.yaml`):
+```yaml
+cfg:
+  sampling:
+    num_samples_per_batch: 1    # Number of sequences per batch
+    num_batches: 1              # Number of batches to generate
+  sample_fn:
+    num_steps: 1                # Number of sampling steps (recommended: 300-1000)
+```
 
 Run:
-```
+```bash
 make unconditional
 ```
 
-### Inpainting
-Set up the 'inpaint.yaml' config file with the number of input samples and the number of samples per batch.
-Set the number of sampling steps.
-Set the values custom values for the antibody in cfg.input.dm_overwrites, and set the data modes to condition on cfg.sampling.mask_fn.data_modes
+### 2. Inpainting
+Generate antibody sequences conditioned on specific CDR regions.
+
+Configuration (`inpaint.yaml`):
+```yaml
+cfg:
+  input:
+    num_input_samples: 2        # Number of input samples
+    dm_overwrites:              # Specify values of the data modes to condition on
+      h_cdr1_seq: GYTFTSHA
+      h_cdr2_seq: ISPYRGDT
+      h_cdr3_seq: ARDAGVPLDY
+  sampling:
+    inpaint_fn:
+      num_steps: 300-1000       # Number of sampling steps (recommended: 300-1000)
+    mask_fn:
+      data_modes:               # Specify which regions to condition on
+        - "h_cdr1_seq"
+        - "h_cdr2_seq"
+        - "h_cdr3_seq"
+```
 
 Run:
-```
+```bash
 make inpaint
 ```
 
-### Sequence Humanization
-Set up the 'humanization.yaml' config file with the entire VL and VH sequences (l_seq and h_seq, respectively). 
-Set the number of sampling steps.
-Set the number of recycling steps.
+### 3. Sequence Humanization
+Convert non-human antibody sequences into humanized versions.
+
+Configuration (`humanization.yaml`):
+```yaml
+cfg:
+  input:
+    l_seq: "EVKLQQSGPGLVTPSQSLSITCTVSGFSLSDYGVHWVRQSPGQGLEWLGVIWAGGGTNYNSALMSRKSISKDNSKSQVFLKMNSLQADDTAVYYCARDKGYSYYYSMDYWGQGTSVTVSS"
+    h_seq: "DIETLQSPASLAVSLGQRATISCRASESVEYYVTSLMQWYQQKPGQPPKLLIFAASNVESGVPARFSGSGSGTNFSLNIHPVDEDDVAMYFCQQSRKYVPYTFGGGTKLEIK"
+  sampling:
+    recycling_steps: 10         # Number of recycling steps
+    inpaint_fn:
+      num_steps: 500            # Number of sampling steps
+```
 
 Run:
-```
+```bash
 make humanization
 ```
 
-## Cite our work
+## Troubleshooting
+- If you encounter memory issues, try reducing the batch size or number of steps
+- Ensure your Docker container has access to sufficient computational resources
+
+## Citation
+If you use AbBFN2 in your research, please cite our work:
+```
+[Citation information to be added]
+```
+
+## License
+[License information to be added]

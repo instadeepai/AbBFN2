@@ -31,7 +31,7 @@ cfg:
       _target_: abbfn2.sample.functions.twisted_sde_sample.TwistedSDESampleFn
       greedy: true
       num_steps: 1 # 300-1000
-      twist_scale: 1.0
+      twist_scale: 1.0 # 1.0
       num_particles: 1 # 4-8
       time_schedule:
         _target_: abbfn2.sample.schedules.LinearScheduleFn
