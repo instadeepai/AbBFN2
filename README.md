@@ -1,13 +1,13 @@
 # AbBFN2: A flexible antibody foundation model based on Bayesian Flow Networks
 
-Welcome to the inference code of AbBFN2, a state-of-the-art model for antibody sequence generation and optimization.
+Welcome to the inference code of AbBFN2, a state-of-the-art model for antibody sequence generation.
 
 ## Overview
-
+[Overview to be added]
 
 ## Prerequisites
 - Docker installed on your system
-- Sufficient computational resources (GPU recommended)
+- Sufficient computational resources (TPU/GPU recommended)
 - Basic understanding of antibody structure and sequence notation
 
 ## Installation
@@ -95,10 +95,6 @@ Run:
 ```bash
 make humanization
 ```
-
-## Troubleshooting
-- If you encounter memory issues, try reducing the batch size or number of steps
-- Ensure your Docker container has access to sufficient computational resources
 
 ## Citation
 If you use AbBFN2 in your research, please cite our work:
