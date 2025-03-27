@@ -1,3 +1,4 @@
+.env
 /outputs/*
 *.pyc
 /src/abbfn2.egg-info/

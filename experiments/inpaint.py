@@ -74,28 +74,26 @@ def main(full_config: DictConfig) -> None:
         masks = mask_fn(mask_key, samples, dm_handlers)
         for dm, handler in dm_handlers.items():
             if isinstance(handler, SequenceDataModeHandler):
-                if isinstance(mask_fn, ConditionDataModeMaskFn):
-                    if dm in mask_fn.data_modes:
-                        # If we condition on the seq, we need 1s (visible)
-                        masks[dm] = np.ones(masks[dm].shape, dtype=int)
-                    else:
-                        if not cfg.sampling.padding_visible:
-                            # If mask_padding is not requested, then the whole thing should be invisible
-                            masks[dm] = np.zeros(masks[dm].shape, dtype=int)
-                        else:
-                            # If mask_padding is requested, then pad tokens should still be visible to the model
-                            continue
-                elif isinstance(mask_fn, PredictDataModeMaskFn):
-                    if dm in mask_fn.data_modes:
-                        # If we predict the seq, we need 0s (masked/invisible)
-                        if not cfg.sampling.padding_visible:
-                            # If mask_padding is not requested, then the whole thing should be invisible
-                            masks[dm] = np.zeros(masks[dm].shape, dtype=int)
-                        else:
-                            # If mask_padding is requested, then pad tokens should still be visible to the model
-                            continue
-                    else:
-                        masks[dm] = np.ones(masks[dm].shape, dtype=int)
+                def get_sequence_mask(dm, mask_fn, padding_visible):
+                    if isinstance(mask_fn, ConditionDataModeMaskFn):
+                        # For conditioning, we want 1s (visible) if the DM is in data_modes
+                        if dm in mask_fn.data_modes:
+                            return np.ones(masks[dm].shape, dtype=int)
+                        # Otherwise, we want 0s (hidden) unless padding is visible
+                        return np.zeros(masks[dm].shape, dtype=int) if not padding_visible else None
+                    
+                    if isinstance(mask_fn, PredictDataModeMaskFn):
+                        # For prediction, we want 0s (hidden) if the DM is in data_modes
+                        if dm in mask_fn.data_modes:
+                            return np.zeros(masks[dm].shape, dtype=int) if not padding_visible else None
+                        # Otherwise, we want 1s (visible)
+                        return np.ones(masks[dm].shape, dtype=int)
+                    
+                    return None
+
+                new_mask = get_sequence_mask(dm, mask_fn, cfg.sampling.padding_visible)
+                if new_mask is not None:
+                    masks[dm] = new_mask
 
         # In case we want to add custom masks. These should be in a dictionary where
         # keys are DMs and values are custom masks of shape [n_samples, n_dims].

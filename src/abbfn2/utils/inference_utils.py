@@ -355,11 +355,45 @@ def configure_output_dir(
 
 
 def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
+    
+    # TODO: Once HF is open source, remove this block:
+    import os
+    token = os.getenv("HUGGINGFACE_TOKEN")
+    if not token:
+        raise ValueError("HUGGINGFACE_TOKEN is not set!")
+    
     if cfg.load_from_hf:
-        file_path = hf_hub_download(repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl")
+        file_path = hf_hub_download(repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl", token=token)
         with open(file_path, "rb") as f:
             params = pickle.load(f)
     else:
-        with open("/Users/m.braganca/Documents/AbBFN2/params.pkl", "rb") as f:
-            params = pickle.load(f)
+        try:
+            with open("./params.pkl", "rb") as f:
+                params = pickle.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError("No parameters file ./params.pkl found. Please set load_from_hf to True.")
     return params
+
+
+def create_fasta_from_sequences(l_seq: str, h_seq: str, output_file: str = "sequences.fasta") -> None:
+    """
+    Create a FASTA file from light and heavy chain sequences.
+    
+    Args:
+        l_seq (str): Light chain sequence
+        h_seq (str): Heavy chain sequence
+        output_file (str, optional): Output FASTA file name. Defaults to "sequences.fasta".
+    """
+    l_seq = l_seq.strip()
+    h_seq = h_seq.strip()
+    
+    if not l_seq or not h_seq:
+        raise ValueError("Both light and heavy chain sequences must be provided")
+    
+    fasta_content = f">L_chain\n{l_seq}\n>H_chain\n{h_seq}\n"
+    
+    try:
+        with open(output_file, 'w') as f:
+            f.write(fasta_content)
+    except IOError as e:
+        logging.error(f"Error writing FASTA file: {e}", exc_info=True)

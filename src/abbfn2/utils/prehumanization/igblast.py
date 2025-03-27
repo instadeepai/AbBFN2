@@ -1,64 +1,7 @@
 import logging
 import os
-import re
 import subprocess
 from pathlib import Path
-
-def s3_exists(
-    s3_checkpoint_dir: str,
-    endpoint: str = "https://storage.googleapis.com",
-) -> bool:
-    """Checks if a file or folder exists in an S3 bucket.
-
-    Args:
-        s3_checkpoint_dir (str): The S3 directory path to check for existence.
-        endpoint (str, optional): The S3 endpoint. Defaults to "https://storage.googleapis.com".
-
-    Returns:
-        bool: True if the folder exists, False otherwise.
-    """
-    cmd = f"aws s3 ls {s3_checkpoint_dir} --endpoint={endpoint} && echo RES:1 || echo RES:0"
-
-    # Run the command without terminal output
-    result = subprocess.run(
-        cmd,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        text=True,
-    )
-
-    # Use regex to search for the pattern 'RES:' followed by an integer
-    match = re.search(r"RES:(\d)", result.stdout)
-    if match:
-        return bool(int(match.group(1)))
-
-    # If the pattern wasn't found, return False
-    return False
-
-
-def s3_cp(
-    src: str,
-    trg: str,
-    endpoint: str = "https://storage.googleapis.com",
-) -> subprocess.Popen:
-    """Wrapper for aws s3 cp.
-
-    Args:
-        src_dir (str): Source path.
-        trg_dir (str): Target path.
-        endpoint (str, optional): The S3 endpoint. Defaults to "https://storage.googleapis.com".
-
-    Returns:
-        subprocess.Popen: Subprocess object that can be used to wait for the process to complete.
-    """
-    cmd = f"aws s3 cp {src.resolve()} {trg.resolve()} --endpoint={endpoint}"
-
-    return subprocess.Popen(
-        cmd,
-        shell=True,
-    )
-
 
 def run_igblast(
     fasta_file: str | Path,

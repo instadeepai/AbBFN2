@@ -9,14 +9,6 @@ cfg:
     job:
       chdir: false
 
-  igblast:
-    species: "human"
-    n_alignments: 1
-    igblast_path: ./src/abbfn2/utils/prehumanization/igblast/ncbi-igblast-1-22-0-x64-linux.tar
-    platform: "linux"
-    v_gene_db_path: null
-    j_gene_db_path: null
-
   input:
     path: null
     override_masks_file: null
@@ -25,19 +17,20 @@ cfg:
 
   sampling:
     seed: 0
+    recycling_steps: 10
+  
     inpaint_fn:
-      _target_: abbfn2.sample.functions.twisted_sde_sample.TwistedSDESampleFn
-      greedy: true
+      _target_: abbfn2.sample.functions.sde_sample.SDESampleFn
+      num_steps: 500
       time_schedule:
         _target_: abbfn2.sample.schedules.LinearScheduleFn
-
     mask_fn: # For inpaint_mask_fn/condition_data_mode or predict_data_mode
       _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn
 
   output:
     local_validation_dir: "./validation"
-    exp_name: null
+    exp_name: "humanization"
     overwrite_local_if_exists: true
-    save_raw: true
+    save_raw: false
 
-  load_from_hf: false
+  load_from_hf: true

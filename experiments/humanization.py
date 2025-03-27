@@ -19,9 +19,9 @@ from abbfn2.utils.inference_utils import (
     flatten_and_crop,
     show_conditioning_settings,
     load_params,
+    create_fasta_from_sequences,
 )
 from abbfn2.utils.prehumanization.igblast import run_igblast_pipeline
-from abbfn2.utils.prehumanization.create_fasta import create_fasta_from_sequences
 from abbfn2.utils.prehumanization.pre_humanisation import process_prehumanisation
 from omegaconf import OmegaConf
 from abbfn2.data.data_mode_handler import save_samples
@@ -162,14 +162,13 @@ def main(full_config: DictConfig) -> None:
     NUM_DEVICES = len(devices)
     logging.info(f"Found {NUM_DEVICES} local devices.")
 
-    # ================= FIXED HYPERPARAMETERS ==================
-    N_STEPS = 8
-
     SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
            "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
     FW_DMS = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq", 
             "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]
     CDR_DMS = ["h_cdr1_seq", "h_cdr2_seq", "h_cdr3_seq", "l_cdr1_seq", "l_cdr2_seq", "l_cdr3_seq"]
+
+    # ================= FIXED HYPERPARAMETERS ==================
     SAMPLING_CFG = {"delta_decay_to": 0.5, "delta_decay_over": 5, "min_cond": 0.25, "hum_cond_logit_bounds": (0,1)}
 
     OmegaConf.set_struct(cfg, False)
@@ -177,25 +176,22 @@ def main(full_config: DictConfig) -> None:
     cfg.sampling.inpaint_fn._target_ = 'abbfn2.sample.functions.sde_sample.SDESampleFn'
     cfg.input.dm_overwrites = {"species": "human"}
     cfg.input.path = None
-
     cfg.sampling.mask_fn.data_modes = ["species"]
     cfg.sampling.inpaint_fn.score_scale = {k: 16.0 for k in cfg.sampling.mask_fn.data_modes}
-    cfg.sampling.inpaint_fn.num_steps = 500
     cfg.input.num_input_samples = 1
     cfg.sampling.num_samples_per_batch = cfg.input.num_input_samples
 
     cfg.enforce_cdr_sequence = True
 
     OmegaConf.set_struct(cfg, True)
-
-    fasta_file = "sequences.fasta"
-
     # ==================== PRE-HUMANIZATION ========================
+    recycling_steps = cfg.sampling.recycling_steps
     l_seq = cfg.input.l_seq
     h_seq = cfg.input.h_seq
 
     # IgBLAST
     if "h_vfams" not in cfg.input or "l_vfams" not in cfg.input:
+        fasta_file = "sequences.fasta"
         create_fasta_from_sequences(l_seq, h_seq, fasta_file) # Dumps L and H string into a fasta format.
         vfams = run_igblast_pipeline(fasta_file)
         h_vfams = vfams[0::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take even indices (0, 2, 4, ...) for heavy chain
@@ -240,7 +236,6 @@ def main(full_config: DictConfig) -> None:
 
     num_batches = math.ceil(num_samples / cfg.sampling.num_samples_per_batch)
     num_samples_padded = num_batches * cfg.sampling.num_samples_per_batch
-    logging.info(f"Padding from {num_samples} to {num_samples_padded} padded for {num_batches} batch(es) of {cfg.sampling.num_samples_per_batch} sample(s).",)
 
     # Save initial samples for later analysis
     initial_samples = samples
@@ -307,7 +302,7 @@ def main(full_config: DictConfig) -> None:
     os.makedirs("humanisation_results", exist_ok=True)
 
     logging.info("Beginning sampling")
-    for i in tqdm(range(N_STEPS)):
+    for i in tqdm(range(recycling_steps)):
         step_dir = f"humanisation_results/step_{i}"
         os.makedirs(step_dir, exist_ok=True)
 
