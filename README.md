@@ -38,10 +38,10 @@ Configuration (`unconditional.yaml`):
 ```yaml
 cfg:
   sampling:
-    num_samples_per_batch: 1    # Number of sequences per batch
+    num_samples_per_batch: 10   # Number of sequences per batch
     num_batches: 1              # Number of batches to generate
   sample_fn:
-    num_steps: 1                # Number of sampling steps (recommended: 300-1000)
+    num_steps: 300              # Number of sampling steps (recommended: 300-1000)
 ```
 
 Run:
