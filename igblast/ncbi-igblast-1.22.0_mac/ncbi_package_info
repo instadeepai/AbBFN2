@@ -1,0 +1,70 @@
+PACKAGE_NAME: igblast
+PACKAGE_VERSION: 1.22.0
+PACKAGE_SIGNATURE: Clang_1200-ReleaseMT64--x86_64-apple-darwin19.6.0-xcoremake4
+PACKAGE_CONFIG: IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --without-openmp --with-mt --with-flat-makefile --with-ncbi-public --with-vdb=/net/snowman/vol/projects/trace_software/vdb/vdb-versions/cxx_toolkit/2 --with-static-vdb --without-gnutls --without-gcrypt --with-libuv=/netopt/ncbi_tools/libuv-1.35.0 --with-nghttp2=/netopt/ncbi_tools/nghttp2-1.40.0 --without-python --without-lzo --without-zstd --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/igblast/project.lst --with-internal
+
+>>>>>  igblastp
+
+igblastp: 1.22.0
+ Package: igblast 1.22.0, build Oct 11 2023 17:32:55
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --without-openmp --with-mt --with-flat-makefile --with-ncbi-public --with-vdb=/net/snowman/vol/projects/trace_software/vdb/vdb-versions/cxx_toolkit/2 --with-static-vdb --without-gnutls --without-gcrypt --with-libuv=/netopt/ncbi_tools/libuv-1.35.0 --with-nghttp2=/netopt/ncbi_tools/nghttp2-1.40.0 --without-python --without-lzo --without-zstd --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/igblast/project.lst --with-internal
+ Build-Signature:  Clang_1200-ReleaseMT64--x86_64-apple-darwin19.6.0-xcoremake4
+ GI-64bit:  TRUE
+ Build-Date:  Oct 11 2023 18:12:05
+ Revision:  673856
+ Subversion-Revision:  673856
+ Stable-Components-Version:  28
+ Development-Version:  20230606
+ Built-As:  igblastp
+
+
+
+>>>>>  igblastn
+
+igblastn: 1.22.0
+ Package: igblast 1.22.0, build Oct 11 2023 17:32:55
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --without-openmp --with-mt --with-flat-makefile --with-ncbi-public --with-vdb=/net/snowman/vol/projects/trace_software/vdb/vdb-versions/cxx_toolkit/2 --with-static-vdb --without-gnutls --without-gcrypt --with-libuv=/netopt/ncbi_tools/libuv-1.35.0 --with-nghttp2=/netopt/ncbi_tools/nghttp2-1.40.0 --without-python --without-lzo --without-zstd --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/igblast/project.lst --with-internal
+ Build-Signature:  Clang_1200-ReleaseMT64--x86_64-apple-darwin19.6.0-xcoremake4
+ GI-64bit:  TRUE
+ Build-Date:  Oct 11 2023 18:11:46
+ Revision:  673856
+ Subversion-Revision:  673856
+ Stable-Components-Version:  28
+ Development-Version:  20230606
+ Built-As:  igblastn
+
+
+
+>>>>>  makeblastdb
+
+makeblastdb: 2.15.0+
+ Package: igblast 1.22.0, build Oct 11 2023 17:32:55
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --without-openmp --with-mt --with-flat-makefile --with-ncbi-public --with-vdb=/net/snowman/vol/projects/trace_software/vdb/vdb-versions/cxx_toolkit/2 --with-static-vdb --without-gnutls --without-gcrypt --with-libuv=/netopt/ncbi_tools/libuv-1.35.0 --with-nghttp2=/netopt/ncbi_tools/nghttp2-1.40.0 --without-python --without-lzo --without-zstd --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/igblast/project.lst --with-internal
+ Build-Signature:  Clang_1200-ReleaseMT64--x86_64-apple-darwin19.6.0-xcoremake4
+ GI-64bit:  TRUE
+ Build-Date:  Oct 11 2023 18:12:21
+ Revision:  673856
+ Subversion-Revision:  673856
+ Stable-Components-Version:  28
+ Development-Version:  20230606
+ Built-As:  makeblastdb
+
+
+
+>>>>>  blastdbcmd
+
+blastdbcmd: 2.15.0+
+ Package: igblast 1.22.0, build Oct 11 2023 17:32:55
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --without-openmp --with-mt --with-flat-makefile --with-ncbi-public --with-vdb=/net/snowman/vol/projects/trace_software/vdb/vdb-versions/cxx_toolkit/2 --with-static-vdb --without-gnutls --without-gcrypt --with-libuv=/netopt/ncbi_tools/libuv-1.35.0 --with-nghttp2=/netopt/ncbi_tools/nghttp2-1.40.0 --without-python --without-lzo --without-zstd --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/igblast/project.lst --with-internal
+ Build-Signature:  Clang_1200-ReleaseMT64--x86_64-apple-darwin19.6.0-xcoremake4
+ GI-64bit:  TRUE
+ Build-Date:  Oct 11 2023 18:05:34
+ Revision:  673856
+ Subversion-Revision:  673856
+ Stable-Components-Version:  28
+ Development-Version:  20230606
+ Built-As:  blastdbcmd
+
+
+
+

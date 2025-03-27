@@ -10,20 +10,21 @@ dependencies:
   - abnumber
   - pip
   - pip:
-    - aiobotocore==2.17.0
-    - boto3
+    - --find-links https://storage.googleapis.com/jax-releases/libtpu_releases.html
+    - --find-links https://storage.googleapis.com/jax-releases/jax_releases.html
     - biopython==1.84
     - distrax==0.1.4
     - flax==0.8.4
     - hydra-core
+    - jax==0.4.34
+    - jaxlib==0.4.34
     - numpy
     - omegaconf
-    - orbax-checkpoint==0.5.20
-    - s3fs==2024.6.1
     - tabulate
     - tqdm
     - h5py==3.11.0
     - setuptools
     - regex
-    - cloudpathlib
     - "humatch @ git+https://github.com/oxpig/Humatch.git"
+    - -e .
+    - huggingface-hub

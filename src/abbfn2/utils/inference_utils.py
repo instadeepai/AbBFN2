@@ -15,7 +15,6 @@ from abbfn2.bfn.types import (
 )
 from datetime import datetime
 from pathlib import Path
-from cloudpathlib import AnyPath
 from tabulate import tabulate
 import pickle
 from huggingface_hub import hf_hub_download
@@ -328,7 +327,7 @@ def generate_random_mask_from_array_visible_pad(arr, frac_fill=0.5, exclusions=N
 
 def configure_output_dir(
     cfg: DictConfig,
-) -> tuple[dict[str, Path], dict[str, AnyPath]]:
+) -> Path:
     """Configure and return the output directories and paths.
 
     Args:

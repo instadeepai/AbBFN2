@@ -3,7 +3,6 @@ import os
 import re
 import subprocess
 from pathlib import Path
-from cloudpathlib import AnyPath, S3Path
 
 def s3_exists(
     s3_checkpoint_dir: str,
@@ -68,7 +67,7 @@ def run_igblast(
     v_gene_db: str | Path,
     j_gene_db: str | Path,
     species: str | None = "human",
-    n_alignments: int = 5,
+    n_alignments: int = 1,
 ):
     """Runs IgBLAST given an input fasta file.
 
@@ -79,7 +78,7 @@ def run_igblast(
         v_gene_db (str | Path): Path to the V gene database to be used.
         j_gene_db (str | Path): Path to the J gene database to be used.
         species (str): The species to use to find gene regions. Defaults to "human".
-        n_alignments (int): _description_. Defaults to 5.
+        n_alignments (int): _description_. Defaults to 1.
     """
     subprocess.run(
         [
@@ -263,116 +262,35 @@ def parse_igblastp_output(file_path: str | Path):
 
 def run_igblast_pipeline(
     input_file: str | Path,
-    output_file: str | Path | None = None,
     species: str = "human",
     n_alignments: int = 1,
-    igblast_path: str | Path | None = None,
-    platform: str | None = "macosx",
-    v_gene_db_path: str | Path | None = None,
-    j_gene_db_path: str | Path | None = None,
+    igblast_path: str | Path | None = "../../../igblast/ncbi-igblast-1.22.0/bin/igblastp",
+    v_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_v_db",
+    j_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_j_db",
+    local_igblast_raw: str | Path | None = "../../../igblast/igblast_output_raw.tsv",
 ) -> dict:
     """Run the IgBLAST pipeline on antibody sequences.
 
     Args:
         input_file (str | Path): Path to input FASTA file containing antibody sequences
-        output_file (str | Path | None, optional): Path to save output JSON. If None, saves next to input. Defaults to None.
         species (str, optional): Species for gene regions - one of "human", "rat", "mouse", "rhesus_monkey". Defaults to "human".
         n_alignments (int, optional): Number of alignments to generate. Defaults to 5.
         igblast_path (str | Path | None, optional): Path to IgBLAST executable. If None, fetches from S3. Defaults to None.
-        platform (str | None, optional): Platform for fetching IgBLAST - "linux" or "macosx". Required if igblast_path is None. Defaults to None.
         v_gene_db_path (str | Path | None, optional): Path to V gene database. If None, fetches from S3. Defaults to None.
         j_gene_db_path (str | Path | None, optional): Path to J gene database. If None, fetches from S3. Defaults to None.
 
     Returns:
         dict: Dictionary containing parsed IgBLAST results with alignment summaries and hit tables
     """
-    if output_file is None:
-        output_file = AnyPath(input_file).parent / "igblast_output_clean.json"
-    else:
-        output_file = AnyPath(output_file)
-
-    logging.info(f"Output file configured to be: {output_file}")
-
-    output_igblast_raw = AnyPath(output_file).parent / "igblast_output_raw.tsv"
-    logging.info(f"Raw output will be saved under: {output_igblast_raw}")
-
-    s3_input = isinstance(AnyPath(input_file), S3Path)
-    s3_output = isinstance(output_file, S3Path)
-
-    # We'll set up a temp dir to store raw data and/or the executable (+databases)
-    TMP_DIR = Path("./tmp")
-    logging.info(
-        "Setting up temporary local directory.",
-    )
-    TMP_DIR.mkdir(parents=True, exist_ok=True)
-
-    if s3_input:
-        local_input_file = TMP_DIR / "input.fasta"
-        s3_input_file = AnyPath(input_file).resolve()
-        assert s3_exists(
-            s3_input_file
-        ), f"Input file {s3_input_file} does not exist in S3."
-        logging.info(
-            (
-                "Downloading input file from ",
-                f"{s3_input_file} to {local_input_file}",
-            ),
-        )
-        s3_cp(s3_input_file, local_input_file).wait()
-    else:
-        local_input_file = input_file
-
-    local_igblast_raw = (
-        TMP_DIR / "igblast_output_raw.tsv"
-        if s3_output
-        else output_file.parent / "igblast_output_raw.tsv"
-    )
-    local_output = TMP_DIR / "igblast_output_clean.json" if s3_output else output_file
-
-    # Set path to V and J gene databases
-    # Helper function to construct default paths
-    def get_default_db_path(gene_type):
-        return TMP_DIR / f"{species}/{species}_imgt_{gene_type}_db"
-
-    # Determine if we need to fetch databases from S3
-    if not v_gene_db_path or not j_gene_db_path:
-        logging.info("V and/or J gene DB path was not provided. Fetching from S3...")
-        s3_compressed_db = S3Path(
-            f"s3://protbfn-b3473594683a497b-inputs/databases/igblast/{species}.tar.gz"
-        )
-        local_compressed_db = TMP_DIR / "db.tar.gz"
-        s3_cp(s3_compressed_db, local_compressed_db).wait()
-        subprocess.run(["tar", "-xvzf", local_compressed_db, "-C", TMP_DIR])
-
-    # Set database paths, using defaults if necessary
-    v_gene_db_path = v_gene_db_path or get_default_db_path("v")
-    j_gene_db_path = j_gene_db_path or get_default_db_path("j")
-
-    # Get the absolute paths since we'll be changing directory for IgBLAST to work.
-    # We could also think about doing this with a context manager rather than changing
-    # the global wd.
+    local_input_file = Path(input_file).absolute()
     v_gene_db_path = Path(v_gene_db_path).absolute()
     j_gene_db_path = Path(j_gene_db_path).absolute()
-    local_input_file = Path(local_input_file).absolute()
+    igblast_path = Path(igblast_path).absolute()
+
     local_igblast_raw = Path(local_igblast_raw).absolute()
-    local_output = Path(local_output).absolute()
+    Path(local_igblast_raw).parent.mkdir(parents=True, exist_ok=True)
 
-    # Set path to the IgBLAST executable
-    if not igblast_path:
-        logging.info("IgBLAST path was not provided. Fetching from S3...")
-        assert platform, "Platform must be specified when fetching the IgBLAST executable."
-        s3_compressed_igblast = S3Path(
-            f"s3://protbfn-b3473594683a497b-inputs/databases/igblast/ncbi-igblast-1-22-0-x64-{platform}.tar.gz"
-        )
-        local_compressed_igblast = TMP_DIR / "igblast.tar.gz"
-        s3_cp(s3_compressed_igblast, local_compressed_igblast).wait()
-        subprocess.run(["tar", "-xvzf", local_compressed_igblast, "-C", TMP_DIR])
-        igblast_path = TMP_DIR.absolute() / "ncbi-igblast-1.22.0/bin/igblastp"
-        os.chdir(TMP_DIR.absolute() / "ncbi-igblast-1.22.0")
-    else:
-        igblast_path = Path(igblast_path).absolute()
-        os.chdir(igblast_path.parent.parent)
-
+    os.chdir(igblast_path.parent.parent)
     logging.info("Running IgBLAST...")
     run_igblast(
         local_input_file,
@@ -385,6 +303,7 @@ def run_igblast_pipeline(
     )
     logging.info("Parsing and cleaning IgBLAST output...")
     data = parse_igblastp_output(local_igblast_raw)
+    os.remove(local_igblast_raw)
 
     v_genes = [data[ab]["top_v_hit"][0].split('-')[0] for ab in data]
 

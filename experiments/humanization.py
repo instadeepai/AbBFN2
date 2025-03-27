@@ -24,6 +24,7 @@ from abbfn2.utils.prehumanization.igblast import run_igblast_pipeline
 from abbfn2.utils.prehumanization.create_fasta import create_fasta_from_sequences
 from abbfn2.utils.prehumanization.pre_humanisation import process_prehumanisation
 from omegaconf import OmegaConf
+from abbfn2.data.data_mode_handler import save_samples
 
 
 warnings.filterwarnings(
@@ -162,10 +163,7 @@ def main(full_config: DictConfig) -> None:
     logging.info(f"Found {NUM_DEVICES} local devices.")
 
     # ================= FIXED HYPERPARAMETERS ==================
-    TMP_DIR = Path("./tmp")
-    TMP_DIR.mkdir(parents=True, exist_ok=True)
-
-    N_STEPS = 10
+    N_STEPS = 8
 
     SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
            "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
@@ -183,22 +181,23 @@ def main(full_config: DictConfig) -> None:
     cfg.sampling.mask_fn.data_modes = ["species"]
     cfg.sampling.inpaint_fn.score_scale = {k: 16.0 for k in cfg.sampling.mask_fn.data_modes}
     cfg.sampling.inpaint_fn.num_steps = 500
-    cfg.sampling.num_samples_per_batch = 1
+    cfg.input.num_input_samples = 1
+    cfg.sampling.num_samples_per_batch = cfg.input.num_input_samples
 
     cfg.enforce_cdr_sequence = True
 
     OmegaConf.set_struct(cfg, True)
 
-    fasta_file = TMP_DIR / "sequences.fasta"
+    fasta_file = "sequences.fasta"
 
     # ==================== PRE-HUMANIZATION ========================
-    l_string = cfg.input.l_string
-    h_string = cfg.input.h_string
+    l_seq = cfg.input.l_seq
+    h_seq = cfg.input.h_seq
 
     # IgBLAST
     if "h_vfams" not in cfg.input or "l_vfams" not in cfg.input:
-        create_fasta_from_sequences(l_string, h_string, fasta_file) # Dumps L and H string into a fasta format.
-        vfams = run_igblast_pipeline(fasta_file) #tmp_dir=TMP_DIR)
+        create_fasta_from_sequences(l_seq, h_seq, fasta_file) # Dumps L and H string into a fasta format.
+        vfams = run_igblast_pipeline(fasta_file)
         h_vfams = vfams[0::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take even indices (0, 2, 4, ...) for heavy chain
         l_vfams = vfams[1::2] if "l_vfams" not in cfg.input else cfg.input.l_vfams # Take odd indices (1, 3, 5, ...) for light chain
     else:
@@ -209,7 +208,7 @@ def main(full_config: DictConfig) -> None:
     cfg.input.num_input_samples = len(l_vfams)
 
     # Pre-Humanization
-    prehumanised_data, non_prehumanised_data = process_prehumanisation([h_string], [l_string], h_vfams, l_vfams)
+    prehumanised_data, non_prehumanised_data = process_prehumanisation([h_seq], [l_seq], h_vfams, l_vfams)
 
     # Prepare input samples and masks.
     with jax.default_device(jax.devices("cpu")[0]):
@@ -354,11 +353,7 @@ def main(full_config: DictConfig) -> None:
             for dm in CDR_DMS:
                 samples_raw[dm] = initial_samples[dm]
 
-        # Save data for this step
-        data = {}
-        for dm, handler in dm_handlers.items():
-            data[dm] = handler.sample_to_data(samples_raw[dm])
-            handler.save_data(data[dm], Path(step_dir))
+        save_samples(samples_raw, dm_handlers, Path(step_dir))
 
 if __name__ == "__main__":
     main()

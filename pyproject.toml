@@ -7,13 +7,11 @@ name = "abbfn2"
 version = "0.1.0"
 description = "Official Repo of AbBFN2."
 authors = [
-    { name = "InstaDeep", email = "m.braganca@instadeep.com" }
+    { name = "InstaDeep", email = "b.goluglu@instadeep.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "aiobotocore==2.17.0",
-    "boto3",
     "biopython==1.84",
     "distrax==0.1.4",
     "jax==0.4.34",
@@ -22,13 +20,11 @@ dependencies = [
     "hydra-core",
     "numpy",
     "omegaconf",
-    "orbax-checkpoint==0.5.20",
-    "s3fs==2024.6.1",
     "tabulate",
     "tqdm",
     "h5py==3.11.0",
     "setuptools",
     "regex",
-    "cloudpathlib",
-    "humatch @git+https://github.com/oxpig/Humatch.git"
+    "humatch @git+https://github.com/oxpig/Humatch.git",
+    "huggingface-hub"
 ]

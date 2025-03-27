@@ -25,26 +25,27 @@ ENV MAMBA_ROOT_PREFIX=/opt/conda
 ENV PATH=/opt/conda/envs/abbfn2/bin:$PATH
 
 # Install conda dependencies
-COPY environment.yaml /tmp/environment.yaml
+COPY . /app
 
 ARG ACCELERATOR
+RUN if [ "${ACCELERATOR}" = "GPU" ]; then \
+    sed -i 's/jax==/jax[cuda12_pip]==/g' /app/environment.yaml && \
+    sed -i 's/libtpu_releases\.html/jax_cuda_releases\.html/g' /app/environment.yaml;\
+    echo "    - nvidia-cudnn-cu12==8.9.7.29" >> /app/environment.yaml; fi
 
-# Create environment and install JAX
-RUN micromamba create -y --file /tmp/environment.yaml \
-    && micromamba install -y -n abbfn2 -c conda-forge jax==0.4.34 jaxlib==0.4.34 \
+RUN if [ "${ACCELERATOR}" = "TPU" ]; then \
+    sed -i 's/jax==/jax[tpu]==/g' /app/environment.yaml; fi
+
+RUN if [ "${ACCELERATOR}" = "CPU" ]; then \
+    echo "Building for cpu" ; fi
+
+# Create environment
+RUN micromamba create -y --file /app/environment.yaml \
     && micromamba clean --all --yes \
     && find /opt/conda/ -follow -type f -name '*.pyc' -delete
 
 ENV PATH=/opt/conda/envs/abbfn2/bin/:$PATH
 ENV LD_LIBRARY_PATH=/opt/conda/envs/abbfn2/lib/:$LD_LIBRARY_PATH
 
-COPY . /app
-
 # Create main working folder
-# RUN mkdir /app
 WORKDIR /app
-RUN pip install -U "huggingface_hub[cli]"
-
-# Disable debug, info, and warning tensorflow logs
-ENV TF_CPP_MIN_LOG_LEVEL=3
-ENV TF_CPP_MIN_LOG_LEVEL=3

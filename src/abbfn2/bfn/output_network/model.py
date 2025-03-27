@@ -48,10 +48,6 @@ class BFNMultimodalOutput(nn.Module):
     bfn_cfgs: dict[str, DictConfig]
     network_cfg: DictConfig
 
-    def setup(self):
-        """Setup Multimodal BFN."""
-        self.data_modes = sorted(self.bfn_cfgs.keys())
-
     @nn.compact
     def __call__(
         self,
@@ -63,10 +59,11 @@ class BFNMultimodalOutput(nn.Module):
         t_cond: float | None = None,
     ) -> OutputNetworkPredictionMM:
         """Forward Pass Multimodal BFN."""
+        data_modes = sorted(self.bfn_cfgs.keys())
         xs, skip_args = {}, {}
         dim = self.network_cfg.backbone.cfg.embed_dim
 
-        for dm in self.data_modes:
+        for dm in data_modes:
             bfn_cfg = self.bfn_cfgs[dm]
             encoder = instantiate(bfn_cfg.encoder, output_dim=dim, name=f"encoder_{dm}")
             x, sa = encoder(
@@ -85,7 +82,7 @@ class BFNMultimodalOutput(nn.Module):
         xs = backbone(xs, t, mask)
 
         pred: OutputNetworkPredictionMM = {}
-        for dm in self.data_modes:
+        for dm in data_modes:
             decoder = instantiate(self.bfn_cfgs[dm].decoder, name=f"decoder_{dm}")
             pred[dm] = decoder(xs[dm], skip_args[dm], t, beta[dm], mask[dm] if mask else None)
         return pred

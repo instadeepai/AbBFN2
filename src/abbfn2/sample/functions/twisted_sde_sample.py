@@ -49,7 +49,7 @@ def get_twisted_importance_logit_continuous_dm(
     alpha: Array,
     mask: Array,
 ) -> float:
-    """Calculate the importance logit for twisted SMC sampling with a continuous BFN.
+    """Calculate the importance logit for twisted SDE sampling with a continuous BFN.
 
         Given by log prob of receiver sample y under the unconditional prior minus
         log prob of y under the conditional (twisted) proposal distribution
@@ -86,7 +86,7 @@ def get_twisted_importance_logit_discrete_dm(
     alpha: Array,
     mask: Array,
 ) -> float:
-    """Calculate the importance logit for twisted SMC sampling with a discrete BFN.
+    """Calculate the importance logit for twisted SDE sampling with a discrete BFN.
 
         Logit is the log prob of the receiver sample y under the unconditional prior minus
         the log prob of y under the conditional (twisted) proposal distribution
@@ -129,7 +129,7 @@ def get_twisted_particle_logit(
     cond_log_p_new: dict[str, float],
     mask: dict[str, Array],
 ) -> float:
-    """Calculate the log particle weights for a twisted SMC particle using a multimodal BFN model.
+    """Calculate the log particle weights for a twisted SDE particle using a multimodal BFN model.
     Adapted to BFNs from Algorithm 1. in "Practical and Asymptotically Exact Conditional Sampling in Diffusion Models", Wu et. al.
 
     The function computes logits for each data-mode independently and sums them to determine the particle's likelihood of being re-sampled.
@@ -248,7 +248,7 @@ class TwistedSDESampleFn(BaseSampleFn):
         time_schedule (TimeScheduleFn): The time schedule function.
         greedy (bool): Whether to sample the mode of the distribution (greedy) or sample from the distribution. Defaults to True.
         use_self_conditioning (bool): Whether to condition on the previous prediction when generating the next prediction. Defaults to False.
-        num_particles (int): The number of particles to use in the SMC algorithm.
+        num_particles (int): The number of particles to use in the SDE algorithm.
         max_score (float | None): Range at which to clip the conditional score. Defaults to 1.0.
             Set to None for no clipping (can lead to numerical instability)
         twist_scale (float | None): Scale used to multiply the conditional log probs for the twisting function.

@@ -1,0 +1,24 @@
+{
+  "version": "1.2",
+  "dbname": "human_imgt_v_db",
+  "dbtype": "Protein",
+  "db-version": 5,
+  "description": "human_imgt_v_db",
+  "number-of-letters": 69029,
+  "number-of-sequences": 712,
+  "last-updated": "2024-09-20T12:50:00",
+  "number-of-volumes": 1,
+  "bytes-total": 210076,
+  "bytes-to-cache": 75542,
+  "files": [
+    "human_imgt_v_db.pdb",
+    "human_imgt_v_db.phr",
+    "human_imgt_v_db.pin",
+    "human_imgt_v_db.pog",
+    "human_imgt_v_db.pos",
+    "human_imgt_v_db.pot",
+    "human_imgt_v_db.psq",
+    "human_imgt_v_db.ptf",
+    "human_imgt_v_db.pto"
+  ]
+}
