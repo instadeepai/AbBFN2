@@ -88,8 +88,22 @@ def process_prehumanisation(
     h_germline_families = [hv_families[i][2:] for i in range(len(heavy_seqs))]
     l_germline_families = [lv_families[i][2:] for i in range(len(light_seqs))]
 
+<<<<<<< HEAD
     heavy_seqs = [mutate_seq_to_match_germline_likeness(seq, gl.lower(), target_score, allow_CDR_mutations, fixed_imgt_positions) for seq, gl in zip(heavy_seqs, h_germline_families)]
     light_seqs = [mutate_seq_to_match_germline_likeness(seq, gl.lower(), target_score, allow_CDR_mutations, fixed_imgt_positions) for seq, gl in zip(light_seqs, l_germline_families)]
+=======
+    print(h_germline_families)
+    print(l_germline_families)
+    print(heavy_seqs)
+    print(light_seqs)
+
+    heavy_seqs = [mutate_seq_to_match_germline_likeness(seq, gl.lower(), target_score, allow_CDR_mutations, fixed_imgt_positions) for seq, gl in zip(heavy_seqs, h_germline_families)]
+    light_seqs = [mutate_seq_to_match_germline_likeness(seq, gl.lower(), target_score, allow_CDR_mutations, fixed_imgt_positions) for seq, gl in zip(light_seqs, l_germline_families)]
+
+    print("After mutation")
+    print(heavy_seqs)
+    print(light_seqs)
+>>>>>>> da76db2 (fix: lower case humatch)
 
     heavy_seqs = [seq.replace("-", "") for seq in heavy_seqs]
     light_seqs = [seq.replace("-", "") for seq in light_seqs]
