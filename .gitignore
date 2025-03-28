@@ -5,5 +5,9 @@
 params.pkl
 /s3_results/*
 /tmp/*
+<<<<<<< HEAD
 /humanization_results/*
 /notebooks/*
+=======
+Makefile
+>>>>>>> 73326c1 (gitignore)
