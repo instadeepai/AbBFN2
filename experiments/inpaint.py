@@ -34,7 +34,7 @@ warnings.filterwarnings(
     category=UserWarning
 )
 
-@hydra.main(version_base="1.1", config_path="./configs", config_name="inpaint.yaml")
+@hydra.main(version_base="1.1", config_path="./configs", config_name="inpaint_vhgene.yaml")
 def main(full_config: DictConfig) -> None:
     """Main function.
 
