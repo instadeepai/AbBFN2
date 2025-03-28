@@ -27,6 +27,12 @@ from omegaconf import OmegaConf
 from abbfn2.data.data_mode_handler import save_samples
 
 
+SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
+        "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
+FW_DMS = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq", 
+        "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]
+CDR_DMS = ["h_cdr1_seq", "h_cdr2_seq", "h_cdr3_seq", "l_cdr1_seq", "l_cdr2_seq", "l_cdr3_seq"]
+
 warnings.filterwarnings(
     "ignore",
     message=".*Explicitly requested dtype <class 'jax\\.numpy\\.float64'> requested in astype is not available.*",
@@ -35,8 +41,8 @@ warnings.filterwarnings(
 
 def process_input_overrides(dm_handlers, precursors, regions=None, num_devices=1):
     if regions is None:
-        regions = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
-                   "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
+        regions = SEQ_DMS
+
     # Collect sequences for each domain
     override_data = {
         dm: [seqs[dm.split("_")[0]][dm.split("_")[1]] for seqs in precursors.values()]
@@ -64,8 +70,7 @@ def process_input_overrides(dm_handlers, precursors, regions=None, num_devices=1
 
 def reweight_masks(masks, regions=None, weighting=1.0):
     if regions is None:
-        regions = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq", 
-                   "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]  
+        regions = FW_DMS
     
     for dm in regions:
         masks[dm] = np.ones_like(masks[dm]) * weighting
@@ -161,12 +166,6 @@ def main(full_config: DictConfig) -> None:
     devices = jax.local_devices()
     NUM_DEVICES = len(devices)
     logging.info(f"Found {NUM_DEVICES} local devices.")
-
-    SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
-           "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
-    FW_DMS = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq", 
-            "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]
-    CDR_DMS = ["h_cdr1_seq", "h_cdr2_seq", "h_cdr3_seq", "l_cdr1_seq", "l_cdr2_seq", "l_cdr3_seq"]
 
     # ================= FIXED HYPERPARAMETERS ==================
     SAMPLING_CFG = {"delta_decay_to": 0.5, "delta_decay_over": 5, "min_cond": 0.25, "hum_cond_logit_bounds": (0,1)}
@@ -322,6 +321,7 @@ def main(full_config: DictConfig) -> None:
         # Create the override masks
         override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
         humanness = preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
+        print("humanness is", humanness)
         hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
 
         # Identify changed positions

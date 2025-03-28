@@ -26,5 +26,5 @@ dependencies:
     - setuptools
     - regex
     - "humatch @ git+https://github.com/oxpig/Humatch.git"
-    - -e .
     - huggingface-hub
+    - -e .

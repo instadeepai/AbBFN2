@@ -18,9 +18,7 @@ cfg:
     soft_inpaint_strategy: soft # random or soft
 
     dm_overwrites: # Select the data mode for the input samples.
-      h_cdr1_seq: GYTFTSHA
-      h_cdr2_seq: ISPYRGDT
-      h_cdr3_seq: ARDAGVPLDY
+      species: "mouse"
 
   sampling:
     seed: 0
@@ -38,9 +36,7 @@ cfg:
     mask_fn:
       _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn  # For inpaint_mask_fn/condition_data_mode or predict_data_mode
       data_modes:
-        - "h_cdr1_seq"
-        - "h_cdr2_seq"
-        - "h_cdr3_seq"
+        - "species"
 
   output:
     local_validation_dir: "./validation"

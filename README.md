@@ -57,7 +57,7 @@ Configuration (`inpaint.yaml`):
 cfg:
   input:
     num_input_samples: 2        # Number of input samples
-    dm_overwrites:              # Specify values of the data modes to condition on
+    dm_overwrites:              # Specify values of the data modes
       h_cdr1_seq: GYTFTSHA
       h_cdr2_seq: ISPYRGDT
       h_cdr3_seq: ARDAGVPLDY
@@ -65,7 +65,7 @@ cfg:
     inpaint_fn:
       num_steps: 300-1000       # Number of sampling steps (recommended: 300-1000)
     mask_fn:
-      data_modes:               # Specify which regions to condition on
+      data_modes:               # Specify which regidata modes to condition on
         - "h_cdr1_seq"
         - "h_cdr2_seq"
         - "h_cdr3_seq"
@@ -86,9 +86,9 @@ cfg:
     l_seq: "EVKLQQSGPGLVTPSQSLSITCTVSGFSLSDYGVHWVRQSPGQGLEWLGVIWAGGGTNYNSALMSRKSISKDNSKSQVFLKMNSLQADDTAVYYCARDKGYSYYYSMDYWGQGTSVTVSS"
     h_seq: "DIETLQSPASLAVSLGQRATISCRASESVEYYVTSLMQWYQQKPGQPPKLLIFAASNVESGVPARFSGSGSGTNFSLNIHPVDEDDVAMYFCQQSRKYVPYTFGGGTKLEIK"
   sampling:
-    recycling_steps: 10         # Number of recycling steps
+    recycling_steps: 10         # Number of recycling steps (recommended: 5-12)
     inpaint_fn:
-      num_steps: 500            # Number of sampling steps
+      num_steps: 500            # Number of sampling steps (recommended: 300-1000)
 ```
 
 Run:
