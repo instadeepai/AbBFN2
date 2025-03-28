@@ -11,7 +11,7 @@ cfg:
 
   input:
     path: null
-    num_input_samples: 2
+    num_input_samples: 1
     override_masks_file: null
 
     mask_weight_overrides: null

@@ -192,7 +192,7 @@ def get_input_samples(
         )
 
     # If dm_overwrites are provided, apply them to the samples.
-    if "dm_overwrites" in cfg:
+    if "dm_overwrites" in cfg and cfg.dm_overwrites is not None:
         for dm, dm_data in cfg.dm_overwrites.items():
             logging.info(f"Setting '{dm}' to {dm_data} for all input samples.")
             if not isinstance(dm_data, list):
