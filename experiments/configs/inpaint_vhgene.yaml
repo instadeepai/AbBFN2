@@ -18,7 +18,7 @@ cfg:
     soft_inpaint_strategy: soft # random or soft
 
     dm_overwrites: # Select the data mode for the input samples.
-      h_v_call: IGHV1-2
+      hv_gene: IGHV1-2
 
   sampling:
     seed: 0
@@ -36,7 +36,7 @@ cfg:
     mask_fn:
       _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn  # For inpaint_mask_fn/condition_data_mode or predict_data_mode
       data_modes:
-        - h_v_call
+        - hv_gene
 
   output:
     local_validation_dir: "./validation"
