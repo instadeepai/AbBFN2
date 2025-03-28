@@ -264,7 +264,10 @@ def main(full_config: DictConfig) -> None:
 
     humanness_vals = []
     nbr_mutations = []
+<<<<<<< HEAD
 
+=======
+>>>>>>> 465d3df (humanization seq2)
     # ======== RUNNING THROUGH THE MODEL ONCE TO GET INITIAL HUMANNESS LEVEL =========
 
     # Create the initial override masks
@@ -368,6 +371,8 @@ def main(full_config: DictConfig) -> None:
                 samples_raw[dm] = initial_samples[dm]
 
         save_samples(samples_raw, dm_handlers, Path(step_dir))
+    
+    print("humanness_vals: ", humanness_vals)
 
     logging.info(f"humanness_vals: {humanness_vals}")
     logging.info(f"nbr_mutations: {nbr_mutations}")
