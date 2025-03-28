@@ -137,6 +137,10 @@ def generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, pa
 def logistic_decay(t, n, max_val, min_val, steepness=6):
     return min_val + (max_val - min_val)*(1/(1 + np.exp(steepness * (t/n - 0.5))))
 
+def has_valid_vfams(cfg):
+    """Check if valid vfams exist in config."""
+    return (cfg.input.get('h_vfams', None) is not None or 
+            cfg.input.get('l_vfams', None) is not None)
 
 @hydra.main(version_base="1.1", config_path="./configs", config_name="humanization.yaml")
 def main(full_config: DictConfig) -> None:
@@ -189,7 +193,7 @@ def main(full_config: DictConfig) -> None:
     h_seq = cfg.input.h_seq
 
     # IgBLAST
-    if "h_vfams" not in cfg.input or "l_vfams" not in cfg.input:
+    if not has_valid_vfams(cfg):
         fasta_file = "sequences.fasta"
         create_fasta_from_sequences(l_seq, h_seq, fasta_file) # Dumps L and H string into a fasta format.
         vfams = run_igblast_pipeline(fasta_file)
