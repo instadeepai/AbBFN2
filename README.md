@@ -65,7 +65,7 @@ cfg:
     inpaint_fn:
       num_steps: 300-1000       # Number of sampling steps (recommended: 300-1000)
     mask_fn:
-      data_modes:               # Specify which regidata modes to condition on
+      data_modes:               # Specify which data modes to condition on
         - "h_cdr1_seq"
         - "h_cdr2_seq"
         - "h_cdr3_seq"
@@ -95,6 +95,62 @@ Run:
 ```bash
 make humanization
 ```
+
+## Data Modes
+
+The data modes supported by AbBFN2 are:
+
+```
+"h_fwr1_seq" (string)
+"h_fwr2_seq" (string)
+"h_fwr3_seq" (string)
+"h_fwr4_seq" (string)
+"h_cdr1_seq" (string)
+"h_cdr2_seq" (string)
+"h_cdr3_seq" (string)
+
+"l_fwr1_seq" (string)
+"l_fwr2_seq" (string)
+"l_fwr3_seq" (string)
+"l_fwr4_seq" (string)
+"l_cdr1_seq" (string)
+"l_cdr2_seq" (string)
+"l_cdr3_seq" (string)
+
+"h1_length" (int)
+"h2_length" (int)
+"h3_length" (int)
+"l1_length" (int)
+"l2_length" (int)
+"l3_length" (int)
+
+"hv_gene"  (string)
+"hd_gene"  (string)
+"hj_gene"  (string)
+"lv_gene"  (string)
+"lj_gene"  (string)
+"hv_family" (string)
+"hd_family"  (string)
+"hj_family"  (string)
+"lv_family"  (string)
+"lj_family"  (string)
+"species" (string)
+"light_locus" (string)
+"tap_psh" (float)
+"tap_pnc" (float)
+"tap_ppc" (float)
+"tap_sfvcsp" (float)
+"tap_psh_flag" (string)
+"tap_pnc_flag" (string)
+"tap_ppc_flag" (string)
+"tap_sfvcsp_flag" (string)
+"h_v_identity" (float)
+"h_d_identity" (float)
+"h_j_identity" (float)
+"l_v_identity" (float)
+"l_j_identity" (float)
+```
+
 
 ## Citation
 If you use AbBFN2 in your research, please cite our work:
