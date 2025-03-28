@@ -138,7 +138,11 @@ def logistic_decay(t, n, max_val, min_val, steepness=6):
 
 def has_valid_vfams(cfg):
     """Check if valid vfams exist in config."""
+<<<<<<< HEAD
     return (cfg.input.get('h_vfams', None) is not None or
+=======
+    return (cfg.input.get('h_vfams', None) is not None or 
+>>>>>>> 42f3ea7 (huamnization exp)
             cfg.input.get('l_vfams', None) is not None)
 
 @hydra.main(version_base="1.1", config_path="./configs", config_name="humanization.yaml")
