@@ -3,3 +3,4 @@
 *.pyc
 /src/abbfn2.egg-info/
 params.pkl
+/s3_results/*
