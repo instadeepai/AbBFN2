@@ -249,7 +249,8 @@ def main(full_config: DictConfig) -> None:
     for dm in FW_DMS:
         prehum_positions[dm] = override_samples[dm] != prec_samples[dm]
 
-
+    humanness_vals = []
+    nbr_mutations = []
     # ======== RUNNING THROUGH THE MODEL ONCE TO GET INITIAL HUMANNESS LEVEL =========
 
     # Create the initial override masks
@@ -259,6 +260,7 @@ def main(full_config: DictConfig) -> None:
     baseline_samples_raw, baseline_preds_raw, masks, key, baseline_samples = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
     humanness = baseline_preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
     hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
+    humanness_vals.append(humanness)
 
     # Initialise the ages tree to keep track of when positions were changed - start ages off high
     ages = jax.tree_util.tree_map(lambda x: np.full(x.shape, 10), samples)
@@ -268,6 +270,7 @@ def main(full_config: DictConfig) -> None:
     changed_positions = jax.tree_util.tree_map(lambda x1, x2: x1 != x2, 
                                             {k: v for k, v in samples.items() if k in FW_DMS}, 
                                             {k: v for k, v in prec_samples.items() if k in FW_DMS})
+    nbr_mutations.append(0)
 
     # Increment the ages tree if a position has been changed
     ages = jax.tree_util.tree_map(lambda x: x + 1, ages)
@@ -321,13 +324,14 @@ def main(full_config: DictConfig) -> None:
         # Create the override masks
         override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
         humanness = preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
-        print("humanness is", humanness)
         hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
+        humanness_vals.append(humanness)
 
         # Identify changed positions
         changed_positions = jax.tree_util.tree_map(lambda x1, x2: x1 != x2, 
                                                 {k: v for k, v in samples.items() if k in FW_DMS}, 
                                                 {k: v for k, v in prev_samples.items() if k in FW_DMS})
+        nbr_mutations.append(np.sum(changed_positions))
 
         # Increment the ages tree if a position has been changed
         ages = jax.tree_util.tree_map(lambda x: x + 1, ages)
@@ -349,6 +353,8 @@ def main(full_config: DictConfig) -> None:
                 samples_raw[dm] = initial_samples[dm]
 
         save_samples(samples_raw, dm_handlers, Path(step_dir))
+    
+    print("humanness_vals: ", humanness_vals)
 
 if __name__ == "__main__":
     main()
