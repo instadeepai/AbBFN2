@@ -28,8 +28,13 @@ from abbfn2.utils.prehumanization.pre_humanisation import process_prehumanisatio
 
 SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
            "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
+<<<<<<< HEAD
 FW_DMS = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq",
           "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]
+=======
+FW_DMS = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq", 
+        "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]
+>>>>>>> 914ea31 (testing humanisation)
 CDR_DMS = ["h_cdr1_seq", "h_cdr2_seq", "h_cdr3_seq", "l_cdr1_seq", "l_cdr2_seq", "l_cdr3_seq"]
 
 warnings.filterwarnings(
@@ -202,7 +207,11 @@ def main(full_config: DictConfig) -> None:
         fasta_file = "sequences.fasta"
         create_fasta_from_sequences(l_seq, h_seq, fasta_file) # Dumps L and H string into a fasta format.
         vfams = run_igblast_pipeline(fasta_file)
+<<<<<<< HEAD
         h_vfams = vfams[1::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take odd indices (1, 3, 5, ...) for heavy chain
+=======
+        h_vfams = vfams[1::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take odd indices (1, 3, 5, ...) for heavy chain 
+>>>>>>> 914ea31 (testing humanisation)
         l_vfams = vfams[0::2] if "l_vfams" not in cfg.input else cfg.input.l_vfams # Take even indices (0, 2, 4, ...) for light chain
     else:
         h_vfams = cfg.input.h_vfams
@@ -218,9 +227,12 @@ def main(full_config: DictConfig) -> None:
 
     # Pre-Humanization
     prehumanised_data, non_prehumanised_data = process_prehumanisation(input_heavy_seqs=[h_seq], input_light_seqs=[l_seq], hv_families=h_vfams, lv_families=l_vfams)
+<<<<<<< HEAD
 
     logging.info(f"prehumanised_data: {prehumanised_data}")
     logging.info(f"non_prehumanised_data: {non_prehumanised_data}")
+=======
+>>>>>>> 914ea31 (testing humanisation)
 
     # Prepare input samples and masks.
     with jax.default_device(jax.devices("cpu")[0]):
@@ -269,9 +281,13 @@ def main(full_config: DictConfig) -> None:
     humanness_vals = []
     nbr_mutations = []
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 465d3df (humanization seq2)
+=======
+
+>>>>>>> 914ea31 (testing humanisation)
     # ======== RUNNING THROUGH THE MODEL ONCE TO GET INITIAL HUMANNESS LEVEL =========
 
     # Create the initial override masks
@@ -280,7 +296,11 @@ def main(full_config: DictConfig) -> None:
     # Get the initial predictions and calculate the sequence-level conditioning scale
     _, baseline_preds_raw, masks, key, _ = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
     humanness = baseline_preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
+<<<<<<< HEAD
     logging.info(f"initial humanness: {humanness}")
+=======
+    logging.info("initial humanness: ", humanness)
+>>>>>>> 914ea31 (testing humanisation)
     hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
     humanness_vals.append(humanness)
 
@@ -345,7 +365,11 @@ def main(full_config: DictConfig) -> None:
         # Create the override masks
         override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
         humanness = preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
+<<<<<<< HEAD
         logging.info(f"humanness: {humanness}")
+=======
+        logging.info("humanness: ", humanness)
+>>>>>>> 914ea31 (testing humanisation)
         hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
         humanness_vals.append(humanness)
 
@@ -376,7 +400,8 @@ def main(full_config: DictConfig) -> None:
 
         save_samples(samples_raw, dm_handlers, Path(step_dir))
     
-    print("humanness_vals: ", humanness_vals)
+    logging.info("humanness_vals: ", humanness_vals)
+    logging.info("nbr_mutations: ", nbr_mutations)
 
     logging.info(f"humanness_vals: {humanness_vals}")
     logging.info(f"nbr_mutations: {nbr_mutations}")
