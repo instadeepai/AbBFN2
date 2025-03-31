@@ -28,7 +28,7 @@ from abbfn2.data.data_mode_handler import save_samples
 
 
 SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
-        "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
+           "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
 FW_DMS = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq", 
         "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]
 CDR_DMS = ["h_cdr1_seq", "h_cdr2_seq", "h_cdr3_seq", "l_cdr1_seq", "l_cdr2_seq", "l_cdr3_seq"]
@@ -176,17 +176,19 @@ def main(full_config: DictConfig) -> None:
 
     OmegaConf.set_struct(cfg, False)
 
-    cfg.sampling.inpaint_fn._target_ = 'abbfn2.sample.functions.sde_sample.SDESampleFn'
+    cfg.input.num_input_samples = 1
     cfg.input.dm_overwrites = {"species": "human"}
     cfg.input.path = None
+
+    cfg.sampling.inpaint_fn._target_ = 'abbfn2.sample.functions.sde_sample.SDESampleFn'
     cfg.sampling.mask_fn.data_modes = ["species"]
     cfg.sampling.inpaint_fn.score_scale = {k: 16.0 for k in cfg.sampling.mask_fn.data_modes}
-    cfg.input.num_input_samples = 1
     cfg.sampling.num_samples_per_batch = cfg.input.num_input_samples
 
     cfg.enforce_cdr_sequence = True
 
     OmegaConf.set_struct(cfg, True)
+
     # ==================== PRE-HUMANIZATION ========================
     recycling_steps = cfg.sampling.recycling_steps
     l_seq = cfg.input.l_seq
@@ -197,8 +199,8 @@ def main(full_config: DictConfig) -> None:
         fasta_file = "sequences.fasta"
         create_fasta_from_sequences(l_seq, h_seq, fasta_file) # Dumps L and H string into a fasta format.
         vfams = run_igblast_pipeline(fasta_file)
-        h_vfams = vfams[0::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take even indices (0, 2, 4, ...) for heavy chain
-        l_vfams = vfams[1::2] if "l_vfams" not in cfg.input else cfg.input.l_vfams # Take odd indices (1, 3, 5, ...) for light chain
+        h_vfams = vfams[1::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take odd indices (1, 3, 5, ...) for heavy chain 
+        l_vfams = vfams[0::2] if "l_vfams" not in cfg.input else cfg.input.l_vfams # Take even indices (0, 2, 4, ...) for light chain
     else:
         h_vfams = cfg.input.h_vfams
         l_vfams = cfg.input.l_vfams
@@ -207,7 +209,7 @@ def main(full_config: DictConfig) -> None:
     cfg.input.num_input_samples = len(l_vfams)
 
     # Pre-Humanization
-    prehumanised_data, non_prehumanised_data = process_prehumanisation([h_seq], [l_seq], h_vfams, l_vfams)
+    prehumanised_data, non_prehumanised_data = process_prehumanisation(input_heavy_seqs=[h_seq], input_light_seqs=[l_seq], hv_families=h_vfams, lv_families=l_vfams)
 
     # Prepare input samples and masks.
     with jax.default_device(jax.devices("cpu")[0]):
@@ -240,8 +242,8 @@ def main(full_config: DictConfig) -> None:
     num_batches = math.ceil(num_samples / cfg.sampling.num_samples_per_batch)
     num_samples_padded = num_batches * cfg.sampling.num_samples_per_batch
 
-    # Save initial samples for later analysis
-    initial_samples = samples
+    # Saved to enforce CDR sequence
+    initial_samples = samples.copy()
 
     precursor_data={}
     prec_samples, _ = process_input_overrides(dm_handlers, non_prehumanised_data, num_devices=NUM_DEVICES)
@@ -255,6 +257,7 @@ def main(full_config: DictConfig) -> None:
 
     humanness_vals = []
     nbr_mutations = []
+
     # ======== RUNNING THROUGH THE MODEL ONCE TO GET INITIAL HUMANNESS LEVEL =========
 
     # Create the initial override masks
@@ -263,6 +266,7 @@ def main(full_config: DictConfig) -> None:
     # Get the initial predictions and calculate the sequence-level conditioning scale
     baseline_samples_raw, baseline_preds_raw, masks, key, baseline_samples = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
     humanness = baseline_preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
+    logging.info("initial humanness: ", humanness)
     hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
     humanness_vals.append(humanness)
 
@@ -301,7 +305,6 @@ def main(full_config: DictConfig) -> None:
     cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), age_cond, hum_cond)
     cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), cond_masks, prehum_positions)
 
-
     # ============================= MAIN INFERENCE LOOP ===========================
 
     # Create output directories for intermediate results
@@ -328,6 +331,7 @@ def main(full_config: DictConfig) -> None:
         # Create the override masks
         override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
         humanness = preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
+        logging.info("humanness: ", humanness)
         hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
         humanness_vals.append(humanness)
 
@@ -358,7 +362,8 @@ def main(full_config: DictConfig) -> None:
 
         save_samples(samples_raw, dm_handlers, Path(step_dir))
     
-    print("humanness_vals: ", humanness_vals)
+    logging.info("humanness_vals: ", humanness_vals)
+    logging.info("nbr_mutations: ", nbr_mutations)
 
 if __name__ == "__main__":
     main()
