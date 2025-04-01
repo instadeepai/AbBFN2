@@ -295,12 +295,15 @@ def main(full_config: DictConfig) -> None:
 
     # Get the initial predictions and calculate the sequence-level conditioning scale
 <<<<<<< HEAD
+<<<<<<< HEAD
     _, baseline_preds_raw, masks, key, _ = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
 =======
     print("Generating samples")
     print(samples)
     print(masks)
     raise Exception("Stop here")
+=======
+>>>>>>> f15d703 (removed debug prints)
     baseline_samples_raw, baseline_preds_raw, masks, key, baseline_samples = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
 >>>>>>> 21027db (minor humanization changes)
     humanness = baseline_preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
