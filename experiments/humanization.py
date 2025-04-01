@@ -264,6 +264,10 @@ def main(full_config: DictConfig) -> None:
     override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
     
     # Get the initial predictions and calculate the sequence-level conditioning scale
+    print("Generating samples")
+    print(samples)
+    print(masks)
+    raise Exception("Stop here")
     baseline_samples_raw, baseline_preds_raw, masks, key, baseline_samples = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
     humanness = baseline_preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
     logging.info("initial humanness: ", humanness)
