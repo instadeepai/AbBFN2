@@ -15,12 +15,9 @@ CHECKOUT_DIR=abbfn2
 
 PATH_TO_GOOGLE_APPLICATION_CREDENTIALS=/Users/m.braganca/Documents/ProtBFN/core/docker/int-research-tpu-db-access-service-account.json
 
-PORT=8891
-DOCKER_VARS_TO_PASS = --env-file $(PATH_TO_ENV_FILE)
-
-DOCKER_IMAGE_NAME = abbfn2/abbfn
-
 PATH_TO_PARAMS_FILE=./params.pkl
+
+LOCAL_PATH = $(HOME)/abbfn2
 
 #######
 # TPU #
@@ -101,7 +98,7 @@ set_ssh_agent:
 	ssh-add ~/.ssh/google_compute_engine
 
 mount_docker:
-	sudo docker run -it --rm --privileged -p 8891:8891 --network host --name abbfn2 --env-file $(PATH_TO_ENV_FILE) -v /home/m.braganca/abbfn2:/app abbfn2 /bin/bash
+	sudo docker run -it --rm --privileged -p 8891:8891 --network host --name abbfn2 --env-file $(PATH_TO_ENV_FILE) -v $(LOCAL_PATH):/app abbfn2 /bin/bash
 
 kill_tpu_container:
 	$(BASE_CMD) ssh --zone=$(GCP_ZONE) $(NAME) --project $(GCP_PROJECT) --worker=$(WORKER) --command="sudo docker kill abbfn2"
@@ -192,12 +189,12 @@ build:
 
 .PHONY: unconditional
 unconditional:
-	sudo docker run $(DOCKER_RUN_FLAGS) $(DOCKER_IMAGE_NAME) python experiments/unconditional.py $(RUN_ARGS)
+	python experiments/unconditional.py $(RUN_ARGS)
 
 .PHONY: inpaint
 inpaint:
-	sudo docker run $(DOCKER_RUN_FLAGS) $(DOCKER_IMAGE_NAME) python experiments/inpaint.py $(RUN_ARGS)
+	python experiments/inpaint.py $(RUN_ARGS)
 
 .PHONY: humanization
 humanization:
-	sudo docker run $(DOCKER_RUN_FLAGS) $(DOCKER_IMAGE_NAME) python experiments/humanization.py $(RUN_ARGS)
+	python experiments/humanization.py $(RUN_ARGS)
