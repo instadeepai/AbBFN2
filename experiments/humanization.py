@@ -234,6 +234,9 @@ def main(full_config: DictConfig) -> None:
 =======
 >>>>>>> 914ea31 (testing humanisation)
 
+    logging.info(f"prehumanised_data: {prehumanised_data}")
+    logging.info(f"non_prehumanised_data: {non_prehumanised_data}")
+
     # Prepare input samples and masks.
     with jax.default_device(jax.devices("cpu")[0]):
         key, input_key, mask_key = random.split(key, 3)
@@ -308,10 +311,14 @@ def main(full_config: DictConfig) -> None:
 >>>>>>> 21027db (minor humanization changes)
     humanness = baseline_preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
 <<<<<<< HEAD
+<<<<<<< HEAD
     logging.info(f"initial humanness: {humanness}")
 =======
     logging.info("initial humanness: ", humanness)
 >>>>>>> 914ea31 (testing humanisation)
+=======
+    logging.info(f"initial humanness: {humanness}")
+>>>>>>> 0d78d23 (fixed minor logging issues)
     hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
     humanness_vals.append(humanness)
 
@@ -377,10 +384,14 @@ def main(full_config: DictConfig) -> None:
         override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
         humanness = preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
 <<<<<<< HEAD
+<<<<<<< HEAD
         logging.info(f"humanness: {humanness}")
 =======
         logging.info("humanness: ", humanness)
 >>>>>>> 914ea31 (testing humanisation)
+=======
+        logging.info(f"humanness: {humanness}")
+>>>>>>> 0d78d23 (fixed minor logging issues)
         hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
         humanness_vals.append(humanness)
 
@@ -411,8 +422,8 @@ def main(full_config: DictConfig) -> None:
 
         save_samples(samples_raw, dm_handlers, Path(step_dir))
     
-    logging.info("humanness_vals: ", humanness_vals)
-    logging.info("nbr_mutations: ", nbr_mutations)
+    logging.info(f"humanness_vals: {humanness_vals}")
+    logging.info(f"nbr_mutations: {nbr_mutations}")
 
     logging.info(f"humanness_vals: {humanness_vals}")
     logging.info(f"nbr_mutations: {nbr_mutations}")

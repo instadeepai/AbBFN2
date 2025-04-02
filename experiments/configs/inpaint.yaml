@@ -6,8 +6,11 @@ cfg:
   hydra:
     searchpath:
       - file://./configs
+<<<<<<< HEAD
 
   model_weights_path: /app/params.pkl
+=======
+>>>>>>> 0d78d23 (fixed minor logging issues)
 
   input:
     path: null
@@ -19,6 +22,7 @@ cfg:
 
     dm_overwrites: # Select the data mode for the input samples.
       species: "mouse"
+      
 
 
   sampling:
