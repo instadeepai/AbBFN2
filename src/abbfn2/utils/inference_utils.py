@@ -358,9 +358,9 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
     
     # TODO: Once HF is open source, remove this block:
     import os
-    token = os.getenv("HUGGINGFACE_TOKEN")
+    token = os.getenv("HF_ACCESS_TOKEN")
     if not token:
-        raise ValueError("HUGGINGFACE_TOKEN is not set!")
+        raise ValueError("HF_ACCESS_TOKEN is not set!")
     
     if cfg.load_from_hf:
         file_path = hf_hub_download(repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl", token=token)

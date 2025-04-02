@@ -208,8 +208,16 @@ def main(full_config: DictConfig) -> None:
 
     cfg.input.num_input_samples = len(l_vfams)
 
+    logging.info(f"h_vfams: {h_vfams}")
+    logging.info(f"l_vfams: {l_vfams}")
+    logging.info(f"h_seq: {h_seq}")
+    logging.info(f"l_seq: {l_seq}")
+
     # Pre-Humanization
     prehumanised_data, non_prehumanised_data = process_prehumanisation(input_heavy_seqs=[h_seq], input_light_seqs=[l_seq], hv_families=h_vfams, lv_families=l_vfams)
+
+    logging.info(f"prehumanised_data: {prehumanised_data}")
+    logging.info(f"non_prehumanised_data: {non_prehumanised_data}")
 
     # Prepare input samples and masks.
     with jax.default_device(jax.devices("cpu")[0]):
@@ -266,7 +274,7 @@ def main(full_config: DictConfig) -> None:
     # Get the initial predictions and calculate the sequence-level conditioning scale
     baseline_samples_raw, baseline_preds_raw, masks, key, baseline_samples = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
     humanness = baseline_preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
-    logging.info("initial humanness: ", humanness)
+    logging.info(f"initial humanness: {humanness}")
     hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
     humanness_vals.append(humanness)
 
@@ -331,7 +339,7 @@ def main(full_config: DictConfig) -> None:
         # Create the override masks
         override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
         humanness = preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
-        logging.info("humanness: ", humanness)
+        logging.info(f"humanness: {humanness}")
         hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
         humanness_vals.append(humanness)
 
@@ -339,7 +347,7 @@ def main(full_config: DictConfig) -> None:
         changed_positions = jax.tree_util.tree_map(lambda x1, x2: x1 != x2, 
                                                 {k: v for k, v in samples.items() if k in FW_DMS}, 
                                                 {k: v for k, v in prev_samples.items() if k in FW_DMS})
-        nbr_mutations.append(np.sum(changed_positions))
+        nbr_mutations.append(sum(cp.sum() for cp in changed_positions.values()))
 
         # Increment the ages tree if a position has been changed
         ages = jax.tree_util.tree_map(lambda x: x + 1, ages)
@@ -362,8 +370,8 @@ def main(full_config: DictConfig) -> None:
 
         save_samples(samples_raw, dm_handlers, Path(step_dir))
     
-    logging.info("humanness_vals: ", humanness_vals)
-    logging.info("nbr_mutations: ", nbr_mutations)
+    logging.info(f"humanness_vals: {humanness_vals}")
+    logging.info(f"nbr_mutations: {nbr_mutations}")
 
 if __name__ == "__main__":
     main()
