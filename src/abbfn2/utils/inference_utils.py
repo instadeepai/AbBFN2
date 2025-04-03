@@ -356,12 +356,9 @@ def configure_output_dir(
 
 def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
     
-    # TODO: Once HF is open source, remove this block:
-    import os
-   
-   
-    
     if cfg.load_from_hf:
+        # TODO: Once HF is open source, remove the token login:
+        import os
         token = os.getenv("HF_ACCESS_TOKEN")
         if not token:
             raise ValueError("HF_ACCESS_TOKEN is not set!")
