@@ -6,3 +6,4 @@ params.pkl
 /s3_results/*
 /tmp/*
 Makefile
+/humanization_results/*

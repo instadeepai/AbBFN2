@@ -358,11 +358,13 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
     
     # TODO: Once HF is open source, remove this block:
     import os
-    token = os.getenv("HF_ACCESS_TOKEN")
-    if not token:
-        raise ValueError("HF_ACCESS_TOKEN is not set!")
+   
+   
     
     if cfg.load_from_hf:
+        token = os.getenv("HF_ACCESS_TOKEN")
+        if not token:
+            raise ValueError("HF_ACCESS_TOKEN is not set!")
         file_path = hf_hub_download(repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl", token=token)
         with open(file_path, "rb") as f:
             params = pickle.load(f)
