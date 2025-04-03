@@ -36,8 +36,12 @@ cfg:
 =======
     l_seq: "DIVLTQSPASLAVSLGQRATISCKASQSVDYDGHSYMNWYQQKPGQPPKLLIYAASNLESGIPARFSGSGSGTDFTLNIHPVEEEDAATYYCQQSDENPLTFGTGTKLELK" 
     h_seq: "QVQLQQSGPELVKPGALVKISCKASGYTFTSYDINWVKQRPGQGLEWIGWIYPGDGSIKYNEKFKGKATLTVDKSSSTAYMQVSSLTSENSAVYFCARRGEYGNYEGAMDYWGQGTTVTVSS"
+<<<<<<< HEAD
 >>>>>>> 0d78d23 (fixed minor logging issues)
     # h_vfams: null
+=======
+    # h_vfams: null  # Optionally, set target v-gene families
+>>>>>>> 0e9d0f4 (removed unused dbs, changed names and fixed ReadMe)
     # l_vfams: null
 
   sampling:

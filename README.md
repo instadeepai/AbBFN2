@@ -50,7 +50,7 @@ make unconditional
 ```
 
 ### 2. Inpainting
-Generate antibody sequences conditioned on specific CDR regions.
+Generate antibody sequences conditioned on specific genetic attributes.
 
 Configuration (`inpaint.yaml`):
 ```yaml
@@ -83,8 +83,10 @@ Configuration (`humanization.yaml`):
 ```yaml
 cfg:
   input:
-    l_seq: "EVKLQQSGPGLVTPSQSLSITCTVSGFSLSDYGVHWVRQSPGQGLEWLGVIWAGGGTNYNSALMSRKSISKDNSKSQVFLKMNSLQADDTAVYYCARDKGYSYYYSMDYWGQGTSVTVSS"
-    h_seq: "DIETLQSPASLAVSLGQRATISCRASESVEYYVTSLMQWYQQKPGQPPKLLIFAASNVESGVPARFSGSGSGTNFSLNIHPVDEDDVAMYFCQQSRKYVPYTFGGGTKLEIK"
+    l_seq: "DIVLTQSPASLAVSLGQRATISCKASQSVDYDGHSYMNWYQQKPGQPPKLLIYAASNLESGIPARFSGSGSGTDFTLNIHPVEEEDAATYYCQQSDENPLTFGTGTKLELK"
+    h_seq: "QVQLQQSGPELVKPGALVKISCKASGYTFTSYDINWVKQRPGQGLEWIGWIYPGDGSIKYNEKFKGKATLTVDKSSSTAYMQVSSLTSENSAVYFCARRGEYGNYEGAMDYWGQGTTVTVSS"
+    # h_vfams: null # Optionally, set target v-gene families
+    # l_vfams: null
   sampling:
     recycling_steps: 10         # Number of recycling steps (recommended: 5-12)
     inpaint_fn:

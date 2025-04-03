@@ -209,9 +209,15 @@ def run_igblast_pipeline(
     input_file: str | Path,
     species: str = "human",
     n_alignments: int = 1,
+<<<<<<< HEAD
     igblast_path: str | Path | None = None,
     v_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_v_db",
     j_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_j_db",
+=======
+    igblast_path: str | Path | None = "../../../igblast/ncbi-igblast-1.22.0_linux/bin/igblastp",
+    v_gene_db_path: str | Path | None = "../../../igblast/human_db/human_imgt_v_db",
+    j_gene_db_path: str | Path | None = "../../../igblast/human_db/human_imgt_j_db",
+>>>>>>> 0e9d0f4 (removed unused dbs, changed names and fixed ReadMe)
     local_igblast_raw: str | Path | None = "../../../igblast/igblast_output_raw.tsv",
 ) -> dict:
     """Run the IgBLAST pipeline on antibody sequences.
@@ -256,6 +262,7 @@ def run_igblast_pipeline(
     logging.info("Parsing and cleaning IgBLAST output...")
     data = parse_igblastp_output(local_igblast_raw)
     os.remove(local_igblast_raw)
+    os.chdir('../..')
 
     v_genes = [data[ab]["top_v_hit"][0].split('-')[0] for ab in data]
 

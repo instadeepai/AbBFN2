@@ -11,8 +11,14 @@ params.pkl
 /notebooks/*
 =======
 Makefile
+<<<<<<< HEAD
 >>>>>>> 73326c1 (gitignore)
 =======
 Makefile
 /humanization_results/*
 >>>>>>> 898ea15 (not using HF should not require token)
+=======
+/humanisation_results/*
+*.pkl
+*.hdf5
+>>>>>>> 0e9d0f4 (removed unused dbs, changed names and fixed ReadMe)
