@@ -6,8 +6,13 @@ params.pkl
 /s3_results/*
 /tmp/*
 <<<<<<< HEAD
+<<<<<<< HEAD
 /humanization_results/*
 /notebooks/*
 =======
 Makefile
 >>>>>>> 73326c1 (gitignore)
+=======
+Makefile
+/humanization_results/*
+>>>>>>> 898ea15 (not using HF should not require token)
