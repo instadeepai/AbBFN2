@@ -362,6 +362,7 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
 
 =======
     
+<<<<<<< HEAD
     # TODO: Once HF is open source, remove this block:
     import os
    
@@ -374,6 +375,11 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
         import os
 =======
 >>>>>>> 898ea15 (not using HF should not require token)
+=======
+    if cfg.load_from_hf:
+        # TODO: Once HF is open source, remove the token login:
+        import os
+>>>>>>> 2783521 (not using HF should not require token)
         token = os.getenv("HF_ACCESS_TOKEN")
         if not token:
             raise ValueError("HF_ACCESS_TOKEN is not set!")

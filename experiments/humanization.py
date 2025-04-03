@@ -207,11 +207,7 @@ def main(full_config: DictConfig) -> None:
         fasta_file = "sequences.fasta"
         create_fasta_from_sequences(l_seq, h_seq, fasta_file) # Dumps L and H string into a fasta format.
         vfams = run_igblast_pipeline(fasta_file)
-<<<<<<< HEAD
         h_vfams = vfams[1::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take odd indices (1, 3, 5, ...) for heavy chain
-=======
-        h_vfams = vfams[1::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take odd indices (1, 3, 5, ...) for heavy chain 
->>>>>>> 914ea31 (testing humanisation)
         l_vfams = vfams[0::2] if "l_vfams" not in cfg.input else cfg.input.l_vfams # Take even indices (0, 2, 4, ...) for light chain
     else:
         h_vfams = cfg.input.h_vfams
@@ -227,12 +223,9 @@ def main(full_config: DictConfig) -> None:
 
     # Pre-Humanization
     prehumanised_data, non_prehumanised_data = process_prehumanisation(input_heavy_seqs=[h_seq], input_light_seqs=[l_seq], hv_families=h_vfams, lv_families=l_vfams)
-<<<<<<< HEAD
 
     logging.info(f"prehumanised_data: {prehumanised_data}")
     logging.info(f"non_prehumanised_data: {non_prehumanised_data}")
-=======
->>>>>>> 914ea31 (testing humanisation)
 
     logging.info(f"prehumanised_data: {prehumanised_data}")
     logging.info(f"non_prehumanised_data: {non_prehumanised_data}")
