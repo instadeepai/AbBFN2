@@ -1,5 +1,5 @@
 BASE_NAME=abbfn2
-USER_NAME=miguel-1
+USER_NAME=maxime-1
 
 GCP_PROJECT=int-research-tpu
 GCP_ZONE=us-central2-b
@@ -13,9 +13,9 @@ GIT_REPO=instadeepai/AbBFN2
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 CHECKOUT_DIR=abbfn2
 
-PATH_TO_GOOGLE_APPLICATION_CREDENTIALS=/Users/m.braganca/Documents/ProtBFN/core/docker/int-research-tpu-db-access-service-account.json
+PATH_TO_GOOGLE_APPLICATION_CREDENTIALS=/Users/m-seince/Documents/Research/AbBFN2/int-research-tpu-db-access-service-account.json
 
-PATH_TO_PARAMS_FILE=./params.pkl
+PATH_TO_PARAMS_FILE=./model_params.pkl
 
 LOCAL_PATH = $(HOME)/abbfn2
 
