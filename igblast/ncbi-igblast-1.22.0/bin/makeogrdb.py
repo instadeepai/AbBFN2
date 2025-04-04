@@ -6,16 +6,15 @@ Requires MCBI makeblastdb in the running directory
 """
 
 
-from datetime import datetime
-import os
-import glob
-import re
-import sys
-import json
-import subprocess
 import argparse
+import glob
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import datetime
 from pathlib import Path
-
 
 parser = argparse.ArgumentParser(description = "Script to build blast dbs from OGRDB germline sets JSON files")
 parser.add_argument('--germline_file', required=True,

@@ -6,9 +6,7 @@ from jax import Array
 from jax.random import PRNGKey
 
 from abbfn2.bfn import BFN, MultimodalBFN
-from abbfn2.bfn.types import (
-    OutputNetworkPredictionMM,
-)
+from abbfn2.bfn.types import OutputNetworkPredictionMM
 from abbfn2.sample.schedules import TimeScheduleFn
 
 

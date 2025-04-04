@@ -11,6 +11,7 @@ from abbfn2.data.data_mode_handler.base import DataModeHandler
 from abbfn2.data.data_mode_handler.sequence.utils import BFNTokenizer
 from abbfn2.data.types import DataModeBatch, RawBatch
 
+
 def preprocess_sequence(
     raw_batch: RawBatch,
     carry_args: dict,

@@ -5,12 +5,12 @@ from functools import partial
 from pathlib import Path
 
 import numpy as np
-from abbfn2.data.data_mode_handler.base import DataModeHandler
-from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
-from abbfn2.data.types import DataModeBatch, RawBatch
 from jax import Array
 
+from abbfn2.data.data_mode_handler.base import DataModeHandler
 from abbfn2.data.data_mode_handler.oas_paired.constants import VALID_GENE_FAMILIES
+from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
+from abbfn2.data.types import DataModeBatch, RawBatch
 
 
 def preprocess_germline_genes(

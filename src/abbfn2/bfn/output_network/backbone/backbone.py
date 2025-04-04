@@ -1,12 +1,12 @@
 from collections.abc import Callable
+from dataclasses import dataclass
 
 import jax
 import jax.numpy as jnp
-from jax import Array
-from flax import linen as nn
 import numpy as np
+from flax import linen as nn
+from jax import Array
 
-from dataclasses import dataclass
 
 @dataclass
 class BackboneConfig:

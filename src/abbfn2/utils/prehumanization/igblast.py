@@ -3,6 +3,7 @@ import os
 import subprocess
 from pathlib import Path
 
+
 def run_igblast(
     fasta_file: str | Path,
     igblast_path: str | Path,

@@ -1,23 +1,26 @@
-from jax import Array
-from omegaconf import DictConfig
-from abbfn2.data.data_mode_handler import DataModeHandler, load_samples
-import jax.random as random
-import numpy as np
-import jax
 import logging
-import jax.numpy as jnp
-from abbfn2.bfn import BFN, MultimodalBFN, ContinuousBFN, DiscreteBFN
-from abbfn2.data.data_mode_handler.oas_paired.constants import IMGT2IDX 
-from abbfn2.bfn.types import ( 
-    OutputNetworkPrediction, 
-    OutputNetworkPredictionDiscrete,
-    OutputNetworkPredictionContinuous,
-)
+import pickle
 from datetime import datetime
 from pathlib import Path
-from tabulate import tabulate
-import pickle
+
+import jax
+import jax.numpy as jnp
+import jax.random as random
+import numpy as np
 from huggingface_hub import hf_hub_download
+from jax import Array
+from omegaconf import DictConfig
+from tabulate import tabulate
+
+from abbfn2.bfn import BFN, ContinuousBFN, DiscreteBFN, MultimodalBFN
+from abbfn2.bfn.types import (
+    OutputNetworkPrediction,
+    OutputNetworkPredictionContinuous,
+    OutputNetworkPredictionDiscrete,
+)
+from abbfn2.data.data_mode_handler import DataModeHandler, load_samples
+from abbfn2.data.data_mode_handler.oas_paired.constants import IMGT2IDX
+
 
 def show_conditioning_settings(num_samples, samples, masks):
     log_str = f"Loaded {num_samples} samples and masks:"

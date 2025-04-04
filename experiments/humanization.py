@@ -1,6 +1,7 @@
 import logging
 import math
 import os
+import warnings
 from pathlib import Path
 
 import hydra
@@ -9,23 +10,21 @@ import jax.numpy as jnp
 import jax.random as random
 import numpy as np
 from hydra.utils import instantiate
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from tqdm import tqdm
-import warnings
+
 from abbfn2.bfn import BFN, get_bfn
+from abbfn2.data.data_mode_handler import save_samples
 from abbfn2.utils.inference_utils import (
-    pad_and_reshape,
-    get_input_samples,
-    flatten_and_crop,
-    show_conditioning_settings,
-    load_params,
     create_fasta_from_sequences,
+    flatten_and_crop,
+    get_input_samples,
+    load_params,
+    pad_and_reshape,
+    show_conditioning_settings,
 )
 from abbfn2.utils.prehumanization.igblast import run_igblast_pipeline
 from abbfn2.utils.prehumanization.pre_humanisation import process_prehumanisation
-from omegaconf import OmegaConf
-from abbfn2.data.data_mode_handler import save_samples
-
 
 SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
            "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]

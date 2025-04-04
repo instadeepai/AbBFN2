@@ -3,9 +3,10 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from jax import Array
+
 from abbfn2.data.data_mode_handler.base import DataModeHandler
 from abbfn2.data.types import DataModeBatch, RawBatch
-from jax import Array
 
 
 def preprocess_sequence_length(

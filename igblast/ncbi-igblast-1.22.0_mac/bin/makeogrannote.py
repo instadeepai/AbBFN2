@@ -5,14 +5,14 @@ Script to generate V gene FWR/CDR annotation file given one or more OGRDB JSON f
 """
 
 
-from datetime import datetime
-import os
-import glob
-import re
-import sys
-import json
-import subprocess
 import argparse
+import glob
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import datetime
 from pathlib import Path
 
 

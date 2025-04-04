@@ -8,10 +8,7 @@ from jax import numpy as jnp
 from jax.lax import scan
 from jax.random import PRNGKey
 
-from abbfn2.bfn.types import (
-    OutputNetworkPredictionMM,
-    ThetaMM,
-)
+from abbfn2.bfn.types import OutputNetworkPredictionMM, ThetaMM
 from abbfn2.sample.functions.base import BaseSampleFn
 
 

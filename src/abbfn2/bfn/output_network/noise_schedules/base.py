@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any
+
 from jax import Array
+
 
 class NoiseSchedule(ABC):
     """An abstract base class for defining noise schedules for a BFN."""

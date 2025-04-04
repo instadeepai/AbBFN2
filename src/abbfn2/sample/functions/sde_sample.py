@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import partial
 
 import jax
 from jax import Array
@@ -6,10 +7,9 @@ from jax import numpy as jnp
 from jax.lax import scan
 from jax.random import PRNGKey
 
-from abbfn2.bfn.types import ThetaMM
 from abbfn2.bfn import BFN, MultimodalBFN
+from abbfn2.bfn.types import ThetaMM
 from abbfn2.sample.schedules import TimeScheduleFn
-from functools import partial
 
 
 @dataclass

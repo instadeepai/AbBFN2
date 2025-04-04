@@ -1,0 +1,36 @@
+default_language_version:
+  python: python3.11
+
+default_stages: [commit]
+
+exclude: "notebooks/.*"
+
+repos:
+  # Import sorting and organization
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # Unused imports and variables detection
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        args:
+          - --max-line-length=88
+          - --ignore=E501,W503
+          - --extend-select=F,B
+        additional_dependencies:
+          - flake8-unused-arguments==0.0.9
+          - flake8-bugbear==23.3.23
+
+  # Docstring checking
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args:
+          - --convention=google
+          - --add-ignore=D100,D104,D107,D203,D212,D415,D417 

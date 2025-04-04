@@ -1,6 +1,6 @@
-from typing import Tuple, Protocol
+from typing import List, Protocol, Tuple
+
 import numpy as np
-from typing import List
 import regex as re
 
 
