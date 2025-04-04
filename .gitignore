@@ -7,3 +7,5 @@ params.pkl
 /tmp/*
 Makefile
 /humanization_results/*
+notebooks/*
+Makefile

@@ -366,8 +366,8 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
         with open(file_path, "rb") as f:
             params = pickle.load(f)
     else:
-        try:
-            with open("/app/params.pkl", "rb") as f:
+        try: # FLAG : change to /app/params.pkl
+            with open("/Users/m-seince/Documents/Research/AbBFN2/AbBFN2/params.pk", "rb") as f:
                 params = pickle.load(f)
         except FileNotFoundError:
             raise FileNotFoundError("No parameters file /app/params.pkl found. Please set load_from_hf to True.")

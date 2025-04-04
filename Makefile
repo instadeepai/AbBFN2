@@ -15,7 +15,7 @@ CHECKOUT_DIR=abbfn2
 
 PATH_TO_GOOGLE_APPLICATION_CREDENTIALS=/Users/m-seince/Documents/Research/AbBFN2/int-research-tpu-db-access-service-account.json
 
-PATH_TO_PARAMS_FILE=./model_params.pkl
+PATH_TO_PARAMS_FILE=./params.pkl
 
 LOCAL_PATH = $(HOME)/abbfn2
 
@@ -103,6 +103,21 @@ mount_docker:
 kill_tpu_container:
 	$(BASE_CMD) ssh --zone=$(GCP_ZONE) $(NAME) --project $(GCP_PROJECT) --worker=$(WORKER) --command="sudo docker kill abbfn2"
 
+# Try to open cursor inside the TPUs
+# REMOTE_USERNAME=$(USER_NAME)
+# SSH_CONFIG=~/.ssh/config
+
+# add_vm_ssh_config:
+# 	touch $(SSH_CONFIG); \
+# 	echo "Host $(NAME)" >> $(SSH_CONFIG); \
+# 	echo "  ForwardAgent yes" >> $(SSH_CONFIG); \
+# 	echo "  User $(REMOTE_USERNAME)" >> $(SSH_CONFIG); \
+# 	echo "  Hostname $(shell $(BASE_CMD) describe --zone=$(GCP_ZONE) $(NAME) --project $(GCP_PROJECT) | grep externalIp | awk '{print $$2}')" >> $(SSH_CONFIG); \
+# 	echo "  IdentityFile $(SSH_KEY_FILE)" >> $(SSH_CONFIG);
+
+# rsync:
+# 	$(BASE_CMD) os-login ssh-keys add --key-file=$(SSH_KEY_FILE) --project=$(GCP_PROJECT)
+# rsync 'ssh -a' --exclude '*.fasta' -av $(LOCAL_PATH) $(REMOTE_USERNAME)@$(NAME):/home/$(REMOTE_USERNAME)/
 
 LOCAL_DEST = ./tpu_results
 
@@ -163,7 +178,7 @@ DOCKER_RUN_FLAGS_CPU = --rm \
 	--shm-size=1024m \
 	-v $(WORK_DIR):/app
 
-DOCKER_RUN_FLAGS_GPU = ${DOCKER_RUN_FLAGS_CPU} --gpus all 
+DOCKER_RUN_FLAGS_GPU = ${DOCKER_RUN_FLAGS_CPU} --gpus all
 
 DOCKER_RUN_FLAGS_TPU = --rm --user root --privileged \
 	-v $(WORK_DIR):/app
