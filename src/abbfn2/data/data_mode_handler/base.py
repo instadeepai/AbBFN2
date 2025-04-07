@@ -5,9 +5,6 @@ from typing import Any
 import jax.numpy as jnp
 from numpy.typing import ArrayLike
 
-from abbfn2.data.types import PreprocessFunction
-
-
 class DataModeHandler(ABC):
     """Abstract base class for handling different data modes.
 
@@ -18,27 +15,6 @@ class DataModeHandler(ABC):
     Each subclass should implement the methods to handle specific data modes according to the
     requirements of different parts of the pipeline.
     """
-
-    @abstractmethod
-    def get_preprocess_function(
-        self,
-    ) -> tuple[PreprocessFunction, float]:
-        """Retrieves the preprocessing function for the data mode, and it's associated meta-data.
-
-        The preprocessing function should takes a raw batch (i.e. from the dataloader) and returns
-        the batch information for this data mode and the float determines the priority with which this preprocessing
-        function should be applied (lower values are applied first).
-
-        DataModeBatch.x: A batch of data, where keys and values should conform to the specific requirements
-                         of the data mode handler (e.g., including 'tokens' for tokenized text data).
-        DataModeBatch.mask: A mask array where each element indicates the relevance of the corresponding data point
-                           in the batch for evaluation (e.g., 1 for relevant, 0 for irrelevant).
-                           The shape and data type of the array should match those of the ground truth data.
-
-        Returns:
-            Tuple[PreprocessFunction, bool, float]: The preprocessing function and the priority of the function.
-        """
-        pass
 
     def sample_to_mask(self, sample: ArrayLike) -> ArrayLike:
         """Infers a mask from a generated sample.

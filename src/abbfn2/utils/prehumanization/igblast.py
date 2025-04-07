@@ -1,6 +1,7 @@
 import logging
 import os
 import subprocess
+import platform
 from pathlib import Path
 
 
@@ -208,7 +209,7 @@ def run_igblast_pipeline(
     input_file: str | Path,
     species: str = "human",
     n_alignments: int = 1,
-    igblast_path: str | Path | None = "../../../igblast/ncbi-igblast-1.22.0/bin/igblastp",
+    igblast_path: str | Path | None = None,
     v_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_v_db",
     j_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_j_db",
     local_igblast_raw: str | Path | None = "../../../igblast/igblast_output_raw.tsv",
@@ -219,13 +220,20 @@ def run_igblast_pipeline(
         input_file (str | Path): Path to input FASTA file containing antibody sequences
         species (str, optional): Species for gene regions - one of "human", "rat", "mouse", "rhesus_monkey". Defaults to "human".
         n_alignments (int, optional): Number of alignments to generate. Defaults to 5.
-        igblast_path (str | Path | None, optional): Path to IgBLAST executable. If None, fetches from S3. Defaults to None.
+        igblast_path (str | Path | None, optional): Path to IgBLAST executable. If None, uses appropriate version for platform. Defaults to None.
         v_gene_db_path (str | Path | None, optional): Path to V gene database. If None, fetches from S3. Defaults to None.
         j_gene_db_path (str | Path | None, optional): Path to J gene database. If None, fetches from S3. Defaults to None.
 
     Returns:
         dict: Dictionary containing parsed IgBLAST results with alignment summaries and hit tables
     """
+    if igblast_path is None:
+        # Use Mac-specific version on macOS, Linux version otherwise
+        if platform.system() == "Darwin":
+            igblast_path = "../../../igblast/ncbi-igblast-1.22.0_mac/bin/igblastp"
+        else:
+            igblast_path = "../../../igblast/ncbi-igblast-1.22.0/bin/igblastp"
+
     local_input_file = Path(input_file).absolute()
     v_gene_db_path = Path(v_gene_db_path).absolute()
     j_gene_db_path = Path(j_gene_db_path).absolute()

@@ -235,9 +235,6 @@ class BFNTokenizer(Tokenizer):
         ret = self.pad_tokens_batch(tmp)
         return ret
 
-    def encode(self, sequence) -> List[int]:
-        return [self._tokens_to_ids[token] for token in self.tokenize(sequence)]
-
     def pad_tokens_batch(
         self,
         batch: list[tuple[list[str], list[int]]],

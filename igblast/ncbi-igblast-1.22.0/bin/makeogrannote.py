@@ -6,14 +6,9 @@ Script to generate V gene FWR/CDR annotation file given one or more OGRDB JSON f
 
 
 import argparse
-import glob
 import json
-import os
 import re
-import subprocess
-import sys
-from datetime import datetime
-from pathlib import Path
+
 
 
 def main():
@@ -34,7 +29,7 @@ def main():
         infile = open(each_in_file)
         print(f"file processed: {each_in_file}");
         data = json.load(infile)
-        allele_descriptions = None
+        # allele_descriptions = None
         germline_set = None
         if isinstance(data["GermlineSet"], list):
             germline_set = data["GermlineSet"][0]

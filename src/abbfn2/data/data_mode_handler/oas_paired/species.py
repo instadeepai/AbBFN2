@@ -8,64 +8,8 @@ from jax import Array
 
 from abbfn2.data.data_mode_handler.base import DataModeHandler
 from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
-from abbfn2.data.types import DataModeBatch, RawBatch
-
-FULL_SPECIES = [
-    "human",  # 1743623 entries, 96.12097764704066%
-    "rat_sd",  # 53630 entries, 2.95646939230028%
-    "mouse_balb/c",  # 15624 entries, 0.8613066900111799%
-    "mouse_c57bl/6",  # 1111 entries, 0.06124627064787639%
-]
 
 SIMPLIFIED_SPECIES = ["human", "rat", "mouse"]
-
-SPECIES_TO_SIMPLIFIED_SPECIES = {
-    "human": "human",  # 1743623 entries, 96.12097764704066%
-    "rat_sd": "rat",  # 53630 entries, 2.95646939230028%
-    "mouse_balb/c": "mouse",  # 15624 entries, 0.8613066900111799%
-    "mouse_c57bl/6": "mouse",  # 1111 entries, 0.06124627064787639%
-}
-
-
-def preprocess_species(
-    raw_batch: RawBatch,
-    carry_args: dict,
-    dm_key: str,
-    species2id: dict[str, int],
-    unknown_id: int,
-) -> tuple[DataModeBatch, RawBatch, dict]:
-    """Preprocesses the light chain locus data by mapping locus labels to their corresponding IDs.
-
-    Args:
-        raw_batch (RawBatch): A batch of raw data, expected to include 'organism' labels.
-        carry_args (dict):  A dictionary to store any arguments that persist between
-            data modes.
-        dm_key (str): The key by which to identify the species.
-        species2id (Dict[str, int]): A dictionary mapping organism names (str) to unique IDs (int).
-        unknown_id (int): The ID to be used for organisms that are not found in the `organism2id` mapping.
-
-    Returns:
-        Tuple[DataModeBatch, RawBatch, dict]: A tuple containing a `DataModeBatch`
-            object with processed species IDs and a mask, the unchanged input `raw_batch`,
-            and the carry_args dictionary.
-    """
-    simplified_species = [
-        SPECIES_TO_SIMPLIFIED_SPECIES.get(species, "unknown")
-        for species in raw_batch[dm_key]
-    ]
-    species_ids = np.array(
-        [species2id.get(lab, unknown_id) for lab in simplified_species],
-    )
-
-    species_ids = species_ids[..., None]  # [N] --> [N, 1]
-
-    dm_batch = DataModeBatch(
-        x=species_ids,
-        mask=np.ones_like(species_ids),
-    )
-
-    return dm_batch, raw_batch, carry_args
-
 
 class SpeciesDataModeHandler(DataModeHandler):
     """Handles data mode specific to labelling the organism."""
@@ -86,27 +30,6 @@ class SpeciesDataModeHandler(DataModeHandler):
         self.unknown_label = unknown_label
         self.species2id[self.unknown_label] = self.unknown_id
         self.id2species[self.unknown_id] = self.unknown_label
-
-    def get_preprocess_function(
-        self,
-    ) -> tuple[Callable[[RawBatch], DataModeBatch], float]:
-        """Defines and returns the preprocessing functions for organism data.
-
-        Returns:
-            Tuple[Callable[[RawBatch], DataModeBatch], float]: The preprocessing
-                function, and the priority of the function.
-        """
-        # Note: The preprocess function is defined external to this class such that it can be pickled for
-        # multiprocessing. This is necessary for efficient data loading and preprocessing.
-        preprocess_fn = partial(
-            preprocess_species,
-            dm_key=self.dm_key,
-            species2id=self.species2id,
-            unknown_id=self.unknown_id,
-        )
-        priority = 1.0
-
-        return preprocess_fn, priority
 
     def sample_to_data(self, sample: Array) -> list[str]:
         """Converts an array of sample indices to a list of organism labels.

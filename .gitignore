@@ -9,3 +9,4 @@ Makefile
 /humanization_results/*
 notebooks/*
 Makefile
+igblast/ncbi-igblast-1.22.0_mac/humanisation_results

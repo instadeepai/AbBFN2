@@ -29,7 +29,7 @@ from abbfn2.utils.prehumanization.pre_humanisation import process_prehumanisatio
 SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
            "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
 FW_DMS = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq", 
-        "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]
+          "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]
 CDR_DMS = ["h_cdr1_seq", "h_cdr2_seq", "h_cdr3_seq", "l_cdr1_seq", "l_cdr2_seq", "l_cdr3_seq"]
 
 warnings.filterwarnings(
@@ -271,7 +271,7 @@ def main(full_config: DictConfig) -> None:
     override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
     
     # Get the initial predictions and calculate the sequence-level conditioning scale
-    baseline_samples_raw, baseline_preds_raw, masks, key, baseline_samples = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
+    _, baseline_preds_raw, masks, key, _ = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
     humanness = baseline_preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
     logging.info(f"initial humanness: {humanness}")
     hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)

@@ -5,15 +5,10 @@ Script to grab "coding_sequence" in OGRDB germline set JSON file and generate
 Requires MCBI makeblastdb in the running directory 
 """
 
-
 import argparse
-import glob
 import json
 import os
 import re
-import subprocess
-import sys
-from datetime import datetime
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description = "Script to build blast dbs from OGRDB germline sets JSON files")
