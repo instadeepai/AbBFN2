@@ -12,6 +12,7 @@ from abbfn2.data.data_mode_handler.oas_paired.constants import (
 )
 from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
 
+
 class CDRLengthsDataModeHandler(DataModeHandler):
     """Class for CDR length data mode handler."""
 

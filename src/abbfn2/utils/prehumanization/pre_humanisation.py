@@ -6,6 +6,7 @@ from Bio import SeqIO
 from Humatch.align import get_padded_seq
 from Humatch.germline_likeness import mutate_seq_to_match_germline_likeness
 
+
 def create_sequence_data(name: str, heavy_seq: str, light_seq: str) -> Dict:
     """
     Create structured data for a sequence pair using ANARCI/abnumber.

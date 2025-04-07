@@ -10,7 +10,6 @@ import json
 import re
 
 
-
 def main():
     
     parser = argparse.ArgumentParser(description = "Script to build V gene FWR/CDR annotation file from OGRDB germline sets JSON files")

@@ -5,6 +5,7 @@ from typing import Any
 import jax.numpy as jnp
 from numpy.typing import ArrayLike
 
+
 class DataModeHandler(ABC):
     """Abstract base class for handling different data modes.
 
