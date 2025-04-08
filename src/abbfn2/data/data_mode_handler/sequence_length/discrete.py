@@ -1,35 +1,10 @@
-from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import numpy as np
-from abbfn2.data.data_mode_handler.base import DataModeHandler
-from abbfn2.data.types import DataModeBatch, RawBatch
 from jax import Array
 
-
-def preprocess_sequence_length(
-    raw_batch: RawBatch,
-) -> tuple[DataModeBatch, RawBatch]:
-    """Computes the length of each sequence in a batch and encapsulates the lengths in a DataModeBatch.
-
-    Args:
-        raw_batch: Batch of raw data containing sequences.
-
-    Returns:
-        A tuple containing the DataModeBatch with sequence lengths and a mask of ones, and the unchanged raw_batch.
-    """
-    # Get sequence lengths. Note: SequenceDataModeHandler is assumed to have been applied before this handler, so the
-    # "sequence" key is already present.
-    sequence_lengths = np.array([len(seq) for seq in raw_batch["sequence"]])
-    sequence_lengths = sequence_lengths[..., None]  # [N] --> [N, 1]
-
-    dm_batch = DataModeBatch(
-        x=sequence_lengths,
-        mask=np.ones_like(sequence_lengths),
-    )
-
-    return dm_batch, raw_batch
+from abbfn2.data.data_mode_handler.base import DataModeHandler
 
 
 class SequenceLengthDataModeHandler(DataModeHandler):
@@ -40,17 +15,6 @@ class SequenceLengthDataModeHandler(DataModeHandler):
     preparing ground truth data based on sequence lengths, and generating a mask where all elements are
     considered relevant.
     """
-
-    def get_preprocess_function(
-        self,
-    ) -> tuple[Callable[[RawBatch], DataModeBatch], bool, float]:
-        """Defines and returns the preprocessing functions for sequence length data.
-
-        Returns:
-            Tuple[Callable[[RawBatch], DataModeBatch], bool, float]: The preprocessing function, whether it is batched,
-            and the priority of the function.
-        """
-        return preprocess_sequence_length, 1.0
 
     def sample_to_data(self, sample: Array) -> Array:
         """Converts a sample to data.

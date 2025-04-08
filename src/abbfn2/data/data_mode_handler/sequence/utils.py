@@ -1,6 +1,6 @@
-from typing import Tuple, Protocol
+from typing import List, Protocol, Tuple
+
 import numpy as np
-from typing import List
 import regex as re
 
 
@@ -114,11 +114,11 @@ class BFNTokenizer(Tokenizer):
     @property
     def pad_token(self) -> str:
         return self._pad_token
-    
+
     @property
     def eos_token(self) -> str:
         return self._eos_token
-    
+
     @property
     def padding_idx(self) -> int:
         """
@@ -128,7 +128,7 @@ class BFNTokenizer(Tokenizer):
             Id (int representation) of the pad token.
         """
         return self._tokens_to_ids[self.pad_token]
-    
+
     @property
     def special_tokens(self) -> List[str]:
         return self._special_tokens
@@ -235,9 +235,6 @@ class BFNTokenizer(Tokenizer):
         ret = self.pad_tokens_batch(tmp)
         return ret
 
-    def encode(self, sequence) -> List[int]:
-        return [self._tokens_to_ids[token] for token in self.tokenize(sequence)]
-
     def pad_tokens_batch(
         self,
         batch: list[tuple[list[str], list[int]]],
@@ -290,4 +287,3 @@ class IMGTTokenizer(BFNTokenizer):
             for t, delta, mid in zip(batch, deltas, mids)
         ]
         return list(zip(padded_tokens, padded_tokens_ids))
-

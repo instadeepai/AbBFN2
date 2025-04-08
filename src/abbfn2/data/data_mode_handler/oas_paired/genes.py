@@ -1,63 +1,15 @@
 import logging
-from collections.abc import Callable
-from functools import partial
 from pathlib import Path
 
 import numpy as np
-from abbfn2.data.data_mode_handler.base import DataModeHandler
-from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
-from abbfn2.data.types import DataModeBatch, RawBatch
 from jax import Array
 
+from abbfn2.data.data_mode_handler.base import DataModeHandler
 from abbfn2.data.data_mode_handler.oas_paired.constants import (
     VALID_ALLELE_COUNTS,
     VALID_GENE_COUNTS,
 )
-
-
-def preprocess_germline_genes(
-    raw_batch: RawBatch,
-    carry_args: dict,
-    dm_key: str,
-    unknown_id: int,
-    gene2id: dict[str, int],
-    include_alleles: bool = False,
-) -> tuple[DataModeBatch, RawBatch, dict]:
-    """Preprocesses the germline genes data.
-
-    Args:
-        raw_batch (RawBatch): The raw batch of data.
-        carry_args (dict):  A dictionary to store any arguments that persist between
-            data modes.
-        dm_key (str): The key by which to identify the gene type to be processed.
-        unknown_id (int): The index for unknown genes.
-        gene2id (dict[str, int]): A dictionary mapping genes to ids for the gene type.
-        include_alleles (bool): Whether to include the alleles for each gene.
-            Defaults to False.
-
-    Returns:
-        Tuple[DataModeBatch, RawBatch]: The preprocessed data and the raw batch.
-    """
-
-    # Function to split the string and take the first part
-    def split_gene(x):
-        return x.split("*")[0] if isinstance(x, str) else x
-
-    genes = np.array(raw_batch[dm_key])
-
-    if not include_alleles:
-        vectorised_split_gene = np.vectorize(split_gene)
-        genes = vectorised_split_gene(genes)
-
-    gene_ids = np.array([gene2id.get(gene, unknown_id) for gene in genes], dtype=int)
-    gene_ids = gene_ids[..., None]  # [N, 1]
-
-    dm_batch = DataModeBatch(
-        x=gene_ids,
-        mask=np.ones_like(gene_ids),
-    )
-
-    return dm_batch, raw_batch, carry_args
+from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
 
 
 class GermlineGenesHandler(DataModeHandler):
@@ -91,26 +43,6 @@ class GermlineGenesHandler(DataModeHandler):
         self.unknown_label = unknown_label
         self.gene2id[self.unknown_label] = self.unknown_id
         self.id2gene[self.unknown_id] = self.unknown_label
-
-    def get_preprocess_function(
-        self,
-    ) -> tuple[Callable[[RawBatch], DataModeBatch], float]:
-        """Defines and returns the preprocessing functions for gene call data.
-
-        Returns:
-            Tuple[Callable[[RawBatch], DataModeBatch], float]: The preprocessing
-                function and the priority of the function.
-        """
-        preprocess_fn = partial(
-            preprocess_germline_genes,
-            dm_key=self.dm_key,
-            unknown_id=self.unknown_id,
-            gene2id=self.gene2id,
-            include_alleles=self.include_alleles,
-        )
-
-        priority = 1.0
-        return preprocess_fn, priority
 
     def sample_to_data(self, sample: Array) -> list[str]:
         """Converts an array of sample indices to a list of gene call labels.

@@ -1,100 +1,11 @@
 import logging
-from collections.abc import Callable
-from functools import partial
 from pathlib import Path
 
 import numpy as np
-from abbfn2.data.data_mode_handler.base import DataModeHandler
-from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
-from abbfn2.data.types import DataModeBatch, RawBatch
 from jax import Array
 
-from abbfn2.data.data_mode_handler.oas_paired.constants import TAP_REFERENCE_VALUES
-
-
-def get_tap_flag(
-    value: int | float | None, metric: str, unknown_value: str = "unknown"
-) -> str:
-    """Assigns a flag based on reference values given a TAP metric and value.
-
-    Args:
-        value (int | float | None): The value based on which the flag will be
-            calculated.
-        metric (str): The TAP metric whose reference values will be used.
-        unknown_value (str): The unknown flag assigned to values that cannot
-            be assigned a valid flag. Defaults to "unknown".
-
-    Raises:
-        ValueError: If the provided metric is invalid.
-
-    Returns:
-        str: The assigned TAP flag.
-    """
-    if not isinstance(value, int | float):
-        return unknown_value
-
-    refs = TAP_REFERENCE_VALUES
-
-    if metric not in refs:
-        raise ValueError(f"{metric} is not a valid TAP metric.")
-
-    thresholds = refs[metric]
-
-    match metric:
-        case "psh":
-            if thresholds[0.05] <= value < thresholds[0.95]:
-                return "green"
-            elif thresholds[0.0] <= value <= thresholds[1.0]:
-                return "amber"
-            else:
-                return "red"
-        case "ppc" | "pnc":
-            if value <= thresholds[0.95]:
-                return "green"
-            elif value <= thresholds[1.0]:
-                return "amber"
-            else:
-                return "red"
-        case "sfvcsp":
-            if value >= thresholds[0.05]:
-                return "green"
-            elif value >= thresholds[0.0]:
-                return "amber"
-            else:
-                return "red"
-
-
-def preprocess_tap_flags(
-    raw_batch: RawBatch,
-    carry_args: dict,
-    metric: str,
-    flag2id: dict[str, int],
-    unknown_id: int,
-) -> tuple[DataModeBatch, RawBatch, dict]:
-    """Preprocesses the TAP values into discrete flags.
-
-    Args:
-        raw_batch (RawBatch): The raw batch of data.
-        carry_args (dict): A dictionary to store any arguments that persist between data
-            modes. This can be used or modified and will be "seen" by subsequent
-            preprocessing functions (based on their priority in the DataModeHandler).
-        dm_key (str): The key to identify data in the raw batch.
-        flag2id (dict[str, int]): A dictionary mapping flags to ids.
-        unknown_id (int): The index for unknown flags.
-
-    Returns:
-        Tuple[DataModeBatch, RawBatch]: The preprocessed data and the raw batch.
-    """
-    flags = [get_tap_flag(val, metric) for val in raw_batch[metric]]
-    flag_ids = np.array([flag2id.get(flag, unknown_id) for flag in flags])
-    flag_ids = flag_ids[..., None]  # [N, 1]
-
-    dm_batch = DataModeBatch(
-        x=flag_ids,
-        mask=np.ones_like(flag_ids),
-    )
-
-    return dm_batch, raw_batch, carry_args
+from abbfn2.data.data_mode_handler.base import DataModeHandler
+from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
 
 
 class TapFlagsHandler(DataModeHandler):
@@ -111,25 +22,6 @@ class TapFlagsHandler(DataModeHandler):
         self.unknown_label = unknown_label
         self.flag2id[self.unknown_label] = self.unknown_id
         self.id2flag[self.unknown_id] = self.unknown_label
-
-    def get_preprocess_function(
-        self,
-    ) -> tuple[Callable[[RawBatch], DataModeBatch], float]:
-        """Defines and returns the preprocessing functions for TAP flags.
-
-        Returns:
-            Tuple[Callable[[RawBatch], DataModeBatch], float]: The preprocessing
-                function and the priority of the function.
-        """
-        preprocess_fn = partial(
-            preprocess_tap_flags,
-            metric=self.metric,
-            flag2id=self.flag2id,
-            unknown_id=self.unknown_id,
-        )
-
-        priority = 1.0
-        return preprocess_fn, priority
 
     def sample_to_data(self, sample: Array) -> list[str]:
         """Converts an array of sample indices to a list of TAP flag labels.

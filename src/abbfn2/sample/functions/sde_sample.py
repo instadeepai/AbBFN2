@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import partial
 
 import jax
 from jax import Array
@@ -6,10 +7,9 @@ from jax import numpy as jnp
 from jax.lax import scan
 from jax.random import PRNGKey
 
-from abbfn2.bfn.types import ThetaMM
 from abbfn2.bfn import BFN, MultimodalBFN
+from abbfn2.bfn.types import ThetaMM
 from abbfn2.sample.schedules import TimeScheduleFn
-from functools import partial
 
 
 @dataclass
@@ -86,11 +86,7 @@ class SDESampleFn:
             log_prob = self.bfn.conditional_log_prob(
                 pred, x, jax.tree_map(lambda arr: arr > t, mask_sample), jax.lax.stop_gradient(theta)
             )
-            
-            #log_prob = self.bfn.conditional_log_prob(
-            #    pred, x, mask_sample, jax.lax.stop_gradient(theta)
-            #)
-            
+
             y = self.bfn.sample_receiver_distribution(pred, alpha, key_receiver)
             return log_prob, y
 
@@ -167,13 +163,10 @@ class SDESampleFn:
                 )
 
             theta = self.bfn.update_distribution(
-                theta, y, alpha, conditional_score, 
+                theta, y, alpha, conditional_score,
                 jax.tree_map(lambda arr: arr > t_start, mask_sample),
             )
-                    
-            #theta = self.bfn.update_distribution(
-            #    theta, y, alpha, conditional_score, mask_sample
-            #)
+
             return theta, y
 
         # Run sampling for t=0, 1/N, ..., (N-1)/N.

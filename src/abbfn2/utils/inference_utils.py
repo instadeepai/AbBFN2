@@ -1,23 +1,26 @@
-from jax import Array
-from omegaconf import DictConfig
-from abbfn2.data.data_mode_handler import DataModeHandler, load_samples
-import jax.random as random
-import numpy as np
-import jax
 import logging
-import jax.numpy as jnp
-from abbfn2.bfn import BFN, MultimodalBFN, ContinuousBFN, DiscreteBFN
-from abbfn2.data.data_mode_handler.oas_paired.constants import IMGT2IDX 
-from abbfn2.bfn.types import ( 
-    OutputNetworkPrediction, 
-    OutputNetworkPredictionDiscrete,
-    OutputNetworkPredictionContinuous,
-)
+import pickle
 from datetime import datetime
 from pathlib import Path
-from tabulate import tabulate
-import pickle
+
+import jax
+import jax.numpy as jnp
+import jax.random as random
+import numpy as np
 from huggingface_hub import hf_hub_download
+from jax import Array
+from omegaconf import DictConfig
+from tabulate import tabulate
+
+from abbfn2.bfn import BFN, ContinuousBFN, DiscreteBFN, MultimodalBFN
+from abbfn2.data.data_mode_handler.oas_paired.constants import IMGT2IDX 
+from abbfn2.bfn.types import (
+    OutputNetworkPrediction,
+    OutputNetworkPredictionContinuous,
+    OutputNetworkPredictionDiscrete,
+)
+from abbfn2.data.data_mode_handler import DataModeHandler, load_samples
+
 
 def show_conditioning_settings(num_samples, samples, masks):
     log_str = f"Loaded {num_samples} samples and masks:"
@@ -60,7 +63,7 @@ def pad_and_reshape(x, num_samples_padded, num_batches):
         raise ValueError(
             f"`num_samples_padded` (={num_samples_padded}) must be greater than or equal to the number of samples in `x` (={x.shape[0]}).",
         )
-        x = np.array(x)
+
     x = np.pad(
         x,
         [(0, num_samples_padded - x.shape[0])] + (x.ndim - 1) * [(0, 0)],
@@ -203,6 +206,7 @@ def get_input_samples(
             samples[dm] = np.broadcast_to(dm_sample, samples[dm].shape)
     return samples
 
+
 def configure_imgt_position_overrides(
     masks: dict[str, Array | np.ndarray],
     samples: dict[str, Array | np.ndarray],
@@ -286,7 +290,6 @@ def configure_imgt_position_overrides(
 
     return samples, masks
 
-
 def generate_random_mask_from_array_visible_pad(arr, frac_fill=0.5, exclusions=None):
     """Generate a mask (same shape as arr) where:
       - Each row has a% of non-exclusion positions set to 0 (chosen randomly).
@@ -355,20 +358,19 @@ def configure_output_dir(
 
 
 def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
-    
-    # TODO: Once HF is open source, remove this block:
-    import os
-    token = os.getenv("HUGGINGFACE_TOKEN")
-    if not token:
-        raise ValueError("HUGGINGFACE_TOKEN is not set!")
-    
+
     if cfg.load_from_hf:
+        # TODO: Once HF is open source, remove the token login:
+        import os
+        token = os.getenv("HF_ACCESS_TOKEN")
+        if not token:
+            raise ValueError("HF_ACCESS_TOKEN is not set!")
         file_path = hf_hub_download(repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl", token=token)
         with open(file_path, "rb") as f:
             params = pickle.load(f)
     else:
-        try:
-            with open("/app/params.pkl", "rb") as f:
+        try: 
+            with open(cfg.model_weights_path, "rb") as f:
                 params = pickle.load(f)
         except FileNotFoundError:
             raise FileNotFoundError("No parameters file /app/params.pkl found. Please set load_from_hf to True.")
@@ -378,7 +380,7 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
 def create_fasta_from_sequences(l_seq: str, h_seq: str, output_file: str = "sequences.fasta") -> None:
     """
     Create a FASTA file from light and heavy chain sequences.
-    
+
     Args:
         l_seq (str): Light chain sequence
         h_seq (str): Heavy chain sequence
@@ -386,12 +388,12 @@ def create_fasta_from_sequences(l_seq: str, h_seq: str, output_file: str = "sequ
     """
     l_seq = l_seq.strip()
     h_seq = h_seq.strip()
-    
+
     if not l_seq or not h_seq:
         raise ValueError("Both light and heavy chain sequences must be provided")
-    
+
     fasta_content = f">L_chain\n{l_seq}\n>H_chain\n{h_seq}\n"
-    
+
     try:
         with open(output_file, 'w') as f:
             f.write(fasta_content)

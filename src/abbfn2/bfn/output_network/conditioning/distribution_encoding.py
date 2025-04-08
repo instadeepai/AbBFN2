@@ -24,7 +24,6 @@ class DistributionEncoding(ABC, nn.Module):
         """
         pass
 
-
 class NoOpEncoding(DistributionEncoding):
     """A no-operation (NoOp) time encoding that returns the input without any modification."""
 

@@ -1,16 +1,18 @@
-import hydra
-import jax
 import logging
 import time
-from tqdm import tqdm
-import jax.random as random
-from omegaconf import DictConfig
-from abbfn2.bfn.factory import BFN, get_bfn
-from hydra.utils import instantiate
+import warnings
+
+import hydra
+import jax
 import jax.numpy as jnp
+import jax.random as random
+from hydra.utils import instantiate
+from omegaconf import DictConfig
+from tqdm import tqdm
+
+from abbfn2.bfn.factory import BFN, get_bfn
 from abbfn2.data.data_mode_handler import save_samples
 from abbfn2.utils.inference_utils import configure_output_dir, load_params
-import warnings
 
 warnings.filterwarnings(
     "ignore",
@@ -40,13 +42,13 @@ def main(full_config: DictConfig) -> None:
     dm_handlers = {
         dm: instantiate(dm_cfg.handler) for dm, dm_cfg in cfg_run.data_mode.items()
     }
-    
+
     # Prepare output directory.
     local_output_dir = configure_output_dir(cfg.output)
 
     # Inference function
     @jax.jit
-    def batched_sample(params, key): 
+    def batched_sample(params, key):
         key, sample_key = jax.random.split(key, 2)
         sample_fn = instantiate(cfg.sampling.sample_fn, bfn=bfn)
         sample_keys = jax.random.split(sample_key, cfg.sampling.num_samples_per_batch)

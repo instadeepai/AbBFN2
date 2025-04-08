@@ -454,22 +454,6 @@ class TwistedSDESampleFn(BaseSampleFn):
                     state.theta, y, alpha, state.score, mask_sample
                 )
 
-                # Calculate the particle weights at t + dt
-                # TB comment: I believe this implementation will match what we previously used.
-                # Note: having the particle logit here means we get particle weights but then forward
-                #       pass the network before resampling.  This is fine so long as the network is deterministic...
-                # particle_logit = get_twisted_particle_logit(
-                #     bfn=self.bfn,
-                #     pred=state.pred,  # pred(θ_0) to obtain p_r(y|θ_0,α)
-                #     alpha=alpha,  # α
-                #     y=y,  # y ~ p_r(y|θ_0,α)
-                #     theta_old=state.theta,  # θ_0
-                #     theta_new=theta,  # θ_1
-                #     cond_log_p_old=state.old_log_prob,  # log p'(x|θ_0) (or log p'(x|θ_-1)???)
-                #     cond_log_p_new=state.log_prob,  # log p'(x|θ_1) (or log p'(x|θ_0)???)
-                #     mask=mask_sample,  # mask
-                # )
-
                 # Run the network at t + dt.
                 cond_score, log_prob, pred = self._get_score_and_pred(
                     key_output,
@@ -483,7 +467,6 @@ class TwistedSDESampleFn(BaseSampleFn):
                 )
 
                 # Calculate the particle weights at t + dt
-                # TB comment: This implementation is what I got to from Wu et al.
                 particle_logit = get_twisted_particle_logit(
                     bfn=self.bfn,
                     pred=state.pred,  # pred(θ_0) to obtain p_r(y|θ_0,α)

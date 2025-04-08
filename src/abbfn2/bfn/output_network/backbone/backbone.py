@@ -1,12 +1,12 @@
 from collections.abc import Callable
+from dataclasses import dataclass
 
 import jax
 import jax.numpy as jnp
-from jax import Array
-from flax import linen as nn
 import numpy as np
+from flax import linen as nn
+from jax import Array
 
-from dataclasses import dataclass
 
 @dataclass
 class BackboneConfig:
@@ -466,7 +466,7 @@ class BackboneModel(nn.Module):
             split_rngs={"params": True},
             metadata_params={nn.PARTITION_NAME: "layers"},
             length=self.config.num_layers,
-        )(self.config) 
+        )(self.config)
 
     def __call__(self, tokens):
         """Forward pass through the Backbone model.

@@ -1,53 +1,14 @@
 import logging
-from collections.abc import Callable
-from functools import partial
 from pathlib import Path
 
 import numpy as np
-from abbfn2.data.data_mode_handler.base import DataModeHandler
-from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
-from abbfn2.data.types import DataModeBatch, RawBatch
 from jax import Array
 
+from abbfn2.data.data_mode_handler.base import DataModeHandler
 from abbfn2.data.data_mode_handler.oas_paired.constants import (
     VALID_REGION_LENGTHS as VALID_CDR_LENGTHS,
 )
-
-
-def preprocess_cdr_lengths(
-    raw_batch: RawBatch,
-    carry_args: dict,
-    dm_key: str,
-    unknown_id: int,
-    len2id: dict[int, int],
-) -> tuple[DataModeBatch, RawBatch, dict]:
-    """Preprocesses the CDR lengths data by mapping lengths to their respective IDs.
-
-    Args:
-        raw_batch (RawBatch): A batch of raw data, expected to include 'dm_key' key.
-        carry_args (dict):  A dictionary to store any arguments that persist between
-            data modes.
-        dm_key (str): The key by which to identify the CDR loop to be processed.
-        len2id (dict[int, int]): A dictiionary mapping the length of CDRs to unique IDs.
-        unknown_label (int): The ID to be used for missing CDR lengths.
-            Defaults to -1.
-
-    Returns:
-        tuple[DataModeBatch, RawBatch, carry_args]: A tuple containing a `DataModeBatch`
-            object with processed CDR IDs and a mask, the unchanged input `raw_batch`,
-            and the carry_args dictionary.
-    """
-    length_ids = np.array(
-        [len2id.get(cdr_len, unknown_id) for cdr_len in raw_batch[dm_key]], dtype=int
-    )  # [N]
-    length_ids = length_ids[..., None]  # [N, 1]
-
-    dm_batch = DataModeBatch(
-        x=length_ids,
-        mask=np.ones_like(length_ids),
-    )
-
-    return dm_batch, raw_batch, carry_args
+from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
 
 
 class CDRLengthsDataModeHandler(DataModeHandler):
@@ -71,25 +32,6 @@ class CDRLengthsDataModeHandler(DataModeHandler):
         self.unknown_label = unknown_label
         self.len2id[self.unknown_label] = self.unknown_id
         self.id2len[self.unknown_id] = self.unknown_label
-
-    def get_preprocess_function(
-        self,
-    ) -> tuple[Callable[[RawBatch], DataModeBatch], bool, float]:
-        """Defines and returns the preprocessing functions for CDR length data.
-
-        Returns:
-            Tuple[Callable[[RawBatch], DataModeBatch], float]: The preprocessing
-                function and the priority of the function.
-        """
-        preprocess_fn = partial(
-            preprocess_cdr_lengths,
-            dm_key=self.dm_key,
-            unknown_id=self.unknown_id,
-            len2id=self.len2id,
-        )
-
-        priority = 1.0
-        return preprocess_fn, priority
 
     def sample_to_data(self, sample: Array) -> Array:
         """Converts an array of sample indices to a list of length labels.

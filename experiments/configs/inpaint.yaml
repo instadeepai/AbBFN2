@@ -6,8 +6,8 @@ cfg:
   hydra:
     searchpath:
       - file://./configs
-    job:
-      chdir: false
+
+  model_weights_path: /app/params.pkl
 
   input:
     path: null
@@ -20,6 +20,7 @@ cfg:
     dm_overwrites: # Select the data mode for the input samples.
       species: "mouse"
 
+
   sampling:
     seed: 0
     num_samples_per_batch: 1
@@ -28,9 +29,9 @@ cfg:
     inpaint_fn:
       _target_: abbfn2.sample.functions.twisted_sde_sample.TwistedSDESampleFn
       greedy: true
-      num_steps: 1 # 300-1000
+      num_steps: 300 # 300-1000
       twist_scale: 1.0 # 1.0
-      num_particles: 1 # 4-8
+      num_particles: 4 # 4-8
       time_schedule:
         _target_: abbfn2.sample.schedules.LinearScheduleFn
     mask_fn:

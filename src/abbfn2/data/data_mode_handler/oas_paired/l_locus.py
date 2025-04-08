@@ -1,48 +1,11 @@
 import logging
-from collections.abc import Callable
-from functools import partial
 from pathlib import Path
 
 import numpy as np
-from abbfn2.data.data_mode_handler.base import DataModeHandler
-from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
-from abbfn2.data.types import DataModeBatch, RawBatch
 from jax import Array
 
-
-def preprocess_l_loci(
-    raw_batch: RawBatch,
-    carry_args: dict,
-    dm_key: str,
-    locus2id: dict[str, int],
-    unknown_id: int,
-) -> tuple[DataModeBatch, RawBatch, dict]:
-    """Preprocesses the light chain locus data by mapping locus labels to their corresponding IDs.
-
-    Args:
-        raw_batch (RawBatch): A batch of raw data, expected to include 'locus' labels.
-        carry_args (dict):  A dictionary to store any arguments that persist between
-            data modes.
-        dm_key (str): The key by which to identify the light chain locus.
-        locus2id (Dict[str, int]): A dictionary mapping locus names (str) to unique IDs (int).
-        unknown_id (int): The ID to be used for loci that are not found in the `locus2id` mapping.
-
-    Returns:
-        Tuple[DataModeBatch, RawBatch]: A tuple containing a `DataModeBatch` object with
-            processed locus IDs and a mask, and the unchanged input `raw_batch`.
-    """
-    locus_ids = np.array(
-        [locus2id.get(lab, unknown_id) for lab in raw_batch[dm_key]],
-    )
-
-    locus_ids = locus_ids[..., None]  # [N] --> [N, 1]
-
-    dm_batch = DataModeBatch(
-        x=locus_ids,
-        mask=np.ones_like(locus_ids),
-    )
-
-    return dm_batch, raw_batch, carry_args
+from abbfn2.data.data_mode_handler.base import DataModeHandler
+from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
 
 
 class LLocusDataModeHandler(DataModeHandler):
@@ -68,27 +31,6 @@ class LLocusDataModeHandler(DataModeHandler):
         self.unknown_label = unknown_label
         self.locus2id[self.unknown_label] = self.unknown_id
         self.id2locus[self.unknown_id] = self.unknown_label
-
-    def get_preprocess_function(
-        self,
-    ) -> tuple[Callable[[RawBatch], DataModeBatch], float]:
-        """Defines and returns the preprocessing functions for locus data.
-
-        Returns:
-            Tuple[Callable[[RawBatch], DataModeBatch], float]: The preprocessing
-                function and the priority of the function.
-        """
-        # Note: The preprocess function is defined external to this class such that it can be pickled for
-        # multiprocessing. This is necessary for efficient data loading and preprocessing.
-        preprocess_fn = partial(
-            preprocess_l_loci,
-            dm_key=self.dm_key,
-            locus2id=self.locus2id,
-            unknown_id=self.unknown_id,
-        )
-        priority = 1.0
-
-        return preprocess_fn, priority
 
     def sample_to_data(self, sample: Array) -> list[str]:
         """Converts an array of sample indices to a list of locus labels.

@@ -219,4 +219,3 @@ class ContinuousDecoder(Decoder):
             x = x.clip(min=self.processed_out_lims[0], max=self.processed_out_lims[1])
 
         return OutputNetworkPredictionContinuous(x=x, rho=1 + beta)
-

@@ -116,23 +116,6 @@ class BFNBase(ABC):
         t = jnp.full(self.cfg.variables_shape, fill_value=t)
         return self.noise_schedule.beta(params, t)
 
-    def compute_gamma(self, params: Any, t: float) -> Array:
-        """Compute the noise scale at time t.
-
-        γ(t) is monotonically increasing in time such that γ(0)=0 and γ(1)=1.
-
-        Args:
-           params (Any): The learnable params of the BFN (specifically, of the noise schedule).
-           t (float): The time.
-
-        Returns:
-            Array: Per-variable noise scale values (i.e. has shape with cfg.variables_shape).
-        """
-        if "noise_schedule" in params:
-            params = params["noise_schedule"]
-        t = jnp.full(self.cfg.variables_shape, fill_value=t)
-        return self.noise_schedule.gamma(params, t)
-
     def apply_output_network(
         self,
         params: Any,

@@ -2,31 +2,32 @@ import logging
 import math
 import pickle
 import time
+import warnings
 
 import hydra
 import jax
 import jax.numpy as jnp
 import jax.random as random
 import numpy as np
-from abbfn2.data.data_mode_handler.sequence.sequence import SequenceDataModeHandler
-from abbfn2.data.data_mode_handler import save_samples
-from abbfn2.bfn import BFN, get_bfn
-from abbfn2.sample.functions.twisted_sde_sample import TwistedSDESampleFn
-from abbfn2.sample.inpaint_masks import ConditionDataModeMaskFn, PredictDataModeMaskFn
-from abbfn2.utils.inference_utils import (
-    load_params,
-    pad_and_reshape,
-    configure_output_dir,
-    get_input_samples,
-    generate_random_mask_from_array_visible_pad,
-    flatten_and_crop,
-    show_conditioning_settings
-)
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from tabulate import tabulate
 from tqdm import tqdm
-import warnings
+
+from abbfn2.bfn import BFN, get_bfn
+from abbfn2.data.data_mode_handler import save_samples
+from abbfn2.data.data_mode_handler.sequence.sequence import SequenceDataModeHandler
+from abbfn2.sample.functions.twisted_sde_sample import TwistedSDESampleFn
+from abbfn2.sample.inpaint_masks import ConditionDataModeMaskFn, PredictDataModeMaskFn
+from abbfn2.utils.inference_utils import (
+    configure_output_dir,
+    flatten_and_crop,
+    generate_random_mask_from_array_visible_pad,
+    get_input_samples,
+    load_params,
+    pad_and_reshape,
+    show_conditioning_settings,
+)
 
 warnings.filterwarnings(
     "ignore",
@@ -34,7 +35,7 @@ warnings.filterwarnings(
     category=UserWarning
 )
 
-@hydra.main(version_base="1.1", config_path="./configs", config_name="inpaint_noparams.yaml")
+@hydra.main(version_base="1.1", config_path="./configs", config_name="inpaint.yaml")
 def main(full_config: DictConfig) -> None:
     """Main function.
 
@@ -81,14 +82,14 @@ def main(full_config: DictConfig) -> None:
                             return np.ones(masks[dm].shape, dtype=int)
                         # Otherwise, we want 0s (hidden) unless padding is visible
                         return np.zeros(masks[dm].shape, dtype=int) if not padding_visible else None
-                    
+
                     if isinstance(mask_fn, PredictDataModeMaskFn):
                         # For prediction, we want 0s (hidden) if the DM is in data_modes
                         if dm in mask_fn.data_modes:
                             return np.zeros(masks[dm].shape, dtype=int) if not padding_visible else None
                         # Otherwise, we want 1s (visible)
                         return np.ones(masks[dm].shape, dtype=int)
-                    
+
                     return None
 
                 new_mask = get_sequence_mask(dm, mask_fn, cfg.sampling.padding_visible)
@@ -178,7 +179,7 @@ def main(full_config: DictConfig) -> None:
     samples_raw = []
     logging.info("Beginning sampling")
     t = time.perf_counter()
-    
+
     # =========================== MAIN INFERENCE LOOP =========================
 
     for i in tqdm(range(inputs_info["num_batches"])):
