@@ -5,7 +5,5 @@
 params.pkl
 /s3_results/*
 /tmp/*
-Makefile
 /humanization_results/*
-notebooks/*
 igblast/ncbi-igblast-1.22.0_mac/humanisation_results

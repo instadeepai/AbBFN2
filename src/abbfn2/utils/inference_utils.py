@@ -13,6 +13,7 @@ from omegaconf import DictConfig
 from tabulate import tabulate
 
 from abbfn2.bfn import BFN, ContinuousBFN, DiscreteBFN, MultimodalBFN
+from abbfn2.data.data_mode_handler.oas_paired.constants import IMGT2IDX 
 from abbfn2.bfn.types import (
     OutputNetworkPrediction,
     OutputNetworkPredictionContinuous,
@@ -205,6 +206,90 @@ def get_input_samples(
             samples[dm] = np.broadcast_to(dm_sample, samples[dm].shape)
     return samples
 
+
+def configure_imgt_position_overrides(
+    masks: dict[str, Array | np.ndarray],
+    samples: dict[str, Array | np.ndarray],
+    overrides: dict[tuple[str, tuple[int, str]], str],
+    dm_handlers: dict[str, DataModeHandler],
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
+    """Configure position-specific overrides for IMGT-based sequence regions.
+
+    This function updates the `samples` and `masks` dictionaries based on the
+    given overrides, mapping positions and residues to their corresponding
+    indices within specified sequence regions.
+
+    Args:
+        masks (dict[str, np.ndarray]): A dictionary of binary masks indicating valid positions
+                                       within sequence regions, keyed by region names. Can contain
+                                       either `jax.numpy` or `numpy` arrays.
+        samples (dict[str, np.ndarray]): A dictionary of sequence data arrays, keyed by region names.
+                                         Can contain either `jax.numpy` or `numpy` arrays.
+        overrides (dict[tuple[str, tuple[int, str]], str]): A dictionary of overrides. Keys are tuples
+                                                            of chain, position, and residue, and values
+                                                            are the desired sequence values.
+        dm_handlers (dict[str, DataModeHandler]): Handlers for managing data modes and tokenizers,
+                                                  keyed by region names.
+
+    Returns:
+        tuple[dict[str, np.ndarray], dict[str, np.ndarray]]: Updated `samples` and `masks` dictionaries with
+                                                             position-specific overrides applied.
+
+    Example:
+        ```
+        masks = {"region1_seq": np.zeros((10, 100))}
+        samples = {"region1_seq": np.zeros((10, 100))}
+        overrides = {("A", (15, "A")): "value"}
+        dm_handlers = {"region1_seq": handler_object}
+
+        updated_samples, updated_masks = configure_imgt_position_overrides(masks, samples, overrides, dm_handlers)
+        ```
+    """
+    # Convert jax.numpy arrays to numpy arrays if necessary
+    masks = {
+        key: np.array(value) if isinstance(value, jnp.ndarray) else value
+        for key, value in masks.items()
+    }
+    samples = {
+        key: np.array(value) if isinstance(value, jnp.ndarray) else value
+        for key, value in samples.items()
+    }
+    logging.info(
+        "Position-specific overrides were detected. These residues will be set and made visible to the network:"
+    )
+
+    for (chain, pos), res in overrides.items():
+        chain_mapping = IMGT2IDX.get(chain, {})
+
+        region = None
+        idx = None
+        res_to_idx = None
+
+        # Locate the region and position index for the override
+        for region_name, pos_to_idx in chain_mapping.items():
+            if pos in pos_to_idx:
+                region = region_name
+                idx = pos_to_idx[pos]
+                res_to_idx = {
+                    token: i
+                    for i, token in enumerate(
+                        dm_handlers[f"{region}_seq"].tokenizer.vocabulary
+                    )
+                }
+                break
+
+        if region is None or idx is None or res_to_idx is None:
+            raise ValueError(
+                f"Invalid override position {pos} for chain {chain.upper()}."
+            )
+
+        # Apply the override
+        logging.info(f"Position: {pos} ({region}) -> Residue: {res}")
+        samples[f"{region}_seq"][:, idx] = res_to_idx[res]
+        masks[f"{region}_seq"][:, idx] = 1
+
+    return samples, masks
+
 def generate_random_mask_from_array_visible_pad(arr, frac_fill=0.5, exclusions=None):
     """Generate a mask (same shape as arr) where:
       - Each row has a% of non-exclusion positions set to 0 (chosen randomly).
@@ -284,8 +369,8 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
         with open(file_path, "rb") as f:
             params = pickle.load(f)
     else:
-        try: # FLAG : change to /app/params.pkl
-            with open("/Users/m-seince/Documents/Research/AbBFN2/AbBFN2/params.pkl", "rb") as f:
+        try: 
+            with open(cfg.model_weights_path, "rb") as f:
                 params = pickle.load(f)
         except FileNotFoundError:
             raise FileNotFoundError("No parameters file /app/params.pkl found. Please set load_from_hf to True.")

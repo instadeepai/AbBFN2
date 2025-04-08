@@ -7,6 +7,8 @@ cfg:
     searchpath:
       - file://./configs
 
+  model_weights_path: /app/params.pkl
+
   input:
     path: null
     override_masks_file: null

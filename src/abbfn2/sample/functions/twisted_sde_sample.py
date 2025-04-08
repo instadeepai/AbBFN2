@@ -467,8 +467,6 @@ class TwistedSDESampleFn(BaseSampleFn):
                 )
 
                 # Calculate the particle weights at t + dt
-                # flag : delete comment ?
-                # TB comment: This implementation is what I got to from Wu et al.
                 particle_logit = get_twisted_particle_logit(
                     bfn=self.bfn,
                     pred=state.pred,  # pred(θ_0) to obtain p_r(y|θ_0,α)

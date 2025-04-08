@@ -6,6 +6,8 @@ hydra:
   searchpath:
     - file://./configs
 
+model_weights_path: /app/params.pkl
+
 cfg:
   sampling:
     num_samples_per_batch: 1
