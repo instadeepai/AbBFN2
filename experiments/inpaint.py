@@ -9,8 +9,6 @@ import jax
 import jax.numpy as jnp
 import jax.random as random
 import numpy as np
-<<<<<<< HEAD
-=======
 from abbfn2.data.data_mode_handler.sequence.sequence import SequenceDataModeHandler
 from abbfn2.data.data_mode_handler import save_samples
 from abbfn2.bfn import BFN, get_bfn
@@ -26,7 +24,6 @@ from abbfn2.utils.inference_utils import (
     show_conditioning_settings,
     configure_imgt_position_overrides
 )
->>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from tabulate import tabulate
