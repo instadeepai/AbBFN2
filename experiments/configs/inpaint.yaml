@@ -7,7 +7,7 @@ cfg:
     searchpath:
       - file://./configs
 
-  model_weights_path: /Users/m.braganca/Documents/AbBFN2/params.pkl
+  model_weights_path: /app/params.pkl
 
   input:
     path: null
@@ -26,7 +26,7 @@ cfg:
     padding_visible: false
     force_conditioning_information: true
     inpaint_fn:
-      _target_: abbfn2.sample.functions.twisted_sde_sample.TwistedSDESampleFn
+      _target_: abbfn2.sample.functions.TwistedSDESampleFn
       greedy: true
       num_steps: 1 # 300-1000
       twist_scale: 1.0 # 1.0

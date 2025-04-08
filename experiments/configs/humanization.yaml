@@ -6,7 +6,7 @@ cfg:
     searchpath:
       - file://./configs
 
-  model_weights_path: /Users/m.braganca/Documents/AbBFN2/params.pkl
+  model_weights_path: /app/params.pkl
 
   input:
     path: null
@@ -21,7 +21,7 @@ cfg:
     recycling_steps: 1
     enforce_cdr_sequence: true
     inpaint_fn:
-      _target_: abbfn2.sample.functions.sde_sample.SDESampleFn
+      _target_: abbfn2.sample.functions.SDESampleFn
       num_steps: 1
       time_schedule:
         _target_: abbfn2.sample.schedule.LinearScheduleFn

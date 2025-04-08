@@ -179,7 +179,7 @@ def main(full_config: DictConfig) -> None:
     cfg.input.dm_overwrites = {"species": "human"}
     cfg.input.path = None
 
-    cfg.sampling.inpaint_fn._target_ = 'abbfn2.sample.functions.sde_sample.SDESampleFn'
+    cfg.sampling.inpaint_fn._target_ = 'abbfn2.sample.functions.SDESampleFn'
     cfg.sampling.mask_fn.data_modes = ["species"]
     cfg.sampling.inpaint_fn.score_scale = {k: 16.0 for k in cfg.sampling.mask_fn.data_modes}
     cfg.sampling.num_samples_per_batch = cfg.input.num_input_samples

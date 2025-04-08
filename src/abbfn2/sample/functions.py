@@ -1,25 +1,229 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from functools import partial
 
 import jax
-from distrax import Categorical, Normal
 from flax import struct
-from jax import Array
 from jax import numpy as jnp
 from jax.lax import scan
+from jax import Array
 from jax.random import PRNGKey
 
-from abbfn2.bfn import BFN, ContinuousBFN, DiscreteBFN, MultimodalBFN
+from abbfn2.bfn import BFN, MultimodalBFN, ContinuousBFN, DiscreteBFN
 from abbfn2.bfn.types import (
-    OutputNetworkPrediction,
     OutputNetworkPredictionMM,
+    ThetaMM,
+    OutputNetworkPrediction,
     Theta,
     ThetaContinuous,
     ThetaDiscrete,
-    ThetaMM,
 )
-from abbfn2.sample.functions.base import BaseSampleFn
+from abbfn2.sample.schedule import LinearScheduleFn
+import logging
 
+from typing import Any
+
+from distrax import Categorical, Normal
+
+
+
+
+@dataclass
+class BaseSampleFn(ABC):
+    """Get the sampling function for the BFN model.
+
+    Args:
+        bfn (BFN): The BFN model.
+        num_steps (int): The number of steps to iterate for generating samples.
+        time_schedule (LinearScheduleFn): The time schedule function.
+        greedy (bool): Whether to sample the mode of the distribution (greedy) or sample from the distribution. Defaults to True.
+    """
+
+    bfn: BFN
+    num_steps: int
+    time_schedule: LinearScheduleFn
+    greedy: bool = True
+
+    def __post_init__(self):
+        """Check that the BFN model is multimodal."""
+        assert isinstance(
+            self.bfn,
+            MultimodalBFN,
+        ), "Sampling function only supports multimodal BFN."
+
+    def _sample_from_network_prediction(
+        self, key: PRNGKey, pred: OutputNetworkPredictionMM
+    ) -> dict[str, Array]:
+        """Sample from the network prediction.
+
+        Args:
+            key (PRNGKey): The random key used for generating samples.
+            pred (OutputNetworkPredictionMM): The network prediction.
+
+        Returns:
+            Dict[str, Array]: The sampled values.
+        """
+        args = {dm: {} for dm in self.bfn.bfns}
+
+
+        if self.greedy:
+            # Sample the mode of the distribution.
+            sample = {
+                dm: pred.to_distribution(**args[dm]).mode() for dm, pred in pred.items()
+            }
+        else:
+            # Sample from the distribution.
+            ks = jax.random.split(key, len(self.bfn.data_modes))
+            sample = {
+                dm: pred.to_distribution(**args[dm]).sample(seed=k)
+                for (dm, pred), k in zip(pred.items(), ks)
+            }
+
+        return sample
+
+    @abstractmethod
+    def __call__(
+        self,
+        key: PRNGKey,
+        params: dict,
+        x: dict[str, Array] | None,
+        mask_sample: dict[str, Array] | None,
+    ) -> dict[str, Array]:
+        """Generate samples by "hallucinating" Alice.
+
+        Parameters:
+            key (PRNGKey): The random key used for generating samples.
+            params (dict): The network params.
+            x (Dict[str, Array] | None): The "ground-truth" sample on which to condition generation.
+            mask_sample (Dict[str, Array] | None): Variable-wise mask determining which regions of the ground-truth
+                is visible during sampling. i.e. 0 means the network does not know the ground-truth.
+
+        Returns:
+            dict[str, Array]: The generated samples.
+        """
+
+@struct.dataclass
+class SampleState:
+    """State for the SampleFn.
+
+    Attributes:
+        t (float): The time at which the prediction was made.
+        theta (ThetaMM): The input distribution parameters used at time t.
+        pred (OutputNetworkPredictionMM): The network prediction at time t.
+    """
+
+    t: float
+    theta: ThetaMM
+    pred: OutputNetworkPredictionMM
+
+
+@dataclass
+class SampleFn(BaseSampleFn):
+    """Get the sampling function for the BFN model.
+
+    This is the standard BFN sampling function introduced by Graves et al. (2023).  It is only adapted to unconditional
+    sampling and does not support conditioning on ground-truth data or masks.
+
+    Args:
+        bfn (BFN): The BFN model.
+        num_steps (int): The number of steps to iterate for generating samples.
+        time_schedule (LinearScheduleFn): The time schedule function.
+        greedy (bool): Whether to sample the mode of the distribution (greedy) or sample from the distribution.
+    """
+
+    def __call__(
+        self,
+        key: PRNGKey,
+        params: dict,
+        x: dict[str, Array] | None = None,
+        mask_sample: dict[str, Array] | None = None,
+    ) -> jnp.array:
+        """Generate samples by "hallucinating" Alice.
+
+        Parameters:
+            key (PRNGKey): The random key used for generating samples.
+            params (dict): The network params.
+            x (Dict[str, Array] | None): The "ground-truth" sample on which to condition generation.  Ignored in this function.
+            mask_sample (Dict[str, Array] | None): Variable-wise mask determining which regions of the ground-truth. Ignored in this function.
+
+        Returns:
+            Array: The generated samples.
+
+        Note:
+            This function implements algorithm's 3, 6 and 9 from Graves et al.
+
+        Raises:
+            logging.warning: If conditioning on ground-truth data or mask is attempted.
+        """
+        if x is not None or mask_sample is not None:
+            raise logging.warning(
+                "Conditioning on ground-truth data or mask is not supported by SampleFn.  This conditioning information will be ignored."
+            )
+
+        # Prepare model input.
+        theta = self.bfn.get_prior_input_distribution()
+
+        # Run network at t=0
+        key, key_output = jax.random.split(key)
+        pred = self.bfn.apply_output_network(
+            params,
+            key_output,
+            theta,
+            t=0,
+            mask=None,
+        )
+        sample_state = SampleState(t=0.0, theta=theta, pred=pred)
+
+        def loop_body(
+            state: SampleState, xs: tuple[int, PRNGKey]
+        ) -> tuple[SampleState, dict[str, Array]]:
+            """Loop body for sampling.
+
+            Args:
+                state (SampleState): The current state.
+                xs (tuple[int, PRNGKey]): The loop variables (i, key) where i is the current step and key is the random key.
+
+            Returns:
+                tuple[SampleState, dict[str, Array]]: The updated state and the sampled values.
+            """
+            i, key = xs
+            key_output, key_receiver = jax.random.split(key, 2)
+            t_start, t_end = self.time_schedule(i, self.num_steps)
+
+            beta = self.bfn.compute_beta(params, t_start)
+            beta_next = self.bfn.compute_beta(params, t_end)
+            alpha = jax.tree_util.tree_map(lambda b2, b1: b2 - b1, beta_next, beta)
+
+            # Update theta from t to t + dt using the network prediction at t.
+            y = self.bfn.sample_receiver_distribution(state.pred, alpha, key_receiver)
+            theta = self.bfn.update_distribution(state.theta, y, alpha)
+
+            # Run the network at t + dt.
+            pred = self.bfn.apply_output_network(
+                params,
+                key_output,
+                theta,
+                t_end,
+                mask=None,
+            )
+            state = SampleState(t=t_end, theta=theta, pred=pred)
+
+            return state, y
+
+        # Run sampling for t_start, t_end in = [(0,1/N),(1/N, 2/N), ..., (1-1/N, 1)].
+        key, ks = jax.random.split(key)
+
+        sample_state, ys = scan(
+            loop_body,
+            sample_state,
+            (jnp.arange(self.num_steps), jax.random.split(ks, self.num_steps)),
+        )
+
+        # Sample from the output network prediction.
+        sample = self._sample_from_network_prediction(key, sample_state.pred)
+
+        return sample
+    
 
 def _twisted_importance_logit_cts_mean(
     mean: Array,
@@ -501,3 +705,191 @@ class TwistedSDESampleFn(BaseSampleFn):
             sample_states.pred,
         )
         return samples
+
+@dataclass
+class SDESampleFn:
+    """Creates the SDE sampling function for the BFN model.
+
+    Args:
+        max_score (float | None): Range at which to clip the conditional score. Defaults to 1.0. Set to None for no clipping (can lead to unstable sampling)
+        naive (bool): Reverts to naive inpainting if True (i.e. doesn't use the conditional score, only the conditioning data). Defaults to False
+        mask_receiver_sample (bool): Controls whether to mask the receiver sample with the sender sample for the conditioning data. Defaults to True
+    """
+
+    max_score: float | None = 1.0
+    naive: bool = False
+    mask_receiver_sample: bool = True
+    score_scale: float | None = None
+
+    def __post_init__(self):
+        """Check that the BFN model is multimodal."""
+        assert isinstance(
+            self.bfn,
+            MultimodalBFN,
+        ), "Sampling function only supports multimodal BFN, not\n" + str(self.bfn)
+        assert (self.max_score is None) or (
+            self.max_score > 0
+        ), "max_score must either be None or > 0, not\n" + str(self.max_score)
+
+    def __call__(
+        self,
+        key: PRNGKey,
+        params: dict,
+        x: dict[str, Array] | None = None,
+        mask_sample: dict[str, Array] | None = None,
+    ) -> jnp.array:
+        """Generate samples by "hallucinating" Alice.
+
+        Parameters:
+            key (PRNGKey): The random key used for generating samples.
+            params (Params): The network params.
+            x (Dict[str, Array]): The "ground-truth" sample on which to condition generation.
+            mask_sample (Dict[str, Array]): Variable-wise mask determining which regions of the ground-truth
+                is visible during sampling. i.e. 0 means the network does not know the ground-truth.
+
+
+        Returns:
+            Array: The generated samples.
+
+        Note:
+            This function implements conditional SDE based sampling similar to diffusion models in "Score-Based Generative Modeling through Stochastic Differential Equations", Song et. al.
+            by adapting using the BFN SDE formulation from "Unifying Bayesian Flow Networks and Diffusion Models through Stochastic Differential Equations", Xue et. al.
+        """
+        # Prepare model input.
+        theta = self.bfn.get_prior_input_distribution()
+        run_net = partial(
+            self.bfn.apply_output_network,
+            params,
+            mask=None,
+        )
+
+        def conditional_log_prob_fn(
+            key: PRNGKey, theta: ThetaMM, t: float, alpha: dict[str, Array]
+        ):
+            key_output, key_receiver = jax.random.split(key, 2)
+            pred = run_net(key_output, theta, t)
+
+            log_prob = self.bfn.conditional_log_prob(
+                pred, x, jax.tree_map(lambda arr: arr > t, mask_sample), jax.lax.stop_gradient(theta)
+            )
+
+            y = self.bfn.sample_receiver_distribution(pred, alpha, key_receiver)
+            return log_prob, y
+
+
+        conditional_score_fn = jax.grad(
+            conditional_log_prob_fn, argnums=1, has_aux=True
+        )
+
+        def loop_body(theta: ThetaMM, xs: tuple[int, PRNGKey]):
+            # i starts from 1 in paper, from 0 here
+            i, key = xs
+            key_output, key_receiver, key_sender = jax.random.split(key, 3)
+            t_start, t_end = self.time_schedule(i, self.num_steps)
+            beta = self.bfn.compute_beta(params, t_start)
+            beta_next = self.bfn.compute_beta(params, t_end)
+            alpha = jax.tree_map(lambda b2, b1: b2 - b1, beta_next, beta)
+
+            if (x is None) or self.naive:
+                pred = run_net(key_output, theta, t_start)
+                y_rec = self.bfn.sample_receiver_distribution(pred, alpha, key_receiver)
+                conditional_score = None
+            else:
+                conditional_score, y_rec = conditional_score_fn(
+                    key_output, theta, t_start, alpha
+                )
+                if self.max_score is not None:
+                    conditional_score = jax.tree_map(
+                        lambda s: jnp.clip(s, -self.max_score, self.max_score),
+                        conditional_score,
+                    )
+
+                if isinstance(self.score_scale, float):
+                    conditional_score = jax.tree_map(
+                        lambda arr: arr * self.score_scale,
+                        conditional_score,
+                    )
+
+                elif self.score_scale is not None:
+
+                    def apply_scale(score, key):
+                        scale = self.score_scale[
+                            key
+                        ]  # Get the scale for the corresponding key
+                        return jax.tree_map(
+                            lambda x: x * scale, score
+                        )  # Scale all arrays within the object
+
+                    self.score_scale = dict(self.score_scale)
+                    for dm in conditional_score.keys():
+                        if dm not in self.score_scale:
+                            self.score_scale[dm] = 1.0
+
+                    conditional_score = {
+                        dm: apply_scale(score, dm)
+                        for dm, score in conditional_score.items()
+                    }
+
+            if (self.mask_receiver_sample is False) or (x is None):
+                y = y_rec
+            else:
+                y_sen = self.bfn.sample_sender_distribution(x, alpha, key_sender)
+                # Choose between samples from receiver and sender distibutions depending on the mask.
+                # Note: we add ending dimensions to the mask such that is can be broadcast over y_sen, y_rec
+                y = jax.tree_util.tree_map(
+                    lambda y_sen, y_rec, m: jnp.where(
+                        m.reshape(m.shape + (1,) * (y_sen.ndim - m.ndim)),
+                        y_sen,
+                        y_rec,
+                    ),
+                    y_sen,
+                    y_rec,
+                    jax.tree_map(lambda arr: arr > t_start, mask_sample),
+                    #mask_sample,
+                )
+
+            theta = self.bfn.update_distribution(
+                theta, y, alpha, conditional_score,
+                jax.tree_map(lambda arr: arr > t_start, mask_sample),
+            )
+
+            return theta, y
+
+        # Run sampling for t=0, 1/N, ..., (N-1)/N.
+        key, ks = jax.random.split(key)
+
+        theta, ys = scan(
+            loop_body,
+            theta,
+            (jnp.arange(self.num_steps), jax.random.split(ks, self.num_steps)),
+        )
+
+        # Run the output network for t=1.
+        key, key_output = jax.random.split(key)
+
+        pred = self.bfn.apply_output_network(
+            params,
+            key_output,
+            theta,
+            t=1,
+            mask=None,
+        )
+        # Sample from the output network.
+        # Note that DiscretizedBFN predictions require the number of bins to be passed.
+        ks = jax.random.split(key, len(self.bfn.data_modes))
+        args = {dm: {} for dm in self.bfn.bfns}
+
+        if self.greedy:
+
+            # Sample the mode of the distribution.
+            sample = {
+                dm: pred.to_distribution(**args[dm]).mode() for dm, pred in pred.items()
+            }
+        else:
+            # Sample from the distribution.
+            sample = {
+                dm: pred.to_distribution(**args[dm]).sample(seed=k)
+                for (dm, pred), k in zip(pred.items(), ks)
+            }
+
+        return sample, pred
