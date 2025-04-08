@@ -209,19 +209,9 @@ def run_igblast_pipeline(
     input_file: str | Path,
     species: str = "human",
     n_alignments: int = 1,
-<<<<<<< HEAD
-<<<<<<< HEAD
     igblast_path: str | Path | None = None,
-    v_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_v_db",
-    j_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_j_db",
-=======
-    igblast_path: str | Path | None = "../../../igblast/ncbi-igblast-1.22.0_linux/bin/igblastp",
-=======
-    igblast_path: str | Path | None = "../../../igblast/ncbi-igblast-1.22.0_mac/bin/igblastp",
->>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)
     v_gene_db_path: str | Path | None = "../../../igblast/human_db/human_imgt_v_db",
     j_gene_db_path: str | Path | None = "../../../igblast/human_db/human_imgt_j_db",
->>>>>>> 0e9d0f4 (removed unused dbs, changed names and fixed ReadMe)
     local_igblast_raw: str | Path | None = "../../../igblast/igblast_output_raw.tsv",
 ) -> dict:
     """Run the IgBLAST pipeline on antibody sequences.
@@ -242,7 +232,7 @@ def run_igblast_pipeline(
         if platform.system() == "Darwin":
             igblast_path = "../../../igblast/ncbi-igblast-1.22.0_mac/bin/igblastp"
         else:
-            igblast_path = "../../../igblast/ncbi-igblast-1.22.0/bin/igblastp"
+            igblast_path = "../../../igblast/ncbi-igblast-1.22.0_linux/bin/igblastp"
 
     local_input_file = Path(input_file).absolute()
     v_gene_db_path = Path(v_gene_db_path).absolute()
