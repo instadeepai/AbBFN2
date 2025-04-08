@@ -9,19 +9,19 @@ from Humatch.germline_likeness import mutate_seq_to_match_germline_likeness
 def create_sequence_data(name: str, heavy_seq: str, light_seq: str) -> Dict:
     """
     Create structured data for a sequence pair using ANARCI/abnumber.
-    
+
     Args:
         name: Antibody name
         heavy_seq: Heavy chain sequence
         light_seq: Light chain sequence
-        
+
     Returns:
         Dictionary containing structured sequence data
     """
     try:
         h_numbered = abnumber.Chain(heavy_seq, scheme="imgt", cdr_definition="imgt")
         l_numbered = abnumber.Chain(light_seq, scheme="imgt", cdr_definition="imgt")
-        
+
         return {
             name: {
                 "h": {
@@ -62,7 +62,7 @@ def process_prehumanisation(
 ) -> Tuple[Dict, Dict, List[str], List[str]]:
     """
     Process pre-humanisation sequences and return results.
-    
+
     Args:
         fasta_path: Path to input FASTA file with precursor sequences
         heavy_igblast_path: Path to heavy chain IgBlast results
@@ -71,14 +71,14 @@ def process_prehumanisation(
         allow_cdr_mutations: Whether to allow mutations in CDR regions
         fixed_imgt_positions: IMGT positions to keep fixed
         log_level: Logging level
-        
+
     Returns:
         Tuple containing:
             - Dictionary of prehumanised sequence data
             - Dictionary of precursor sequence data
             - List of heavy chain germline targets
             - List of light chain germline targets
-    """  
+    """
     all_names = [f"Chain_{i}" for i in range(len(input_heavy_seqs))]
 
     heavy_seqs = [get_padded_seq(h) for h in input_heavy_seqs]
@@ -106,10 +106,10 @@ def process_prehumanisation(
     logging.info("Creating output data")
     prehumanised_data = {}
     precursor_data = {}
-    
+
     for name, h, l, h_input, l_input in zip(all_names, heavy_seqs, light_seqs, input_heavy_seqs, input_light_seqs):
         prehumanised_data.update(create_sequence_data(name, h, l))
         precursor_data.update(create_sequence_data(name, h_input, l_input))
-    
+
     logging.info("Processing completed successfully")
     return prehumanised_data, precursor_data

@@ -17,7 +17,7 @@ cfg:
 
     dm_overwrites: # Select the data mode for the input samples.
       species: "mouse"
-      
+
 
   sampling:
     seed: 0

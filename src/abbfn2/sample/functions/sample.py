@@ -136,5 +136,5 @@ class SampleFn(BaseSampleFn):
 
         # Sample from the output network prediction.
         sample = self._sample_from_network_prediction(key, sample_state.pred)
-    
+
         return sample

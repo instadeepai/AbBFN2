@@ -1,6 +1,4 @@
 import logging
-from collections.abc import Callable
-from functools import partial
 from pathlib import Path
 
 import numpy as np
@@ -10,6 +8,7 @@ from abbfn2.data.data_mode_handler.base import DataModeHandler
 from abbfn2.data.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
 
 SIMPLIFIED_SPECIES = ["human", "rat", "mouse"]
+
 
 class SpeciesDataModeHandler(DataModeHandler):
     """Handles data mode specific to labelling the organism."""

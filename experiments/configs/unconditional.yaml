@@ -14,7 +14,7 @@ cfg:
     sample_fn:
       _target_: abbfn2.sample.functions.sample.SampleFn
       num_steps: 1 # The recommended number of steps is between 300-1000.
-      time_schedule: 
+      time_schedule:
         _target_: abbfn2.sample.schedules.LinearScheduleFn
 
   output:

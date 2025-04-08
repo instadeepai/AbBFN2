@@ -1,6 +1,4 @@
 import logging
-from collections.abc import Callable
-from functools import partial
 from pathlib import Path
 
 import numpy as np

@@ -42,13 +42,13 @@ def main(full_config: DictConfig) -> None:
     dm_handlers = {
         dm: instantiate(dm_cfg.handler) for dm, dm_cfg in cfg_run.data_mode.items()
     }
-    
+
     # Prepare output directory.
     local_output_dir = configure_output_dir(cfg.output)
 
     # Inference function
     @jax.jit
-    def batched_sample(params, key): 
+    def batched_sample(params, key):
         key, sample_key = jax.random.split(key, 2)
         sample_fn = instantiate(cfg.sampling.sample_fn, bfn=bfn)
         sample_keys = jax.random.split(sample_key, cfg.sampling.num_samples_per_batch)

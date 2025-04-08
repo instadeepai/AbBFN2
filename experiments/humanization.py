@@ -28,7 +28,7 @@ from abbfn2.utils.prehumanization.pre_humanisation import process_prehumanisatio
 
 SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
            "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]
-FW_DMS = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq", 
+FW_DMS = ["h_fwr1_seq", "h_fwr2_seq", "h_fwr3_seq", "h_fwr4_seq",
           "l_fwr1_seq", "l_fwr2_seq", "l_fwr3_seq", "l_fwr4_seq"]
 CDR_DMS = ["h_cdr1_seq", "h_cdr2_seq", "h_cdr3_seq", "l_cdr1_seq", "l_cdr2_seq", "l_cdr3_seq"]
 
@@ -47,7 +47,7 @@ def process_input_overrides(dm_handlers, precursors, regions=None, num_devices=1
         dm: [seqs[dm.split("_")[0]][dm.split("_")[1]] for seqs in precursors.values()]
         for dm in regions
     }
-    
+
     # Pad the data to make the total number divisible by num_devices
     num_samples = len(next(iter(override_data.values())))
     remainder = num_samples % num_devices
@@ -56,21 +56,21 @@ def process_input_overrides(dm_handlers, precursors, regions=None, num_devices=1
         for dm in regions:
             last_row = override_data[dm][-1]
             override_data[dm].extend([last_row] * pad_size)
-    
+
     # Generate override samples and masks
     override_samples = {
         dm: dm_handlers[dm].data_to_sample(override_data[dm])
         for dm in regions
     }
     override_masks = {k: np.ones_like(v) for k, v in override_samples.items()}
-    
+
     return override_samples, override_masks
 
 
 def reweight_masks(masks, regions=None, weighting=1.0):
     if regions is None:
         regions = FW_DMS
-    
+
     for dm in regions:
         masks[dm] = np.ones_like(masks[dm]) * weighting
 
@@ -80,17 +80,17 @@ def reweight_masks(masks, regions=None, weighting=1.0):
 def generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded):
     samples = jax.tree_util.tree_map(lambda x: pad_and_reshape(x, num_samples_padded, num_batches), samples)
     masks = jax.tree_util.tree_map(lambda x: pad_and_reshape(x, num_samples_padded, num_batches), masks)
-    
+
     inputs_info = {
         "num_batches": num_batches,
         "num_samples": num_samples,
         "samples": samples,
         "masks": masks,
     }
-    
+
     # Prepare the batched sampling function.
     sample_fn = instantiate(cfg.sampling.inpaint_fn, bfn=bfn)
-    
+
     @jax.jit
     def batched_sample(params, key, x, mask):
         key, sample_key = jax.random.split(key, 2)
@@ -104,16 +104,16 @@ def generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, pa
             mask,
         )
         return samples, preds
-    
+
     # Run sampling.
     def get_inputs(i):
         x = jax.tree_util.tree_map(lambda x: x[i], inputs_info["samples"])
         mask = jax.tree_util.tree_map(lambda x: x[i], inputs_info["masks"])
         return x, mask
-    
+
     samples_raw = []
     preds_raw = []
-    
+
     for j in range(inputs_info["num_batches"]):
         x, mask = get_inputs(j)
         key, sample_key = jax.random.split(key, 2)
@@ -138,7 +138,7 @@ def logistic_decay(t, n, max_val, min_val, steepness=6):
 
 def has_valid_vfams(cfg):
     """Check if valid vfams exist in config."""
-    return (cfg.input.get('h_vfams', None) is not None or 
+    return (cfg.input.get('h_vfams', None) is not None or
             cfg.input.get('l_vfams', None) is not None)
 
 @hydra.main(version_base="1.1", config_path="./configs", config_name="humanization.yaml")
@@ -198,7 +198,7 @@ def main(full_config: DictConfig) -> None:
         fasta_file = "sequences.fasta"
         create_fasta_from_sequences(l_seq, h_seq, fasta_file) # Dumps L and H string into a fasta format.
         vfams = run_igblast_pipeline(fasta_file)
-        h_vfams = vfams[1::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take odd indices (1, 3, 5, ...) for heavy chain 
+        h_vfams = vfams[1::2] if "h_vfams" not in cfg.input else cfg.input.h_vfams # Take odd indices (1, 3, 5, ...) for heavy chain
         l_vfams = vfams[0::2] if "l_vfams" not in cfg.input else cfg.input.l_vfams # Take even indices (0, 2, 4, ...) for light chain
     else:
         h_vfams = cfg.input.h_vfams
@@ -269,7 +269,7 @@ def main(full_config: DictConfig) -> None:
 
     # Create the initial override masks
     override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
-    
+
     # Get the initial predictions and calculate the sequence-level conditioning scale
     _, baseline_preds_raw, masks, key, _ = generate_samples(samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
     humanness = baseline_preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
@@ -282,8 +282,8 @@ def main(full_config: DictConfig) -> None:
     ages = {k: v for k, v in ages.items() if k in FW_DMS}
 
     # Identify changed positions
-    changed_positions = jax.tree_util.tree_map(lambda x1, x2: x1 != x2, 
-                                            {k: v for k, v in samples.items() if k in FW_DMS}, 
+    changed_positions = jax.tree_util.tree_map(lambda x1, x2: x1 != x2,
+                                            {k: v for k, v in samples.items() if k in FW_DMS},
                                             {k: v for k, v in prec_samples.items() if k in FW_DMS})
     nbr_mutations.append(0)
 
@@ -297,7 +297,7 @@ def main(full_config: DictConfig) -> None:
 
     ages = jax.tree_util.tree_map(update_age, ages, changed_positions)
 
-    # Create the conditioning factors based on ages 
+    # Create the conditioning factors based on ages
     age_cond = jax.tree_util.tree_map(lambda x: logistic_decay(x, SAMPLING_CFG["delta_decay_over"], 1, SAMPLING_CFG["delta_decay_to"]), ages)
 
     def threshold_age_cond(x1, x2):
@@ -331,7 +331,7 @@ def main(full_config: DictConfig) -> None:
         # Set the conditioning masks according to the changes made in the previous iteration
         for dm in FW_DMS:
             masks[dm] = cond_masks[dm]
-            
+
         prev_samples = samples
         samples_raw, preds_raw, masks, key, samples = generate_samples(prev_samples, masks, num_batches, num_samples, cfg, bfn, key, params, num_samples_padded)
 
@@ -343,8 +343,8 @@ def main(full_config: DictConfig) -> None:
         humanness_vals.append(humanness)
 
         # Identify changed positions
-        changed_positions = jax.tree_util.tree_map(lambda x1, x2: x1 != x2, 
-                                                {k: v for k, v in samples.items() if k in FW_DMS}, 
+        changed_positions = jax.tree_util.tree_map(lambda x1, x2: x1 != x2,
+                                                {k: v for k, v in samples.items() if k in FW_DMS},
                                                 {k: v for k, v in prev_samples.items() if k in FW_DMS})
         nbr_mutations.append(sum(cp.sum() for cp in changed_positions.values()))
 
@@ -353,11 +353,11 @@ def main(full_config: DictConfig) -> None:
 
         # Reset ages where changes have been made
         ages = jax.tree_util.tree_map(update_age, ages, changed_positions)
-        
-        # Create the conditioning factors based on ages 
+
+        # Create the conditioning factors based on ages
         age_cond = jax.tree_util.tree_map(lambda x: logistic_decay(x, SAMPLING_CFG["delta_decay_over"], 1, SAMPLING_CFG["delta_decay_to"]), ages)
         age_cond = jax.tree_util.tree_map(threshold_age_cond, age_cond, ages)
-        
+
         # Create the conditioning factors based on humanness
         hum_cond = {k: np.clip(v * hum_cond_vals, SAMPLING_CFG["min_cond"], 1.0) for k, v in override_masks.items()}
         cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), age_cond, hum_cond)
@@ -368,7 +368,7 @@ def main(full_config: DictConfig) -> None:
                 samples_raw[dm] = initial_samples[dm]
 
         save_samples(samples_raw, dm_handlers, Path(step_dir))
-    
+
     logging.info(f"humanness_vals: {humanness_vals}")
     logging.info(f"nbr_mutations: {nbr_mutations}")
 

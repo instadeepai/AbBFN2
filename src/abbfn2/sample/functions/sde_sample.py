@@ -86,11 +86,11 @@ class SDESampleFn:
             log_prob = self.bfn.conditional_log_prob(
                 pred, x, jax.tree_map(lambda arr: arr > t, mask_sample), jax.lax.stop_gradient(theta)
             )
-            
+
             #log_prob = self.bfn.conditional_log_prob(
             #    pred, x, mask_sample, jax.lax.stop_gradient(theta)
             #)
-            
+
             y = self.bfn.sample_receiver_distribution(pred, alpha, key_receiver)
             return log_prob, y
 
@@ -167,10 +167,10 @@ class SDESampleFn:
                 )
 
             theta = self.bfn.update_distribution(
-                theta, y, alpha, conditional_score, 
+                theta, y, alpha, conditional_score,
                 jax.tree_map(lambda arr: arr > t_start, mask_sample),
             )
-                    
+
             #theta = self.bfn.update_distribution(
             #    theta, y, alpha, conditional_score, mask_sample
             #)

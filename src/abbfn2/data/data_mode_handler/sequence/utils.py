@@ -114,11 +114,11 @@ class BFNTokenizer(Tokenizer):
     @property
     def pad_token(self) -> str:
         return self._pad_token
-    
+
     @property
     def eos_token(self) -> str:
         return self._eos_token
-    
+
     @property
     def padding_idx(self) -> int:
         """
@@ -128,7 +128,7 @@ class BFNTokenizer(Tokenizer):
             Id (int representation) of the pad token.
         """
         return self._tokens_to_ids[self.pad_token]
-    
+
     @property
     def special_tokens(self) -> List[str]:
         return self._special_tokens
@@ -287,4 +287,3 @@ class IMGTTokenizer(BFNTokenizer):
             for t, delta, mid in zip(batch, deltas, mids)
         ]
         return list(zip(padded_tokens, padded_tokens_ids))
-

@@ -1,6 +1,5 @@
 import logging
-from collections.abc import Callable, Iterable
-from functools import partial
+from collections.abc import Iterable
 from pathlib import Path
 
 import numpy as np
@@ -69,7 +68,7 @@ class SequenceDataModeHandler(DataModeHandler):
             )
 
         return records
-    
+
     def data_to_sample(self, data: Iterable[SeqRecord.SeqRecord | str]) -> Array:
         """Turns a batch of raw data into a model-friendly sample."""
         sequences = [
@@ -79,7 +78,7 @@ class SequenceDataModeHandler(DataModeHandler):
         tokens = self.tokenizer.batch_tokenize(sequences)
         samples = np.array([toks for _, toks in tokens])
         return samples
-    
+
     def save_data(
         self,
         data: list[SeqRecord.SeqRecord],
@@ -135,7 +134,8 @@ class SequenceDataModeHandler(DataModeHandler):
         if not path.exists():
             raise FileNotFoundError(f"No file found at {path}")
         return SeqIO.parse(path, "fasta")
-    
+
+
 def sample_to_string(sample: Array, tokenizer: BFNTokenizer) -> str:
     """'Detokenize' a sample, converting it back into string
     Args:

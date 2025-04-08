@@ -273,7 +273,7 @@ def configure_output_dir(
 
 
 def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
-    
+
     if cfg.load_from_hf:
         # TODO: Once HF is open source, remove the token login:
         import os
@@ -295,7 +295,7 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
 def create_fasta_from_sequences(l_seq: str, h_seq: str, output_file: str = "sequences.fasta") -> None:
     """
     Create a FASTA file from light and heavy chain sequences.
-    
+
     Args:
         l_seq (str): Light chain sequence
         h_seq (str): Heavy chain sequence
@@ -303,12 +303,12 @@ def create_fasta_from_sequences(l_seq: str, h_seq: str, output_file: str = "sequ
     """
     l_seq = l_seq.strip()
     h_seq = h_seq.strip()
-    
+
     if not l_seq or not h_seq:
         raise ValueError("Both light and heavy chain sequences must be provided")
-    
+
     fasta_content = f">L_chain\n{l_seq}\n>H_chain\n{h_seq}\n"
-    
+
     try:
         with open(output_file, 'w') as f:
             f.write(fasta_content)

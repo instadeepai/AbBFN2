@@ -82,14 +82,14 @@ def main(full_config: DictConfig) -> None:
                             return np.ones(masks[dm].shape, dtype=int)
                         # Otherwise, we want 0s (hidden) unless padding is visible
                         return np.zeros(masks[dm].shape, dtype=int) if not padding_visible else None
-                    
+
                     if isinstance(mask_fn, PredictDataModeMaskFn):
                         # For prediction, we want 0s (hidden) if the DM is in data_modes
                         if dm in mask_fn.data_modes:
                             return np.zeros(masks[dm].shape, dtype=int) if not padding_visible else None
                         # Otherwise, we want 1s (visible)
                         return np.ones(masks[dm].shape, dtype=int)
-                    
+
                     return None
 
                 new_mask = get_sequence_mask(dm, mask_fn, cfg.sampling.padding_visible)
@@ -179,7 +179,7 @@ def main(full_config: DictConfig) -> None:
     samples_raw = []
     logging.info("Beginning sampling")
     t = time.perf_counter()
-    
+
     # =========================== MAIN INFERENCE LOOP =========================
 
     for i in tqdm(range(inputs_info["num_batches"])):

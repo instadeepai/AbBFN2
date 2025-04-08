@@ -466,7 +466,7 @@ class BackboneModel(nn.Module):
             split_rngs={"params": True},
             metadata_params={nn.PARTITION_NAME: "layers"},
             length=self.config.num_layers,
-        )(self.config) 
+        )(self.config)
 
     def __call__(self, tokens):
         """Forward pass through the Backbone model.
