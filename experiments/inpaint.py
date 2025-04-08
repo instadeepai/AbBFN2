@@ -9,6 +9,24 @@ import jax
 import jax.numpy as jnp
 import jax.random as random
 import numpy as np
+<<<<<<< HEAD
+=======
+from abbfn2.data.data_mode_handler.sequence.sequence import SequenceDataModeHandler
+from abbfn2.data.data_mode_handler import save_samples
+from abbfn2.bfn import BFN, get_bfn
+from abbfn2.sample.functions.twisted_sde_sample import TwistedSDESampleFn
+from abbfn2.sample.inpaint_masks import ConditionDataModeMaskFn, PredictDataModeMaskFn
+from abbfn2.utils.inference_utils import (
+    load_params,
+    pad_and_reshape,
+    configure_output_dir,
+    get_input_samples,
+    generate_random_mask_from_array_visible_pad,
+    flatten_and_crop,
+    show_conditioning_settings,
+    configure_imgt_position_overrides
+)
+>>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from tabulate import tabulate
@@ -113,8 +131,20 @@ def main(full_config: DictConfig) -> None:
                 )
                 masks[dm] = 1 - new_mask
 
+        if "position_overrides" in cfg.input:
+            parsed_overrides = {}
+            for chain, overrides in cfg.input.position_overrides.items():
+                for override_pos, override_res in overrides.items():
+                    parsed_overrides[
+                        (chain, (int(override_pos[:-1]), override_pos[-1]))
+                    ] = override_res
+            samples, masks = configure_imgt_position_overrides(
+                masks, samples, parsed_overrides, dm_handlers
+            )
+
         # Not compatible with custom masks being provided.
         if cfg.input.mask_weight_overrides:
+            assert not cfg.input.override_masks_file, "Not compatible with custom masks being provided."
             for dm, mask_weight in cfg.input.mask_weight_overrides.items():
                 logging.info(f"Detected a mask weight override: {dm}")
                 if (

@@ -89,6 +89,7 @@ def process_prehumanisation(
     l_germline_families = [lv_families[i][2:] for i in range(len(light_seqs))]
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     heavy_seqs = [mutate_seq_to_match_germline_likeness(seq, gl.lower(), target_score, allow_CDR_mutations, fixed_imgt_positions) for seq, gl in zip(heavy_seqs, h_germline_families)]
     light_seqs = [mutate_seq_to_match_germline_likeness(seq, gl.lower(), target_score, allow_CDR_mutations, fixed_imgt_positions) for seq, gl in zip(light_seqs, l_germline_families)]
 =======
@@ -105,16 +106,25 @@ def process_prehumanisation(
     print(light_seqs)
 >>>>>>> da76db2 (fix: lower case humatch)
 
+=======
+    heavy_seqs = [mutate_seq_to_match_germline_likeness(seq, gl.lower(), target_score, allow_CDR_mutations, fixed_imgt_positions) for seq, gl in zip(heavy_seqs, h_germline_families)]
+    light_seqs = [mutate_seq_to_match_germline_likeness(seq, gl.lower(), target_score, allow_CDR_mutations, fixed_imgt_positions) for seq, gl in zip(light_seqs, l_germline_families)]
+
+>>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)
     heavy_seqs = [seq.replace("-", "") for seq in heavy_seqs]
     light_seqs = [seq.replace("-", "") for seq in light_seqs]
 
-    logging.info("Creating output data")
     prehumanised_data = {}
     precursor_data = {}
 
     for name, h, l, h_input, l_input in zip(all_names, heavy_seqs, light_seqs, input_heavy_seqs, input_light_seqs):
         prehumanised_data.update(create_sequence_data(name, h, l))
         precursor_data.update(create_sequence_data(name, h_input, l_input))
+<<<<<<< HEAD
 
     logging.info("Processing completed successfully")
     return prehumanised_data, precursor_data
+=======
+    logging.info("Prehumanisation completed successfully")
+    return prehumanised_data, precursor_data
+>>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)

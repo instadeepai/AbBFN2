@@ -359,6 +359,7 @@ def configure_output_dir(
 
 def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
@@ -376,6 +377,16 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
 =======
 >>>>>>> 898ea15 (not using HF should not require token)
 =======
+=======
+    """Load the parameters from the model_params.pkl file.
+
+    Args:
+        cfg (DictConfig): The configuration.
+        
+    Returns:
+        dict[str, jax.Array]: The parameters.
+    """
+>>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)
     if cfg.load_from_hf:
         # TODO: Once HF is open source, remove the token login:
         import os

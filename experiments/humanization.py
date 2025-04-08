@@ -143,11 +143,7 @@ def logistic_decay(t, n, max_val, min_val, steepness=6):
 
 def has_valid_vfams(cfg):
     """Check if valid vfams exist in config."""
-<<<<<<< HEAD
-    return (cfg.input.get('h_vfams', None) is not None or
-=======
     return (cfg.input.get('h_vfams', None) is not None or 
->>>>>>> 42f3ea7 (huamnization exp)
             cfg.input.get('l_vfams', None) is not None)
 
 @hydra.main(version_base="1.1", config_path="./configs", config_name="humanization.yaml")
@@ -216,10 +212,8 @@ def main(full_config: DictConfig) -> None:
 
     cfg.input.num_input_samples = len(l_vfams)
 
-    logging.info(f"h_vfams: {h_vfams}")
-    logging.info(f"l_vfams: {l_vfams}")
-    logging.info(f"h_seq: {h_seq}")
-    logging.info(f"l_seq: {l_seq}")
+    logging.info(f"Target VH V-gene family: {h_vfams}")
+    logging.info(f"Target VL V-gene family: {l_vfams}")
 
     # Pre-Humanization
     prehumanised_data, non_prehumanised_data = process_prehumanisation(input_heavy_seqs=[h_seq], input_light_seqs=[l_seq], hv_families=h_vfams, lv_families=l_vfams)
@@ -376,15 +370,8 @@ def main(full_config: DictConfig) -> None:
         # Create the override masks
         override_masks = {dm: np.ones_like(masks[dm]) for dm in FW_DMS}
         humanness = preds_raw['species'].to_distribution().probs[:,:,0].reshape(samples["species"].shape)
-<<<<<<< HEAD
-<<<<<<< HEAD
         logging.info(f"humanness: {humanness}")
-=======
-        logging.info("humanness: ", humanness)
->>>>>>> 914ea31 (testing humanisation)
-=======
-        logging.info(f"humanness: {humanness}")
->>>>>>> 0d78d23 (fixed minor logging issues)
+
         hum_cond_vals = np.clip(np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)), SAMPLING_CFG["min_cond"], 1)
         humanness_vals.append(humanness)
 
@@ -409,15 +396,12 @@ def main(full_config: DictConfig) -> None:
         cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), age_cond, hum_cond)
         cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), cond_masks, prehum_positions)
 
-        if cfg.enforce_cdr_sequence:
+        if cfg.sampling.enforce_cdr_sequence:
             for dm in CDR_DMS:
                 samples_raw[dm] = initial_samples[dm]
 
         save_samples(samples_raw, dm_handlers, Path(step_dir))
     
-    logging.info(f"humanness_vals: {humanness_vals}")
-    logging.info(f"nbr_mutations: {nbr_mutations}")
-
     logging.info(f"humanness_vals: {humanness_vals}")
     logging.info(f"nbr_mutations: {nbr_mutations}")
 

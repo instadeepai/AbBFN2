@@ -63,7 +63,7 @@ cfg:
       h_cdr3_seq: ARDAGVPLDY
   sampling:
     inpaint_fn:
-      num_steps: 300-1000       # Number of sampling steps (recommended: 300-1000)
+      num_steps: 300       # Number of sampling steps (recommended: 300-1000)
     mask_fn:
       data_modes:               # Specify which data modes to condition on
         - "h_cdr1_seq"

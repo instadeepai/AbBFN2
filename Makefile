@@ -134,7 +134,9 @@ scp_last_folder:
 
 
 ########################
-#################
+# Docker
+########################
+
 # CPU, TPU or GPU. If you enter an incorrect option, it will default to CPU-only
 
 ACCELERATOR = TPU

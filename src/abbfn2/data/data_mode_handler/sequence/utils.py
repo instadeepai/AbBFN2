@@ -88,10 +88,7 @@ class BFNTokenizer(Tokenizer):
         self._special_tokens = special_tokens
         self._all_tokens = special_tokens + standard_tokens
 
-        if tokens_to_ids is not None:
-            raise NotImplementedError # TODO: I dont think this is ever used in AbBFN.
-        else:
-            self._tokens_to_ids = {tok: i for i, tok in enumerate(self._all_tokens)}
+        self._tokens_to_ids = {tok: i for i, tok in enumerate(self._all_tokens)}
         self._ids_to_tokens = {i: tok for tok, i in self._tokens_to_ids.items()}
 
         self.fixed_length = fixed_length

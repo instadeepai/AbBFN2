@@ -48,6 +48,7 @@ cfg:
     seed: 0
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     recycling_steps: 3
 
     inpaint_fn:
@@ -62,6 +63,10 @@ cfg:
 >>>>>>> 914ea31 (testing humanisation)
 =======
     recycling_steps: 3
+=======
+    recycling_steps: 5
+    enforce_cdr_sequence: true
+>>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)
   
     inpaint_fn:
       _target_: abbfn2.sample.functions.sde_sample.SDESampleFn
@@ -78,9 +83,13 @@ cfg:
     overwrite_local_if_exists: true
     save_raw: false
 
+<<<<<<< HEAD
   enforce_cdr_sequence: true
 <<<<<<< HEAD
   load_from_hf: false
 =======
   load_from_hf: false
 >>>>>>> 21027db (minor humanization changes)
+=======
+  load_from_hf: false
+>>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)
