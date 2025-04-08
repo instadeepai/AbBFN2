@@ -7,7 +7,7 @@ cfg:
     searchpath:
       - file://./configs
 
-  model_weights_path: /app/params.pkl
+  model_weights_path: /Users/m.braganca/Documents/AbBFN2/params.pkl
 
   input:
     path: null

@@ -230,9 +230,9 @@ def run_igblast_pipeline(
     if igblast_path is None:
         # Use Mac-specific version on macOS, Linux version otherwise
         if platform.system() == "Darwin":
-            igblast_path = "../../../igblast/ncbi-igblast-1.22.0_mac/bin/igblastp"
+            igblast_path = "../../../igblast/ncbi-igblast-1.22.0-mac/bin/igblastp"
         else:
-            igblast_path = "../../../igblast/ncbi-igblast-1.22.0_linux/bin/igblastp"
+            igblast_path = "../../../igblast/ncbi-igblast-1.22.0-linux/bin/igblastp"
 
     local_input_file = Path(input_file).absolute()
     v_gene_db_path = Path(v_gene_db_path).absolute()

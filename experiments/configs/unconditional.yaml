@@ -6,9 +6,9 @@ hydra:
   searchpath:
     - file://./configs
 
-model_weights_path: /app/params.pkl
-
 cfg:
+  model_weights_path: /Users/m.braganca/Documents/AbBFN2/params.pkl
+  
   sampling:
     num_samples_per_batch: 1
     num_batches: 1
