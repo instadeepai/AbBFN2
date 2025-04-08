@@ -18,8 +18,8 @@ cfg:
 
   sampling:
     seed: 0
-      recycling_steps: 3
-      enforce_cdr_sequence: true
+    recycling_steps: 3
+    enforce_cdr_sequence: true
     inpaint_fn:
       _target_: abbfn2.sample.functions.sde_sample.SDESampleFn
       num_steps: 300
