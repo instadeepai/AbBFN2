@@ -6,4 +6,4 @@ params.pkl
 /s3_results/*
 /tmp/*
 /humanization_results/*
-igblast/ncbi-igblast-1.22.0_mac/humanisation_results
+/notebooks/*
