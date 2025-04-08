@@ -363,7 +363,7 @@ def main(full_config: DictConfig) -> None:
         cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), age_cond, hum_cond)
         cond_masks = jax.tree_util.tree_map(lambda x1, x2: np.maximum(x1, x2), cond_masks, prehum_positions)
 
-        if cfg.enforce_cdr_sequence:
+        if cfg.sampling.enforce_cdr_sequence:
             for dm in CDR_DMS:
                 samples_raw[dm] = initial_samples[dm]
 
