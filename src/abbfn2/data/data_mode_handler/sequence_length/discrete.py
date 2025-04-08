@@ -44,11 +44,9 @@ class SequenceLengthDataModeHandler(DataModeHandler):
         np.save(path, data)
 
     def data_to_sample(self, data: Array) -> Array:
-        """TODO"""  # noqa: D415
         return np.array(data)
 
     def load_data(self, path: Path) -> Any:
-        """TODO"""  # noqa: D415
         if path.is_dir():
             path = path / "sequence_lengths.npy"
         return np.load(path)

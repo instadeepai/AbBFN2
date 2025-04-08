@@ -210,8 +210,8 @@ def run_igblast_pipeline(
     species: str = "human",
     n_alignments: int = 1,
     igblast_path: str | Path | None = None,
-    v_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_v_db",
-    j_gene_db_path: str | Path | None = "../../../igblast/human/human_imgt_j_db",
+    v_gene_db_path: str | Path | None = "../../../igblast/human_db/human_imgt_v_db",
+    j_gene_db_path: str | Path | None = "../../../igblast/human_db/human_imgt_j_db",
     local_igblast_raw: str | Path | None = "../../../igblast/igblast_output_raw.tsv",
 ) -> dict:
     """Run the IgBLAST pipeline on antibody sequences.
@@ -232,7 +232,7 @@ def run_igblast_pipeline(
         if platform.system() == "Darwin":
             igblast_path = "../../../igblast/ncbi-igblast-1.22.0_mac/bin/igblastp"
         else:
-            igblast_path = "../../../igblast/ncbi-igblast-1.22.0/bin/igblastp"
+            igblast_path = "../../../igblast/ncbi-igblast-1.22.0_linux/bin/igblastp"
 
     local_input_file = Path(input_file).absolute()
     v_gene_db_path = Path(v_gene_db_path).absolute()
@@ -256,6 +256,7 @@ def run_igblast_pipeline(
     logging.info("Parsing and cleaning IgBLAST output...")
     data = parse_igblastp_output(local_igblast_raw)
     os.remove(local_igblast_raw)
+    os.chdir('../..')
 
     v_genes = [data[ab]["top_v_hit"][0].split('-')[0] for ab in data]
 

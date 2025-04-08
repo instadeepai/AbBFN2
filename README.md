@@ -50,7 +50,7 @@ make unconditional
 ```
 
 ### 2. Inpainting
-Generate antibody sequences conditioned on specific CDR regions.
+Generate antibody sequences conditioned on specific genetic attributes.
 
 Configuration (`inpaint.yaml`):
 ```yaml
@@ -63,7 +63,7 @@ cfg:
       h_cdr3_seq: ARDAGVPLDY
   sampling:
     inpaint_fn:
-      num_steps: 300-1000       # Number of sampling steps (recommended: 300-1000)
+      num_steps: 300       # Number of sampling steps (recommended: 300-1000)
     mask_fn:
       data_modes:               # Specify which data modes to condition on
         - "h_cdr1_seq"
@@ -83,8 +83,10 @@ Configuration (`humanization.yaml`):
 ```yaml
 cfg:
   input:
-    l_seq: "EVKLQQSGPGLVTPSQSLSITCTVSGFSLSDYGVHWVRQSPGQGLEWLGVIWAGGGTNYNSALMSRKSISKDNSKSQVFLKMNSLQADDTAVYYCARDKGYSYYYSMDYWGQGTSVTVSS"
-    h_seq: "DIETLQSPASLAVSLGQRATISCRASESVEYYVTSLMQWYQQKPGQPPKLLIFAASNVESGVPARFSGSGSGTNFSLNIHPVDEDDVAMYFCQQSRKYVPYTFGGGTKLEIK"
+    l_seq: "DIVLTQSPASLAVSLGQRATISCKASQSVDYDGHSYMNWYQQKPGQPPKLLIYAASNLESGIPARFSGSGSGTDFTLNIHPVEEEDAATYYCQQSDENPLTFGTGTKLELK"
+    h_seq: "QVQLQQSGPELVKPGALVKISCKASGYTFTSYDINWVKQRPGQGLEWIGWIYPGDGSIKYNEKFKGKATLTVDKSSSTAYMQVSSLTSENSAVYFCARRGEYGNYEGAMDYWGQGTTVTVSS"
+    # h_vfams: null # Optionally, set target v-gene families
+    # l_vfams: null
   sampling:
     recycling_steps: 10         # Number of recycling steps (recommended: 5-12)
     inpaint_fn:

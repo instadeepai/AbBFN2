@@ -365,7 +365,6 @@ class TransformerBlock(nn.Module):
         self._layer_norm_1 = self.norm()
         self._layer_norm_2 = self.norm()
 
-    @nn.compact
     def __call__(self, x: jax.Array):
         """Forward pass through the transformer block.
 
@@ -409,7 +408,6 @@ class BackboneBlock(nn.Module):
             embed_dim=self.config.embed_dim,
         )
 
-    @nn.compact
     def __call__(self, x: jax.Array):
         """Forward pass through the Backbone block.
 
@@ -431,7 +429,6 @@ class BackboneScanBlock(BackboneBlock):
         config (BackboneConfig): Configuration object for the Backbone model.
     """
 
-    @nn.compact
     def __call__(self, carry: jax.Array, _: None):
         """Forward pass through the Backbone block implemented for the nn.scan API.
 

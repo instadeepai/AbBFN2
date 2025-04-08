@@ -1,7 +1,6 @@
 defaults:
   - run: run
   - _self_
-
 cfg:
   hydra:
     searchpath:
@@ -14,13 +13,13 @@ cfg:
     override_masks_file: null
     l_seq: "DIVLTQSPASLAVSLGQRATISCKASQSVDYDGHSYMNWYQQKPGQPPKLLIYAASNLESGIPARFSGSGSGTDFTLNIHPVEEEDAATYYCQQSDENPLTFGTGTKLELK"
     h_seq: "QVQLQQSGPELVKPGALVKISCKASGYTFTSYDINWVKQRPGQGLEWIGWIYPGDGSIKYNEKFKGKATLTVDKSSSTAYMQVSSLTSENSAVYFCARRGEYGNYEGAMDYWGQGTTVTVSS"
-    # h_vfams: null
-    # l_vfams: null
+    #h_vfams: null
+    #l_vfams: null
 
   sampling:
     seed: 0
     recycling_steps: 3
-
+    enforce_cdr_sequence: true
     inpaint_fn:
       _target_: abbfn2.sample.functions.sde_sample.SDESampleFn
       num_steps: 300
@@ -28,12 +27,10 @@ cfg:
         _target_: abbfn2.sample.schedules.LinearScheduleFn
     mask_fn: # For inpaint_mask_fn/condition_data_mode or predict_data_mode
       _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn
-
   output:
     local_validation_dir: "./validation"
     exp_name: "humanization"
     overwrite_local_if_exists: true
     save_raw: false
 
-  enforce_cdr_sequence: true
   load_from_hf: false

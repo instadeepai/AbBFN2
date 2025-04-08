@@ -20,6 +20,7 @@ from abbfn2.data.data_mode_handler.sequence.sequence import SequenceDataModeHand
 from abbfn2.sample.functions.twisted_sde_sample import TwistedSDESampleFn
 from abbfn2.sample.inpaint_masks import ConditionDataModeMaskFn, PredictDataModeMaskFn
 from abbfn2.utils.inference_utils import (
+    configure_imgt_position_overrides,
     configure_output_dir,
     flatten_and_crop,
     generate_random_mask_from_array_visible_pad,
@@ -113,8 +114,20 @@ def main(full_config: DictConfig) -> None:
                 )
                 masks[dm] = 1 - new_mask
 
+        if "position_overrides" in cfg.input:
+            parsed_overrides = {}
+            for chain, overrides in cfg.input.position_overrides.items():
+                for override_pos, override_res in overrides.items():
+                    parsed_overrides[
+                        (chain, (int(override_pos[:-1]), override_pos[-1]))
+                    ] = override_res
+            samples, masks = configure_imgt_position_overrides(
+                masks, samples, parsed_overrides, dm_handlers
+            )
+
         # Not compatible with custom masks being provided.
         if cfg.input.mask_weight_overrides:
+            assert not cfg.input.override_masks_file, "Not compatible with custom masks being provided."
             for dm, mask_weight in cfg.input.mask_weight_overrides.items():
                 logging.info(f"Detected a mask weight override: {dm}")
                 if (
