@@ -233,7 +233,6 @@ def main(full_config: DictConfig) -> None:
 
     # Define and apply the sequence overrides
     override_samples, override_masks = process_input_overrides(dm_handlers, prehumanised_data, num_devices=NUM_DEVICES)
-    override_masks = reweight_masks(override_masks, weighting=0.5) # TODO: Check if this actually matters
 
     override_samples["hv_family"] = dm_handlers["hv_family"].data_to_sample(h_vfams)
     override_samples["lv_family"] = dm_handlers["lv_family"].data_to_sample(l_vfams)
