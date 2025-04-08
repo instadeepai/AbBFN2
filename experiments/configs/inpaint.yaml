@@ -7,7 +7,7 @@ cfg:
     searchpath:
       - file://./configs
 
-  model_weights_path: /app/params.pkl
+  model_weights_path: /Users/m.braganca/Documents/AbBFN2/params.pkl
 
   input:
     path: null
@@ -28,11 +28,11 @@ cfg:
     inpaint_fn:
       _target_: abbfn2.sample.functions.twisted_sde_sample.TwistedSDESampleFn
       greedy: true
-      num_steps: 300 # 300-1000
+      num_steps: 1 # 300-1000
       twist_scale: 1.0 # 1.0
       num_particles: 4 # 4-8
       time_schedule:
-        _target_: abbfn2.sample.schedules.LinearScheduleFn
+        _target_: abbfn2.sample.schedule.LinearScheduleFn
     mask_fn:
       _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn  # For inpaint_mask_fn/condition_data_mode or predict_data_mode
       data_modes:

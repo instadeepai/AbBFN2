@@ -15,8 +15,8 @@ from tabulate import tabulate
 from tqdm import tqdm
 
 from abbfn2.bfn import BFN, get_bfn
-from abbfn2.data.data_mode_handler import save_samples
-from abbfn2.data.data_mode_handler.sequence.sequence import SequenceDataModeHandler
+from abbfn2.data_mode_handler import save_samples
+from abbfn2.data_mode_handler.sequence.sequence import SequenceDataModeHandler
 from abbfn2.sample.functions.twisted_sde_sample import TwistedSDESampleFn
 from abbfn2.sample.inpaint_masks import ConditionDataModeMaskFn, PredictDataModeMaskFn
 from abbfn2.utils.inference_utils import (

@@ -14,7 +14,7 @@ from omegaconf import DictConfig, OmegaConf
 from tqdm import tqdm
 
 from abbfn2.bfn import BFN, get_bfn
-from abbfn2.data.data_mode_handler import save_samples
+from abbfn2.data_mode_handler import save_samples
 from abbfn2.utils.inference_utils import (
     create_fasta_from_sequences,
     flatten_and_crop,
@@ -23,8 +23,8 @@ from abbfn2.utils.inference_utils import (
     pad_and_reshape,
     show_conditioning_settings,
 )
-from abbfn2.utils.prehumanization.igblast import run_igblast_pipeline
-from abbfn2.utils.prehumanization.pre_humanisation import process_prehumanisation
+from abbfn2.utils.igblast import run_igblast_pipeline
+from abbfn2.utils.pre_humanisation import process_prehumanisation
 
 SEQ_DMS = ["h_fwr1_seq", "h_cdr1_seq", "h_fwr2_seq", "h_cdr2_seq", "h_fwr3_seq", "h_cdr3_seq", "h_fwr4_seq",
            "l_fwr1_seq", "l_cdr1_seq", "l_fwr2_seq", "l_cdr2_seq", "l_fwr3_seq", "l_cdr3_seq", "l_fwr4_seq"]

@@ -7,7 +7,7 @@ from jax.random import PRNGKey
 
 from abbfn2.bfn import BFN, MultimodalBFN
 from abbfn2.bfn.types import OutputNetworkPredictionMM
-from abbfn2.sample.schedules import TimeScheduleFn
+from abbfn2.sample.schedule import LinearScheduleFn
 
 
 @dataclass
@@ -17,16 +17,14 @@ class BaseSampleFn(ABC):
     Args:
         bfn (BFN): The BFN model.
         num_steps (int): The number of steps to iterate for generating samples.
-        time_schedule (TimeScheduleFn): The time schedule function.
+        time_schedule (LinearScheduleFn): The time schedule function.
         greedy (bool): Whether to sample the mode of the distribution (greedy) or sample from the distribution. Defaults to True.
-        use_self_conditioning (bool): Whether to condition on the previous prediction when generating the next prediction. Defaults to False.
     """
 
     bfn: BFN
     num_steps: int
-    time_schedule: TimeScheduleFn
+    time_schedule: LinearScheduleFn
     greedy: bool = True
-    use_self_conditioning: bool = False
 
     def __post_init__(self):
         """Check that the BFN model is multimodal."""

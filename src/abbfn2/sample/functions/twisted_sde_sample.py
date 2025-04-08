@@ -245,9 +245,8 @@ class TwistedSDESampleFn(BaseSampleFn):
     Args:
         bfn (BFN): The BFN model.
         num_steps (int): The number of steps to iterate for generating samples.
-        time_schedule (TimeScheduleFn): The time schedule function.
+        time_schedule (LinearScheduleFn): The time schedule function.
         greedy (bool): Whether to sample the mode of the distribution (greedy) or sample from the distribution. Defaults to True.
-        use_self_conditioning (bool): Whether to condition on the previous prediction when generating the next prediction. Defaults to False.
         num_particles (int): The number of particles to use in the SDE algorithm.
         max_score (float | None): Range at which to clip the conditional score. Defaults to 1.0.
             Set to None for no clipping (can lead to numerical instability)
@@ -271,8 +270,6 @@ class TwistedSDESampleFn(BaseSampleFn):
         params: Any,
         x: dict[str, Array],
         mask_sample: dict[str, Array],
-        pred_cond: OutputNetworkPredictionMM | None = None,
-        t_cond: float | None = None,
     ):
         """Get the conditional score, log prob of the conditioning data, and prediction from the network.
 
@@ -287,8 +284,6 @@ class TwistedSDESampleFn(BaseSampleFn):
             params (Any): The network parameters.
             x (Dict[str, Array]): The "ground-truth" sample on which to condition generation.
             mask_sample (Dict[str, Array]): Variable-wise mask determining which regions of the ground-truth is visible during sampling.
-            pred_cond (OutputNetworkPredictionMM | None): The previous prediction to condition on. Defaults to None.
-            t_cond (float | None): The time at which the previous prediction was made. Defaults to None.
 
         Returns:
             Tuple[float, float, OutputNetworkPredictionMM]: The conditional score, log prob and prediction.
@@ -303,8 +298,6 @@ class TwistedSDESampleFn(BaseSampleFn):
                 theta,
                 t,
                 mask=None,
-                pred_cond=pred_cond if self.use_self_conditioning else None,
-                t_cond=t_cond if self.use_self_conditioning else None,
             )
             log_prob = self.bfn.conditional_log_prob(pred, x, mask_sample, theta)
             return log_prob, pred
@@ -462,8 +455,6 @@ class TwistedSDESampleFn(BaseSampleFn):
                     params=params,
                     x=x,
                     mask_sample=mask_sample,
-                    pred_cond=state.pred,
-                    t_cond=state.t,
                 )
 
                 # Calculate the particle weights at t + dt

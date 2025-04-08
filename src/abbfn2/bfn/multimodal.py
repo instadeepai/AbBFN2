@@ -100,8 +100,6 @@ class MultimodalBFN:
         theta: ThetaMM,
         t: float,
         mask: dict[str, Array | None] | None = None,
-        pred_cond: OutputNetworkPredictionMM | None = None,
-        t_cond: float | None = None,
     ) -> OutputNetworkPredictionMM:
         """Apply the output network to compute parameters of the output distribution.
 
@@ -112,8 +110,6 @@ class MultimodalBFN:
             t (float): The time.
             mask (Optional[Array]): Optional per-variable mask for the output network.  Default is None
               which is no masking.  Valid masks have shape [N] and are 1 (0) if a variable visible (masked).
-            pred_cond (Optional[OutputNetworkPredictionMM]): Output network prediction for self-conditioning.  Default is None.
-            t_cond (Optional[float]): Time for self-conditioning.  Default is None.
 
         Returns:
             OutputNetworkPredictionMM: Prediction of the output network.
@@ -121,29 +117,8 @@ class MultimodalBFN:
         beta = self.compute_beta(params, t)
         if "output_network" in params:
             params = params["output_network"]
-        pred = self._apply_output_network_fn(params, theta, mask, t, beta, pred_cond, t_cond)
+        pred = self._apply_output_network_fn(params, theta, mask, t, beta)
         return pred
-
-    def compute_alpha(self, params: dict[str, Any], t: float) -> dict[str, Array]:
-        """Compute the accuracy parameter at time t.
-
-        α is a real, positive number defined such that at α=0 the sender distribution samples are
-        entirely uninformative.
-
-        Args:
-           params (Any): The learnable params of the BFN (specifically, of the noise schedule).
-           t (float): The time.
-
-        Returns:
-            Dict[str, Array]: Per-variable accuracy parameters (i.e. each with shape [N]).
-        """
-        if "noise_schedule" in params:
-            params = params["noise_schedule"]
-        return jax.tree_util.tree_map(
-            lambda bfn, params: bfn.compute_alpha(params, t),
-            self.bfns,
-            params,
-        )
 
     def compute_beta(self, params: Any, t: float) -> Array:
         """Compute the accuracy schedule at time t.
@@ -218,31 +193,6 @@ class MultimodalBFN:
             self.bfns,
             pred,
             alpha,
-            keys,
-        )
-
-    def sample_flow_distribution(
-        self,
-        x: dict[str, Array],
-        beta: dict[str, Array],
-        key: PRNGKey,
-    ) -> ThetaMM:
-        """Generate the ground-truth (x) and accuracy schedule (β(t)), sample from the Bayesian flow distribution.
-
-        Args:
-            x (Dict[str, Array]): The ground truth data (shape [N,...]).
-            beta (Dict[str, Array]): A per-variable value of the accuracy schedule (shape [D]).
-            key: PRNGKey for sampling.
-
-        Returns:
-            theta (ThetaMM): Sampled input parameters to the network.
-        """
-        keys = self._split_key_for_dms(key)
-        return jax.tree_util.tree_map(
-            lambda bfn, x, beta, key: bfn.sample_flow_distribution(x, beta, key),
-            self.bfns,
-            x,
-            beta,
             keys,
         )
 

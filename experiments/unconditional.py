@@ -11,7 +11,7 @@ from omegaconf import DictConfig
 from tqdm import tqdm
 
 from abbfn2.bfn.factory import BFN, get_bfn
-from abbfn2.data.data_mode_handler import save_samples
+from abbfn2.data_mode_handler import save_samples
 from abbfn2.utils.inference_utils import configure_output_dir, load_params
 
 warnings.filterwarnings(

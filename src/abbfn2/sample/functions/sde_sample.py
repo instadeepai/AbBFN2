@@ -7,29 +7,20 @@ from jax import numpy as jnp
 from jax.lax import scan
 from jax.random import PRNGKey
 
-from abbfn2.bfn import BFN, MultimodalBFN
+from abbfn2.bfn import MultimodalBFN
 from abbfn2.bfn.types import ThetaMM
-from abbfn2.sample.schedules import TimeScheduleFn
-
+from abbfn2.sample.functions.base import BaseSampleFn
 
 @dataclass
-class SDESampleFn:
+class SDESampleFn(BaseSampleFn):
     """Creates the SDE sampling function for the BFN model.
 
     Args:
-        bfn (BFN): The BFN model.
-        num_steps (int): The number of steps to iterate for generating samples.
-        time_schedule (TimeScheduleFn): The time schedule function.
-        greedy (bool): Whether to sample the mode of the distribution (greedy) or sample from the distribution. Defaults to True.
         max_score (float | None): Range at which to clip the conditional score. Defaults to 1.0. Set to None for no clipping (can lead to unstable sampling)
         naive (bool): Reverts to naive inpainting if True (i.e. doesn't use the conditional score, only the conditioning data). Defaults to False
         mask_receiver_sample (bool): Controls whether to mask the receiver sample with the sender sample for the conditioning data. Defaults to True
     """
 
-    bfn: BFN
-    num_steps: int
-    time_schedule: TimeScheduleFn
-    greedy: bool = True
     max_score: float | None = 1.0
     naive: bool = False
     mask_receiver_sample: bool = True

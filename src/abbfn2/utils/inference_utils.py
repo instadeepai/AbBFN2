@@ -13,13 +13,13 @@ from omegaconf import DictConfig
 from tabulate import tabulate
 
 from abbfn2.bfn import BFN, ContinuousBFN, DiscreteBFN, MultimodalBFN
-from abbfn2.data.data_mode_handler.oas_paired.constants import IMGT2IDX 
+from abbfn2.data_mode_handler.oas_paired.constants import IMGT2IDX 
 from abbfn2.bfn.types import (
     OutputNetworkPrediction,
     OutputNetworkPredictionContinuous,
     OutputNetworkPredictionDiscrete,
 )
-from abbfn2.data.data_mode_handler import DataModeHandler, load_samples
+from abbfn2.data_mode_handler import DataModeHandler, load_samples
 
 
 def show_conditioning_settings(num_samples, samples, masks):

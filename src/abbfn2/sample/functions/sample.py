@@ -37,9 +37,8 @@ class SampleFn(BaseSampleFn):
     Args:
         bfn (BFN): The BFN model.
         num_steps (int): The number of steps to iterate for generating samples.
-        time_schedule (TimeScheduleFn): The time schedule function.
+        time_schedule (LinearScheduleFn): The time schedule function.
         greedy (bool): Whether to sample the mode of the distribution (greedy) or sample from the distribution.
-        use_self_conditioning (bool): Whether to condition on the previous prediction when generating the next prediction. Defaults to False.
     """
 
     def __call__(
@@ -82,8 +81,6 @@ class SampleFn(BaseSampleFn):
             theta,
             t=0,
             mask=None,
-            pred_cond=None,
-            t_cond=None,
         )
         sample_state = SampleState(t=0.0, theta=theta, pred=pred)
 
@@ -118,8 +115,6 @@ class SampleFn(BaseSampleFn):
                 theta,
                 t_end,
                 mask=None,
-                pred_cond=state.pred if self.use_self_conditioning else None,
-                t_cond=state.t if self.use_self_conditioning else None,
             )
             state = SampleState(t=t_end, theta=theta, pred=pred)
 

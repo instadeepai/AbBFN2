@@ -17,7 +17,7 @@ cfg:
       _target_: abbfn2.sample.functions.sample.SampleFn
       num_steps: 1 # The recommended number of steps is between 300-1000.
       time_schedule:
-        _target_: abbfn2.sample.schedules.LinearScheduleFn
+        _target_: abbfn2.sample.schedule.LinearScheduleFn
 
   output:
     local_validation_dir: "./validation"

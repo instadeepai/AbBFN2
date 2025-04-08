@@ -14,7 +14,7 @@ import jax.numpy as jnp
 from jax import Array
 from jax.random import PRNGKey
 
-from abbfn2.data.data_mode_handler import DataModeHandler
+from abbfn2.data_mode_handler import DataModeHandler
 
 
 def get_mask(x: Array, dm_handler: DataModeHandler, gt_visible: bool = False) -> Array:

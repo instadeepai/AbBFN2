@@ -1,8 +1,8 @@
 output_network:
   backbone:
-    _target_:  abbfn2.bfn.output_network.backbone.backbone.TransformerBackbone
+    _target_:  abbfn2.bfn.output_network.model.TransformerBackbone
     cfg:
-      _target_: abbfn2.bfn.output_network.backbone.backbone.BackboneConfig
+      _target_: abbfn2.bfn.output_network.model.BackboneConfig
       embed_dim: 1280
       key_size: 64
       attention_heads: 20
@@ -13,7 +13,7 @@ data_mode:
   h_fwr1_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.BFNTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.BFNTokenizer
         standard_tokens:
         - A
         - R
@@ -54,30 +54,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: h_fwr1_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 43
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 43
   h_cdr1_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.IMGTTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.IMGTTokenizer
         standard_tokens:
         - A
         - R
@@ -118,30 +118,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: h_cdr1_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 24
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 24
   h_fwr2_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.BFNTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.BFNTokenizer
         standard_tokens:
         - A
         - R
@@ -182,30 +182,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: h_fwr2_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 32
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 32
   h_cdr2_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.IMGTTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.IMGTTokenizer
         standard_tokens:
         - A
         - R
@@ -246,30 +246,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: h_cdr2_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 27
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 27
   h_fwr3_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.BFNTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.BFNTokenizer
         standard_tokens:
         - A
         - R
@@ -310,30 +310,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: h_fwr3_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 60
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 60
   h_cdr3_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.IMGTTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.IMGTTokenizer
         standard_tokens:
         - A
         - R
@@ -374,30 +374,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: h_cdr3_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 60
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 60
   h_fwr4_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.BFNTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.BFNTokenizer
         standard_tokens:
         - A
         - R
@@ -438,30 +438,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: h_fwr4_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 14
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 14
   l_fwr1_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.BFNTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.BFNTokenizer
         standard_tokens:
         - A
         - R
@@ -502,30 +502,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: l_fwr1_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 38
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 38
   l_cdr1_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.IMGTTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.IMGTTokenizer
         standard_tokens:
         - A
         - R
@@ -566,30 +566,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: l_cdr1_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 22
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 22
   l_fwr2_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.BFNTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.BFNTokenizer
         standard_tokens:
         - A
         - R
@@ -630,30 +630,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: l_fwr2_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 29
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 29
   l_cdr2_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.IMGTTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.IMGTTokenizer
         standard_tokens:
         - A
         - R
@@ -694,30 +694,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: l_cdr2_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 18
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 18
   l_fwr3_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.BFNTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.BFNTokenizer
         standard_tokens:
         - A
         - R
@@ -758,30 +758,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: l_fwr3_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 50
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 50
   l_cdr3_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.IMGTTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.IMGTTokenizer
         standard_tokens:
         - A
         - R
@@ -822,30 +822,30 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: l_cdr3_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 29
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 29
   l_fwr4_seq:
     handler:
       tokenizer:
-        _target_:  abbfn2.data.data_mode_handler.sequence.utils.BFNTokenizer
+        _target_:  abbfn2.data_mode_handler.sequence.utils.BFNTokenizer
         standard_tokens:
         - A
         - R
@@ -886,405 +886,405 @@ data_mode:
         append_eos_token: true
         extra_special_tokens: null
         tokens_to_ids: null
-      _target_:  abbfn2.data.data_mode_handler.sequence.sequence.SequenceDataModeHandler
+      _target_:  abbfn2.data_mode_handler.sequence.sequence.SequenceDataModeHandler
       sequence_variable: l_fwr4_aa
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 15
       num_classes: 32
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     max_length: 15
   h1_length:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 13
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 13
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
       dm_key: h_cdr1_len
   h2_length:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 13
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 13
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
       dm_key: h_cdr2_len
   h3_length:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 33
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 33
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
       dm_key: h_cdr3_len
   l1_length:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 12
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 12
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
       dm_key: l_cdr1_len
   l2_length:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 5
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 5
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
       dm_key: l_cdr2_len
   l3_length:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 15
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 15
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.cdr_length_discrete.CDRLengthsDataModeHandler
       dm_key: l_cdr3_len
   hv_gene:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 201
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 201
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.genes.GermlineGenesHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.genes.GermlineGenesHandler
       dm_key: h_v_call
       include_alleles: false
   hd_gene:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 49
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 49
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.genes.GermlineGenesHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.genes.GermlineGenesHandler
       dm_key: h_d_call
       include_alleles: false
   hj_gene:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 7
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 7
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.genes.GermlineGenesHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.genes.GermlineGenesHandler
       dm_key: h_j_call
       include_alleles: false
   lv_gene:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 220
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 220
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.genes.GermlineGenesHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.genes.GermlineGenesHandler
       dm_key: l_v_call
       include_alleles: false
   lj_gene:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 13
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 13
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.genes.GermlineGenesHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.genes.GermlineGenesHandler
       dm_key: l_j_call
       include_alleles: false
   hv_family:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 10
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 10
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
       dm_key: h_v_call
   hd_family:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 8
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 8
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
       dm_key: h_d_call
   hj_family:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 7
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 7
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
       dm_key: h_j_call
   lv_family:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 18
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 18
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
       dm_key: l_v_call
   lj_family:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 10
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 10
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.gene_family.GeneFamilyHandler
       dm_key: l_j_call
   species:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 4
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.species.SpeciesDataModeHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.species.SpeciesDataModeHandler
   light_locus:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 3
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 3
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.l_locus.LLocusDataModeHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.l_locus.LLocusDataModeHandler
   h_v_identity:
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.ContinuousEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.ContinuousEncoder
       _target_: abbfn2.bfn.ContinuousBFN
       variables_shape: 1
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.ContinuousDecoder
+        _target_: abbfn2.bfn.output_network.heads.ContinuousDecoder
         out_lims: 1
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.continuous.FixedContinuousSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedContinuousSchedule
         beta_1: 5000
     handler:
-      _target_:  abbfn2.data.data_mode_handler.continuous.scalar.ScalarDataModeHandler
+      _target_:  abbfn2.data_mode_handler.continuous.scalar.ScalarDataModeHandler
       dm_key: h_v_identity
       data_bounds:
       - 64.0
@@ -1297,18 +1297,18 @@ data_mode:
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.ContinuousEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.ContinuousEncoder
       _target_: abbfn2.bfn.ContinuousBFN
       variables_shape: 1
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.ContinuousDecoder
+        _target_: abbfn2.bfn.output_network.heads.ContinuousDecoder
         out_lims: 1
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.continuous.FixedContinuousSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedContinuousSchedule
         beta_1: 5000
     handler:
-      _target_:  abbfn2.data.data_mode_handler.continuous.scalar.ScalarDataModeHandler
+      _target_:  abbfn2.data_mode_handler.continuous.scalar.ScalarDataModeHandler
       dm_key: h_d_identity
       data_bounds:
       - 74.0
@@ -1321,19 +1321,19 @@ data_mode:
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.ContinuousEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.ContinuousEncoder
 
       _target_: abbfn2.bfn.ContinuousBFN
       variables_shape: 1
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.ContinuousDecoder
+        _target_: abbfn2.bfn.output_network.heads.ContinuousDecoder
         out_lims: 1
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.continuous.FixedContinuousSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedContinuousSchedule
         beta_1: 5000
     handler:
-      _target_:  abbfn2.data.data_mode_handler.continuous.scalar.ScalarDataModeHandler
+      _target_:  abbfn2.data_mode_handler.continuous.scalar.ScalarDataModeHandler
       dm_key: h_j_identity
       data_bounds:
       - 74.0
@@ -1346,18 +1346,18 @@ data_mode:
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.ContinuousEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.ContinuousEncoder
       _target_: abbfn2.bfn.ContinuousBFN
       variables_shape: 1
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.ContinuousDecoder
+        _target_: abbfn2.bfn.output_network.heads.ContinuousDecoder
         out_lims: 1
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.continuous.FixedContinuousSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedContinuousSchedule
         beta_1: 5000
     handler:
-      _target_:  abbfn2.data.data_mode_handler.continuous.scalar.ScalarDataModeHandler
+      _target_:  abbfn2.data_mode_handler.continuous.scalar.ScalarDataModeHandler
       dm_key: l_v_identity
       data_bounds:
       - 66.0
@@ -1370,18 +1370,18 @@ data_mode:
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.ContinuousEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.ContinuousEncoder
       _target_: abbfn2.bfn.ContinuousBFN
       variables_shape: 1
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.ContinuousDecoder
+        _target_: abbfn2.bfn.output_network.heads.ContinuousDecoder
         out_lims: 1
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.continuous.FixedContinuousSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedContinuousSchedule
         beta_1: 5000
     handler:
-      _target_:  abbfn2.data.data_mode_handler.continuous.scalar.ScalarDataModeHandler
+      _target_:  abbfn2.data_mode_handler.continuous.scalar.ScalarDataModeHandler
       dm_key: l_j_identity
       data_bounds:
       - 77.0
@@ -1394,18 +1394,18 @@ data_mode:
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.ContinuousEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.ContinuousEncoder
       _target_: abbfn2.bfn.ContinuousBFN
       variables_shape: 1
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.ContinuousDecoder
+        _target_: abbfn2.bfn.output_network.heads.ContinuousDecoder
         out_lims: 1
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.continuous.FixedContinuousSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedContinuousSchedule
         beta_1: 5000
     handler:
-      _target_:  abbfn2.data.data_mode_handler.continuous.scalar.ScalarDataModeHandler
+      _target_:  abbfn2.data_mode_handler.continuous.scalar.ScalarDataModeHandler
       dm_key: psh
       data_bounds:
       - 72.0
@@ -1418,18 +1418,18 @@ data_mode:
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.ContinuousEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.ContinuousEncoder
       _target_: abbfn2.bfn.ContinuousBFN
       variables_shape: 1
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.ContinuousDecoder
+        _target_: abbfn2.bfn.output_network.heads.ContinuousDecoder
         out_lims: 1
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.continuous.FixedContinuousSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedContinuousSchedule
         beta_1: 5000
     handler:
-      _target_:  abbfn2.data.data_mode_handler.continuous.scalar.ScalarDataModeHandler
+      _target_:  abbfn2.data_mode_handler.continuous.scalar.ScalarDataModeHandler
       dm_key: ppc
       data_bounds:
       - 0.0
@@ -1442,18 +1442,18 @@ data_mode:
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.ContinuousEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.ContinuousEncoder
       _target_: abbfn2.bfn.ContinuousBFN
       variables_shape: 1
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.ContinuousDecoder
+        _target_: abbfn2.bfn.output_network.heads.ContinuousDecoder
         out_lims: 1
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.continuous.FixedContinuousSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedContinuousSchedule
         beta_1: 5000
     handler:
-      _target_:  abbfn2.data.data_mode_handler.continuous.scalar.ScalarDataModeHandler
+      _target_:  abbfn2.data_mode_handler.continuous.scalar.ScalarDataModeHandler
       dm_key: pnc
       data_bounds:
       - 0.0
@@ -1466,18 +1466,18 @@ data_mode:
     bfn:
       encoder:
         distribution_encoding:
-          _target_: abbfn2.bfn.output_network.conditioning.distribution_encoding.EntropyEncoding
-        _target_: abbfn2.bfn.output_network.heads.encoder.ContinuousEncoder
+          _target_: abbfn2.bfn.output_network.heads.EntropyEncoding
+        _target_: abbfn2.bfn.output_network.heads.ContinuousEncoder
       _target_: abbfn2.bfn.ContinuousBFN
       variables_shape: 1
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.ContinuousDecoder
+        _target_: abbfn2.bfn.output_network.heads.ContinuousDecoder
         out_lims: 1
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.continuous.FixedContinuousSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedContinuousSchedule
         beta_1: 5000
     handler:
-      _target_:  abbfn2.data.data_mode_handler.continuous.scalar.ScalarDataModeHandler
+      _target_:  abbfn2.data_mode_handler.continuous.scalar.ScalarDataModeHandler
       dm_key: sfvcsp
       data_bounds:
       - -55.0
@@ -1490,79 +1490,79 @@ data_mode:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 4
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.tap_flags.TapFlagsHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.tap_flags.TapFlagsHandler
       metric: psh
   tap_ppc_flag:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 4
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.tap_flags.TapFlagsHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.tap_flags.TapFlagsHandler
       metric: ppc
   tap_pnc_flag:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 4
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.tap_flags.TapFlagsHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.tap_flags.TapFlagsHandler
       metric: pnc
   tap_sfvcsp_flag:
     bfn:
       encoder:
         distribution_encoding: null
-        _target_: abbfn2.bfn.output_network.heads.encoder.DiscreteEncoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteEncoder
         normalise_input: true
       _target_: abbfn2.bfn.DiscreteBFN
       variables_shape: 1
       num_classes: 4
       decoder:
-        _target_: abbfn2.bfn.output_network.heads.decoder.DiscreteDecoder
+        _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
         relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
-        _target_: abbfn2.bfn.output_network.noise_schedules.discrete.FixedDiscreteSchedule
+        _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
         beta_1: 1.0
     handler:
-      _target_:  abbfn2.data.data_mode_handler.oas_paired.tap_flags.TapFlagsHandler
+      _target_:  abbfn2.data_mode_handler.oas_paired.tap_flags.TapFlagsHandler
       metric: sfvcsp
