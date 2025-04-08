@@ -1,95 +1,36 @@
 defaults:
   - run: run
   - _self_
-
 cfg:
   hydra:
     searchpath:
       - file://./configs
-<<<<<<< HEAD
 
   model_weights_path: /app/params.pkl
-=======
->>>>>>> 0d78d23 (fixed minor logging issues)
 
   input:
     path: null
     override_masks_file: null
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     l_seq: "DIVLTQSPASLAVSLGQRATISCKASQSVDYDGHSYMNWYQQKPGQPPKLLIYAASNLESGIPARFSGSGSGTDFTLNIHPVEEEDAATYYCQQSDENPLTFGTGTKLELK"
     h_seq: "QVQLQQSGPELVKPGALVKISCKASGYTFTSYDINWVKQRPGQGLEWIGWIYPGDGSIKYNEKFKGKATLTVDKSSSTAYMQVSSLTSENSAVYFCARRGEYGNYEGAMDYWGQGTTVTVSS"
-=======
-    l_seq: "DIVLTQSPASLAVSLGQRAAISCRASKGVSTSGYSYLHWYQQKPGQSPKLLIYLASYLESGVPARFSGSGSGTDFTLNIHPVEEEDAATYYCQHSRDLPLTFGTGTKLELK"
-    h_seq: "QVQLQQPGAELVKPGTSVKLSCKASGYTFTNYYMYWVKQRPGQGLEWIGGINPSNGGTNFNEKFKNKATLTVDSSSSTTYMQLSSLTSEDSAVYYCTRRDYRFDMGFDYWGQGTTLTVSS"
->>>>>>> 42f3ea7 (huamnization exp)
-=======
-    l_seq: "DIETLQSPASLAVSLGQRATISCRASESVEYYVTSLMQWYQQKPGQPPKLLIFAASNVESGVPARFSGSGSGTNFSLNIHPVDEDDVAMYFCQQSRKYVPYTFGGGTKLEIK" #DIETLQSPASLAVSLGQRATISCRASESVEYYVTSLMQWYQQKPGQPPKLLIFAASNVESGVPARFSGSGSGTNFSLNIHPVDEDDVAMYFCQQSRKYVPYTFGGGTKLEIK
-    h_seq: "EVKLQQSGPGLVTPSQSLSITCTVSGFSLSDYGVHWVRQSPGQGLEWLGVIWAGGGTNYNSALMSRKSISKDNSKSQVFLKMNSLQADDTAVYYCARDKGYSYYYSMDYWGQGTSVTVSS" #EVKLQQSGPGLVTPSQSLSITCTVSGFSLSDYGVHWVRQSPGQGLEWLGVIWAGGGTNYNSALMSRKSISKDNSKSQVFLKMNSLQADDTAVYYCARDKGYSYYYSMDYWGQGTSVTVSS
->>>>>>> 914ea31 (testing humanisation)
-=======
-    l_seq: "DIVLTQSPASLAVSLGQRAAISCRASKGVSTSGYSYLHWYQQKPGQSPKLLIYLASYLESGVPARFSGSGSGTDFTLNIHPVEEEDAATYYCQHSRDLPLTFGTGTKLELK" #DIETLQSPASLAVSLGQRATISCRASESVEYYVTSLMQWYQQKPGQPPKLLIFAASNVESGVPARFSGSGSGTNFSLNIHPVDEDDVAMYFCQQSRKYVPYTFGGGTKLEIK
-    h_seq: "QVQLQQPGAELVKPGTSVKLSCKASGYTFTNYYMYWVKQRPGQGLEWIGGINPSNGGTNFNEKFKNKATLTVDSSSSTTYMQLSSLTSEDSAVYYCTRRDYRFDMGFDYWGQGTTLTVSS" #EVKLQQSGPGLVTPSQSLSITCTVSGFSLSDYGVHWVRQSPGQGLEWLGVIWAGGGTNYNSALMSRKSISKDNSKSQVFLKMNSLQADDTAVYYCARDKGYSYYYSMDYWGQGTSVTVSS
->>>>>>> 21027db (minor humanization changes)
-=======
-    l_seq: "DIVLTQSPASLAVSLGQRATISCKASQSVDYDGHSYMNWYQQKPGQPPKLLIYAASNLESGIPARFSGSGSGTDFTLNIHPVEEEDAATYYCQQSDENPLTFGTGTKLELK" 
-    h_seq: "QVQLQQSGPELVKPGALVKISCKASGYTFTSYDINWVKQRPGQGLEWIGWIYPGDGSIKYNEKFKGKATLTVDKSSSTAYMQVSSLTSENSAVYFCARRGEYGNYEGAMDYWGQGTTVTVSS"
-<<<<<<< HEAD
->>>>>>> 0d78d23 (fixed minor logging issues)
-    # h_vfams: null
-=======
-    # h_vfams: null  # Optionally, set target v-gene families
->>>>>>> 0e9d0f4 (removed unused dbs, changed names and fixed ReadMe)
-    # l_vfams: null
+    #h_vfams: null
+    #l_vfams: null
 
   sampling:
     seed: 0
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    recycling_steps: 3
-
+      recycling_steps: 3
+      enforce_cdr_sequence: true
     inpaint_fn:
       _target_: abbfn2.sample.functions.sde_sample.SDESampleFn
       num_steps: 300
-=======
-    recycling_steps: 1
-  
-    inpaint_fn:
-      _target_: abbfn2.sample.functions.sde_sample.SDESampleFn
-      num_steps: 100
->>>>>>> 914ea31 (testing humanisation)
-=======
-    recycling_steps: 3
-=======
-    recycling_steps: 5
-    enforce_cdr_sequence: true
->>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)
-  
-    inpaint_fn:
-      _target_: abbfn2.sample.functions.sde_sample.SDESampleFn
-      num_steps: 300
->>>>>>> 0d78d23 (fixed minor logging issues)
       time_schedule:
         _target_: abbfn2.sample.schedules.LinearScheduleFn
     mask_fn: # For inpaint_mask_fn/condition_data_mode or predict_data_mode
       _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn
-
   output:
     local_validation_dir: "./validation"
     exp_name: "humanization"
     overwrite_local_if_exists: true
     save_raw: false
 
-<<<<<<< HEAD
-  enforce_cdr_sequence: true
-<<<<<<< HEAD
   load_from_hf: false
-=======
-  load_from_hf: false
->>>>>>> 21027db (minor humanization changes)
-=======
-  load_from_hf: false
->>>>>>> 32b8f01 (small clean up/opt/homebrew/anaconda3/envs/my_env/bin/python /Users/m.braganca/Documents/AbBFN2/experiments/inpaint.py)
