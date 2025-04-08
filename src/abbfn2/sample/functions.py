@@ -25,9 +25,6 @@ from typing import Any
 
 from distrax import Categorical, Normal
 
-
-
-
 @dataclass
 class BaseSampleFn(ABC):
     """Get the sampling function for the BFN model.
@@ -418,8 +415,8 @@ def get_twisted_particle_logit(
 
 
 @struct.dataclass
-class SampleState:
-    """State for the SampleFn.
+class TwistedSDESampleState:
+    """State for the TwistedSDESampleFn.
 
     Attributes:
         t (float): The time at which the prediction was made.
@@ -447,10 +444,6 @@ class TwistedSDESampleFn(BaseSampleFn):
     Adapted to BFNs from "Practical and Asymptotically Exact Conditional Sampling in Diffusion Models", Wu et al.
 
     Args:
-        bfn (BFN): The BFN model.
-        num_steps (int): The number of steps to iterate for generating samples.
-        time_schedule (LinearScheduleFn): The time schedule function.
-        greedy (bool): Whether to sample the mode of the distribution (greedy) or sample from the distribution. Defaults to True.
         num_particles (int): The number of particles to use in the SDE algorithm.
         max_score (float | None): Range at which to clip the conditional score. Defaults to 1.0.
             Set to None for no clipping (can lead to numerical instability)
@@ -593,15 +586,11 @@ class TwistedSDESampleFn(BaseSampleFn):
             if mask_sample[dm] is None:
                 mask_sample[dm] = jnp.ones_like(x[dm])
 
-        # Run network and compute score at t=0.
-        # Note that (see line 3, Alg 1 of Wu et al.) the initial weight is log_prob(x | theta_0).  However,
-        # as we are replicating the state across particles, we can set the initial weight to 0.  Note that if
-        # the network is not-deterministic, we should also vmap this step and use the correct weights.
         key, key_output = jax.random.split(key)
         cond_score, log_prob, pred = self._get_score_and_pred(
             key_output, theta, t=0.0, params=params, x=x, mask_sample=mask_sample
         )
-        sample_state = SampleState(
+        sample_state = TwistedSDESampleState(
             t=0.0,
             theta=theta,
             pred=pred,
@@ -617,15 +606,15 @@ class TwistedSDESampleFn(BaseSampleFn):
             sample_state,
         )
 
-        def loop_body(states: SampleState, xs: tuple[int, PRNGKey]):
+        def loop_body(states: TwistedSDESampleState, xs: tuple[int, PRNGKey]):
             """Loop body for a single particle.
 
             Args:
-                state (SampleState): The current state.
+                state (TwistedSDESampleState): The current state.
                 xs (tuple[int, PRNGKey]): The loop variables (i, key) where i is the current step and key is the random key.
 
             Returns:
-                SampleState: The updated state.
+                TwistedSDESampleState: The updated state.
             """
             i, key = xs
             t_start, t_end = self.time_schedule(i, self.num_steps)
@@ -642,7 +631,7 @@ class TwistedSDESampleFn(BaseSampleFn):
             )
             states = jax.tree_util.tree_map(lambda arr: arr[particle_idxs], states)
 
-            def process_particle(state: SampleState, key):
+            def process_particle(state: TwistedSDESampleState, key):
                 key_sample, key_output = jax.random.split(key, 2)
 
                 # Update theta from t to t + dt using the network prediction at t.
@@ -674,7 +663,7 @@ class TwistedSDESampleFn(BaseSampleFn):
                     mask=mask_sample,  # mask
                 )
 
-                state = SampleState(
+                state = TwistedSDESampleState(
                     t=t_end,
                     theta=theta,
                     pred=pred,
@@ -875,12 +864,10 @@ class SDESampleFn:
             mask=None,
         )
         # Sample from the output network.
-        # Note that DiscretizedBFN predictions require the number of bins to be passed.
         ks = jax.random.split(key, len(self.bfn.data_modes))
         args = {dm: {} for dm in self.bfn.bfns}
 
         if self.greedy:
-
             # Sample the mode of the distribution.
             sample = {
                 dm: pred.to_distribution(**args[dm]).mode() for dm, pred in pred.items()
