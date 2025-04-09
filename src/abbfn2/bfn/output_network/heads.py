@@ -17,7 +17,6 @@ from abbfn2.bfn.types import (
     ThetaDiscrete,
 )
 
-# Distribution encoding
 class EntropyEncoding(nn.Module):
     """An encoding that embeds the per-variable entropy of the input distribution into the input embeddings.
 
@@ -56,7 +55,6 @@ class EntropyEncoding(nn.Module):
         return x + entropy_embedding
 
 
-# Encoder
 class Encoder(ABC, nn.Module):
     """A module for encoding input data.
 
@@ -220,8 +218,6 @@ class RegressionHead(nn.Module):
         x = nn.Dense(self.output_dim, use_bias=self.with_bias)(x)
         return x
 
-
-# Decoder
 class Decoder(ABC, nn.Module):
     """A module for decoding from the output network."""
 
