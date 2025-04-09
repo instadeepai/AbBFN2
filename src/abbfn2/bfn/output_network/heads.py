@@ -17,6 +17,7 @@ from abbfn2.bfn.types import (
     ThetaDiscrete,
 )
 
+
 class EntropyEncoding(nn.Module):
     """An encoding that embeds the per-variable entropy of the input distribution into the input embeddings.
 
@@ -47,9 +48,11 @@ class EntropyEncoding(nn.Module):
         entropy_embedding = nn.Dense(
             x.shape[-1],
             use_bias=self.with_bias,
-            kernel_init=nn.initializers.constant(0.0)
-            if self.zero_init
-            else nn.initializers.lecun_normal(),
+            kernel_init=(
+                nn.initializers.constant(0.0)
+                if self.zero_init
+                else nn.initializers.lecun_normal()
+            ),
         )(entropy[..., None])
 
         return x + entropy_embedding
@@ -179,7 +182,8 @@ class ContinuousEncoder(Encoder):
             x = self.distribution_encoding(x, theta)
 
         return x, {"mu": mu, "x_skip": x}
-    
+
+
 class RegressionHead(nn.Module):
     """MLP Block used in the Decoders."""
 
@@ -218,6 +222,7 @@ class RegressionHead(nn.Module):
         x = nn.Dense(self.output_dim, use_bias=self.with_bias)(x)
         return x
 
+
 class Decoder(ABC, nn.Module):
     """A module for decoding from the output network."""
 
@@ -236,7 +241,6 @@ class Decoder(ABC, nn.Module):
             skip_args (Optional[Any]): Additional state or parameters that may be required for decoding.
             t (Optional[float]): The time at which the input distribution was computed.
             beta (Optional[Array]): A per-variable value of the accuracy schedule (shape [...var_shape...]).
-            mask (Optional[Array]): Optional mask to apply to the input data.
 
         Returns:
             pred (OutputNetworkPrediction): The output network prediction.
@@ -249,10 +253,7 @@ class DiscreteDecoder(Decoder):
     """A module for decoding data for a discrete data mode."""
 
     output_dim: int
-    relative_prediction: bool = False
     max_logits_magnitude: float = None
-    use_skip: bool = False
-    with_bias: bool = True
     name = "decoder_discrete"
     kwargs: dict = dataclasses.field(default_factory=dict)
 
@@ -268,31 +269,19 @@ class DiscreteDecoder(Decoder):
 
         Args:
             x (Array): The embeddings to decode (shape [...var_shape..., dim])
-            skip_args (Dict[str, Array]): Dictionary containing "input_logits" for relative prediction.
+            skip_args (dict[str, Array]): Additional state or parameters that may be required for decoding. Unused in this module.
             t (Optional[float]): The time at which the input distribution was computed.  Unused in this module.
             beta (Optional[Array]): A per-variable value of the accuracy schedule (shape [D]). Unused in this module.
-            mask (Optional[Array]): Optional mask to apply to the input data. No-op in this module.
 
         Returns:
             pred (OutputNetworkPredictionDiscrete): The output network prediction.
         """
         dim = x.shape[-1]
 
-        if self.use_skip and "x_skip" in skip_args:
-            h = nn.Dense(
-                dim,
-                use_bias=self.with_bias,
-                kernel_init=nn.initializers.constant(0.0),
-            )(skip_args["x_skip"])
-            x += h
-
         logits = RegressionHead(
             hidden_dim=2 * dim,
             output_dim=self.output_dim,
         )(x)
-
-        if self.relative_prediction:
-            logits = logits + skip_args["logits"]
 
         if self.max_logits_magnitude is not None:
             log_mag = self.max_logits_magnitude
@@ -315,8 +304,6 @@ class ContinuousDecoder(Decoder):
 
     out_lims: tuple[float, float] | None = None
     t_min: float = 1e-6
-    use_skip: bool = False
-    with_bias: bool = True
     name = "decoder_cts"
     kwargs: dict = dataclasses.field(default_factory=dict)
 
@@ -342,27 +329,21 @@ class ContinuousDecoder(Decoder):
 
         Args:
             x (Array): The embeddings to decode (shape [...var_shape..., dim]).
-            skip_args (Optional[Any]): Additional state or parameters that may be required for decoding.
+            skip_args (dict[str, Array]): Skipped arguments from the encoder.
             t (Optional[float]): The time at which the input distribution was computed.
             beta (Optional[Array]): A per-variable value of the accuracy schedule (shape [...var_shape...]).
-            mask (Optional[Array]): Optional mask to apply to the input data. No-op in this module.
 
         Returns:
             pred (OutputNetworkPredictionContinuous): The output network prediction.
         """
         dim = x.shape[-1]
-        if self.use_skip and "x_skip" in skip_args:
-            h = nn.Dense(
-                dim,
-                use_bias=self.with_bias,
-                kernel_init=nn.initializers.constant(0.0),
-            )(skip_args["x_skip"])
-            x += h
 
         eps = RegressionHead(
             hidden_dim=2 * dim,
             output_dim=1,
-        )(x).squeeze(-1)
+        )(
+            x
+        ).squeeze(-1)
 
         gamma = beta / (1 + beta)
         gamma = gamma.clip(min=1e-9)  # Numerical stability in the scale comp.

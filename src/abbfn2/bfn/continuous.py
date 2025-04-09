@@ -1,5 +1,3 @@
-from typing import Any
-
 import distrax
 import jax.numpy as jnp
 from distrax import Normal
@@ -18,37 +16,6 @@ class ContinuousBFN(BFNBase):
         mu = jnp.zeros(self.cfg.variables_shape)
         rho = jnp.ones(self.cfg.variables_shape)
         return ThetaContinuous(mu=mu, rho=rho)
-
-    def apply_output_network(
-        self,
-        params: Any,
-        key: PRNGKey,
-        theta: ThetaContinuous,
-        t: float,
-        mask: Array | None = None,
-    ) -> OutputNetworkPredictionContinuous:
-        """Apply the output network to compute parameters of the output distribution.
-
-        Args:
-            params (Any): The learnable params of the BFN
-            key (PRNGKey): A random seed for the output network
-            theta (Theta): Parameters of the input distribution over the variables.
-            t (float): The time.
-            mask (Optional[Array]): Optional per-variable mask for the output network.  Default is None
-              which is no masking.  Valid masks match variables shape and are 1 (0) if a variable visible (masked).
-
-        Returns:
-            OutputNetworkPredictionContinuous: A prediction of the ground truth data.
-
-        Note:
-            This function implements the CTS_OUTPUT_PREDICTION agorithm from pg. 19 Graves et al.
-        """
-        beta = self.compute_beta(params, t)
-        if "output_network" in params:
-            params = params["output_network"]
-        return self._apply_output_network_fn(
-            params, key, theta.mu, mask, t, beta
-        )
 
     def sample_sender_distribution(
         self,

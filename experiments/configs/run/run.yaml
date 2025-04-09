@@ -68,7 +68,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -132,7 +131,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -196,7 +194,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -260,7 +257,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -324,7 +320,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -388,7 +383,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -452,7 +446,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -516,7 +509,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -580,7 +572,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -644,7 +635,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -708,7 +698,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -772,7 +761,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -836,7 +824,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -900,7 +887,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 32
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -918,7 +904,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 13
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -938,7 +923,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 13
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -958,7 +942,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 33
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -978,7 +961,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 12
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -998,7 +980,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 5
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1018,7 +999,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 15
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1038,7 +1018,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 201
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1059,7 +1038,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 49
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1080,7 +1058,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 7
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1101,7 +1078,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 220
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1122,7 +1098,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 13
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1143,7 +1118,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 10
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1163,7 +1137,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 8
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1183,7 +1156,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 7
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1203,7 +1175,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 18
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1223,7 +1194,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 10
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1243,7 +1213,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1262,7 +1231,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 3
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1498,7 +1466,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1518,7 +1485,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1538,7 +1504,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule
@@ -1558,7 +1523,6 @@ data_mode:
       decoder:
         _target_: abbfn2.bfn.output_network.heads.DiscreteDecoder
         output_dim: 4
-        relative_prediction: false
         max_logits_magnitude: 10.0
       noise_schedule:
         _target_: abbfn2.bfn.output_network.noise_schedules.FixedDiscreteSchedule

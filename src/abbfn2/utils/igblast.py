@@ -1,7 +1,7 @@
 import logging
 import os
-import subprocess
 import platform
+import subprocess
 from pathlib import Path
 
 
@@ -218,11 +218,11 @@ def run_igblast_pipeline(
 
     Args:
         input_file (str | Path): Path to input FASTA file containing antibody sequences
-        species (str, optional): Species for gene regions - one of "human", "rat", "mouse", "rhesus_monkey". Defaults to "human".
-        n_alignments (int, optional): Number of alignments to generate. Defaults to 5.
-        igblast_path (str | Path | None, optional): Path to IgBLAST executable. If None, uses appropriate version for platform. Defaults to None.
-        v_gene_db_path (str | Path | None, optional): Path to V gene database. If None, fetches from S3. Defaults to None.
-        j_gene_db_path (str | Path | None, optional): Path to J gene database. If None, fetches from S3. Defaults to None.
+        species (str, optional): Species for gene regions. Defaults to "human".
+        n_alignments (int, optional): Number of alignments to generate. Defaults to 1.
+        igblast_path (str | Path | None, optional): Path to IgBLAST executable. If None, uses appropriate version for platform.
+        v_gene_db_path (str | Path | None, optional): Path to V gene database.
+        j_gene_db_path (str | Path | None, optional): Path to J gene database.
 
     Returns:
         dict: Dictionary containing parsed IgBLAST results with alignment summaries and hit tables
@@ -256,8 +256,8 @@ def run_igblast_pipeline(
     logging.info("Parsing and cleaning IgBLAST output...")
     data = parse_igblastp_output(local_igblast_raw)
     os.remove(local_igblast_raw)
-    os.chdir('../..')
+    os.chdir("../..")
 
-    v_genes = [data[ab]["top_v_hit"][0].split('-')[0] for ab in data]
+    v_genes = [data[ab]["top_v_hit"][0].split("-")[0] for ab in data]
 
     return v_genes

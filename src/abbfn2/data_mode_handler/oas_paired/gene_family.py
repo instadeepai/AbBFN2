@@ -12,9 +12,7 @@ from abbfn2.data_mode_handler.utils import load_from_hdf5, write_to_hdf5
 class GeneFamilyHandler(DataModeHandler):
     """Base class for germline gene family data handling."""
 
-    def __init__(
-        self, dm_key: str, unknown_label: str = "unknown"
-    ):
+    def __init__(self, dm_key: str, unknown_label: str = "unknown"):
         """Initialise the DM handler with dicts to convert gene families to classes.
 
         Args:

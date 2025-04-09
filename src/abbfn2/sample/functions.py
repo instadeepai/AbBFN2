@@ -1,29 +1,28 @@
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import partial
+from typing import Any
 
 import jax
+from distrax import Categorical, Normal
 from flax import struct
+from jax import Array
 from jax import numpy as jnp
 from jax.lax import scan
-from jax import Array
 from jax.random import PRNGKey
 
-from abbfn2.bfn import BFN, MultimodalBFN, ContinuousBFN, DiscreteBFN
+from abbfn2.bfn import BFN, ContinuousBFN, DiscreteBFN, MultimodalBFN
 from abbfn2.bfn.types import (
-    OutputNetworkPredictionMM,
-    ThetaMM,
     OutputNetworkPrediction,
+    OutputNetworkPredictionMM,
     Theta,
     ThetaContinuous,
     ThetaDiscrete,
+    ThetaMM,
 )
 from abbfn2.sample.schedule import LinearScheduleFn
-import logging
 
-from typing import Any
-
-from distrax import Categorical, Normal
 
 @dataclass
 class BaseSampleFn(ABC):
@@ -62,7 +61,6 @@ class BaseSampleFn(ABC):
         """
         args = {dm: {} for dm in self.bfn.bfns}
 
-
         if self.greedy:
             # Sample the mode of the distribution.
             sample = {
@@ -99,6 +97,7 @@ class BaseSampleFn(ABC):
             dict[str, Array]: The generated samples.
         """
 
+
 @struct.dataclass
 class SampleState:
     """State for the SampleFn.
@@ -122,10 +121,10 @@ class SampleFn(BaseSampleFn):
     sampling and does not support conditioning on ground-truth data or masks.
 
     Args:
-        bfn (BFN): The BFN model.
-        num_steps (int): The number of steps to iterate for generating samples.
-        time_schedule (LinearScheduleFn): The time schedule function.
-        greedy (bool): Whether to sample the mode of the distribution (greedy) or sample from the distribution.
+        key (PRNGKey): The random key used for generating samples.
+        params (Any): The network parameters.
+        x (Dict[str, Array]): The "ground-truth" sample on which to condition generation.
+        mask_sample (Dict[str, Array]): Variable-wise mask determining which regions of the ground-truth is visible during sampling.
     """
 
     def __call__(
@@ -164,10 +163,8 @@ class SampleFn(BaseSampleFn):
         key, key_output = jax.random.split(key)
         pred = self.bfn.apply_output_network(
             params,
-            key_output,
             theta,
             t=0,
-            mask=None,
         )
         sample_state = SampleState(t=0.0, theta=theta, pred=pred)
 
@@ -198,10 +195,8 @@ class SampleFn(BaseSampleFn):
             # Run the network at t + dt.
             pred = self.bfn.apply_output_network(
                 params,
-                key_output,
                 theta,
                 t_end,
-                mask=None,
             )
             state = SampleState(t=t_end, theta=theta, pred=pred)
 
@@ -220,7 +215,7 @@ class SampleFn(BaseSampleFn):
         sample = self._sample_from_network_prediction(key, sample_state.pred)
 
         return sample
-    
+
 
 def _twisted_importance_logit_cts_mean(
     mean: Array,
@@ -242,7 +237,6 @@ def _twisted_importance_logit_cts_mean(
 
 
 def get_twisted_importance_logit_continuous_dm(
-    bfn: ContinuousBFN,
     pred: OutputNetworkPrediction,
     y: Array,
     theta_old: ThetaContinuous,
@@ -256,7 +250,6 @@ def get_twisted_importance_logit_continuous_dm(
         log prob of y under the conditional (twisted) proposal distribution
 
     Args:
-        bfn (ContinuousBFN): The BFN model.
         pred (OutputNetworkPredictionContinuous): Prediction of the output network.
         y (Array): The receiver/sender sample (per variable).
         theta_old (ThetaContinuous): The previous input distribution parameters (per variable)
@@ -279,7 +272,6 @@ def get_twisted_importance_logit_continuous_dm(
 
 
 def get_twisted_importance_logit_discrete_dm(
-    bfn: DiscreteBFN,
     pred: OutputNetworkPrediction,
     y: Array,
     theta_old: ThetaDiscrete,
@@ -293,7 +285,6 @@ def get_twisted_importance_logit_discrete_dm(
         the log prob of y under the conditional (twisted) proposal distribution
 
     Args:
-        bfn (DiscreteBFN): The BFN model.
         pred (OutputNetworkPredictionContinuous): Prediction of the output network.
         y (Array): The receiver/sender sample (per variable).
         theta_old (ThetaContinuous): The previous input distribution parameters (per variable)
@@ -388,11 +379,11 @@ def get_twisted_particle_logit(
     ):
         if isinstance(bfn, ContinuousBFN):
             logit = get_twisted_importance_logit_continuous_dm(
-                bfn, pred, y, theta_old, theta_new, alpha, mask
+                pred, y, theta_old, theta_new, alpha, mask
             )
         elif isinstance(bfn, DiscreteBFN):
             logit = get_twisted_importance_logit_discrete_dm(
-                bfn, pred, y, theta_old, theta_new, alpha, mask
+                pred, y, theta_old, theta_new, alpha, mask
             )
         else:
             raise ValueError(f"Unsupported BFN type: {type(bfn)}")
@@ -491,10 +482,8 @@ class TwistedSDESampleFn(BaseSampleFn):
         ) -> tuple[float, OutputNetworkPredictionMM]:
             pred = self.bfn.apply_output_network(
                 params,
-                key,
                 theta,
                 t,
-                mask=None,
             )
             log_prob = self.bfn.conditional_log_prob(pred, x, mask_sample, theta)
             return log_prob, pred
@@ -695,8 +684,9 @@ class TwistedSDESampleFn(BaseSampleFn):
         )
         return samples
 
+
 @dataclass
-class SDESampleFn:
+class SDESampleFn(BaseSampleFn):
     """Creates the SDE sampling function for the BFN model.
 
     Args:
@@ -749,22 +739,23 @@ class SDESampleFn:
         run_net = partial(
             self.bfn.apply_output_network,
             params,
-            mask=None,
         )
 
         def conditional_log_prob_fn(
             key: PRNGKey, theta: ThetaMM, t: float, alpha: dict[str, Array]
         ):
             key_output, key_receiver = jax.random.split(key, 2)
-            pred = run_net(key_output, theta, t)
+            pred = run_net(theta, t)
 
             log_prob = self.bfn.conditional_log_prob(
-                pred, x, jax.tree_map(lambda arr: arr > t, mask_sample), jax.lax.stop_gradient(theta)
+                pred,
+                x,
+                jax.tree_map(lambda arr: arr > t, mask_sample),
+                jax.lax.stop_gradient(theta),
             )
 
             y = self.bfn.sample_receiver_distribution(pred, alpha, key_receiver)
             return log_prob, y
-
 
         conditional_score_fn = jax.grad(
             conditional_log_prob_fn, argnums=1, has_aux=True
@@ -834,11 +825,14 @@ class SDESampleFn:
                     y_sen,
                     y_rec,
                     jax.tree_map(lambda arr: arr > t_start, mask_sample),
-                    #mask_sample,
+                    # mask_sample,
                 )
 
             theta = self.bfn.update_distribution(
-                theta, y, alpha, conditional_score,
+                theta,
+                y,
+                alpha,
+                conditional_score,
                 jax.tree_map(lambda arr: arr > t_start, mask_sample),
             )
 
@@ -858,10 +852,8 @@ class SDESampleFn:
 
         pred = self.bfn.apply_output_network(
             params,
-            key_output,
             theta,
             t=1,
-            mask=None,
         )
         # Sample from the output network.
         ks = jax.random.split(key, len(self.bfn.data_modes))

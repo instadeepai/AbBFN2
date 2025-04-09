@@ -8,8 +8,8 @@ hydra:
 
 cfg:
   load_from_hf: false
-  model_weights_path: /app/params.pkl
-  
+  model_weights_path: /Users/m.braganca/Documents/AbBFN2/params.pkl
+
   sampling:
     num_samples_per_batch: 1
     num_batches: 1
@@ -22,6 +22,6 @@ cfg:
 
   output:
     local_validation_dir: "./validation"
-    exp_name: "unconditional_gen" # null will create a name based on the current date and time.
+    exp_name: "unconditional" # null will create a name based on the current date and time.
     save_raw: false
     overwrite_local_if_exists: true

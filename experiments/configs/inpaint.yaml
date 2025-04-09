@@ -20,7 +20,7 @@ cfg:
 
     dm_overwrites: # Select the data mode for the input samples.
       species: "mouse"
-      
+
   sampling:
     seed: 0
     num_samples_per_batch: 1
@@ -41,8 +41,6 @@ cfg:
 
   output:
     local_validation_dir: "./validation"
-    exp_name: null
+    exp_name: "inpaint"
     overwrite_local_if_exists: true
     save_raw: false
-
-  

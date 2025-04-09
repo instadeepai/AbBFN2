@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class LinearScheduleFn():
+class LinearScheduleFn:
     """A linear time schedule for sampling a BFN."""
 
     def __call__(self, i: int, num_steps: int, eta: float = 0.0) -> tuple[float, float]:

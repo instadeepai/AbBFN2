@@ -1,5 +1,3 @@
-from typing import Any
-
 import jax
 import jax.numpy as jnp
 from distrax import Categorical, Normal
@@ -21,36 +19,6 @@ class DiscreteBFN(BFNBase):
         """
         logits = jnp.zeros(self.cfg.variables_shape + (self.cfg.num_classes,))
         return ThetaDiscrete(logits=logits)
-
-    def apply_output_network(
-        self,
-        params: Any,
-        key: PRNGKey,
-        theta: Array,
-        t: float,
-        mask: Array | None = None,
-    ) -> OutputNetworkPredictionDiscrete:
-        """Apply the output network to compute parameters of the output distribution.
-
-        Args:
-            params (Any): The learnable params of the BFN
-            key (PRNGKey): A random seed for the output network
-            theta (Array): Parameters of the input distribution over variables (shape [...var_shape...]).
-              Typically these are per-variables logits ("y").
-            t (float): The time.
-            mask (Optional[Array]): Optional per-variable mask for the output network.  Default is None
-              which is no masking.  Valid masks can be broadcast to the variables and are 1 (0) if a variable visible (masked).
-
-        Returns:
-            OutputNetworkPredictionDiscrete: Parameters of the output distribution.
-        """
-        beta = self.compute_beta(params, t)
-        if "output_network" in params:
-            params = params["output_network"]
-        logits = self._apply_output_network_fn(
-            params, key, theta.logits, t, beta, mask
-        )
-        return OutputNetworkPredictionDiscrete(logits=logits)
 
     def sample_sender_distribution(
         self,

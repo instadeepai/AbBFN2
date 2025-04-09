@@ -12,7 +12,6 @@ from dataclasses import dataclass
 import jax
 import jax.numpy as jnp
 from jax import Array
-from jax.random import PRNGKey
 
 from abbfn2.data_mode_handler import DataModeHandler
 
@@ -48,7 +47,6 @@ class InpaintMaskGenerationFn:
 
     def __call__(
         self,
-        key: PRNGKey,
         samples: dict[str, Array],
         dm_handlers: dict[str, DataModeHandler],
     ) -> Array:
@@ -64,6 +62,7 @@ class InpaintMaskGenerationFn:
             of the ground truth data are visible (unmasked <-> 1) and which are to be predicted (masked <-> 0).
         """
         pass
+
 
 @dataclass
 class PredictDataModeMaskFn(InpaintMaskGenerationFn):
@@ -81,7 +80,6 @@ class PredictDataModeMaskFn(InpaintMaskGenerationFn):
 
     def __call__(
         self,
-        key: PRNGKey,
         samples: dict[str, Array],
         dm_handlers: dict[str, DataModeHandler] = None,
     ) -> dict[str, Array]:
@@ -130,7 +128,6 @@ class ConditionDataModeMaskFn(InpaintMaskGenerationFn):
 
     def __call__(
         self,
-        key: PRNGKey,
         samples: dict[str, Array],
         dm_handlers: dict[str, DataModeHandler] = None,
     ) -> dict[str, Array]:

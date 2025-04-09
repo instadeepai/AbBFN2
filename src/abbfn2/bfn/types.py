@@ -136,6 +136,7 @@ class ThetaContinuous(Theta):
 
         return scaled_entropy
 
+
 ThetaMM = dict[str, Theta]
 
 

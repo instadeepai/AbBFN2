@@ -63,18 +63,18 @@ class BFNTokenizer(Tokenizer):
         tokens_to_ids: dict[str, int] | None = None,
     ):
         # From: Trix Standard Tokenizer init
-        self._standard_tokens=standard_tokens
-        self._unk_token=unk_token
-        self._pad_token=pad_token
-        self._mask_token=mask_token
-        self._class_token=class_token
-        self._eos_token=eos_token
-        self._bos_token=bos_token
-        self._prepend_bos_token=prepend_bos_token
-        self._prepend_cls_token=prepend_cls_token
-        self._append_eos_token=append_eos_token
-        self._extra_special_tokens=extra_special_tokens
-        self._tokens_to_ids=tokens_to_ids
+        self._standard_tokens = standard_tokens
+        self._unk_token = unk_token
+        self._pad_token = pad_token
+        self._mask_token = mask_token
+        self._class_token = class_token
+        self._eos_token = eos_token
+        self._bos_token = bos_token
+        self._prepend_bos_token = prepend_bos_token
+        self._prepend_cls_token = prepend_cls_token
+        self._append_eos_token = append_eos_token
+        self._extra_special_tokens = extra_special_tokens
+        self._tokens_to_ids = tokens_to_ids
 
         special_tokens = [
             unk_token,
@@ -132,10 +132,7 @@ class BFNTokenizer(Tokenizer):
 
     @property
     def normal_token_idx(self) -> list[int]:
-        return [
-            self._tokens_to_ids[token]
-            for token in self._standard_tokens
-        ]
+        return [self._tokens_to_ids[token] for token in self._standard_tokens]
 
     @property
     def mask_idx(self) -> int:
@@ -202,7 +199,6 @@ class BFNTokenizer(Tokenizer):
 
         return tokens, tokens_ids
 
-
     def tokenize(self, sequence: str) -> tuple[list[str], list[int]]:
         """Tokenizes the sequence, applying cropping if necessary, and then tokenizing via the superclass method.
 
@@ -255,6 +251,7 @@ class BFNTokenizer(Tokenizer):
         return [
             (toks, toks_ids) for toks, toks_ids in zip(padded_tokens, padded_tokens_ids)
         ]
+
 
 class IMGTTokenizer(BFNTokenizer):
     """A Tokenizer subclass that pads sequences in an IMGT-compliant manner by inserting padding tokens in the center."""

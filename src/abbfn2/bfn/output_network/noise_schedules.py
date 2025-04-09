@@ -1,9 +1,10 @@
+import math
 from abc import ABC, abstractmethod
 from typing import Any
 
 import jax.numpy as jnp
 from jax import Array
-import math
+
 
 class NoiseSchedule(ABC):
     """An abstract base class for defining noise schedules for a BFN."""
@@ -95,7 +96,7 @@ class FixedContinuousSchedule(NoiseSchedule):
         beta = (1 / jnp.power(self._sigma_1_sq, t)) - 1
         return beta
 
-   
+
 class FixedDiscreteSchedule(NoiseSchedule):
     """A noise schedule for discrete data with fixed beta(1)."""
 
@@ -128,4 +129,3 @@ class FixedDiscreteSchedule(NoiseSchedule):
             Array: The beta values for the specified timesteps.
         """
         return t**2 * self.beta_1
-

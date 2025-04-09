@@ -33,8 +33,9 @@ from abbfn2.utils.inference_utils import (
 warnings.filterwarnings(
     "ignore",
     message=".*Explicitly requested dtype <class 'jax\\.numpy\\.float64'> requested in astype is not available.*",
-    category=UserWarning
+    category=UserWarning,
 )
+
 
 @hydra.main(version_base="1.1", config_path="./configs", config_name="inpaint.yaml")
 def main(full_config: DictConfig) -> None:
@@ -64,30 +65,38 @@ def main(full_config: DictConfig) -> None:
     # Prepare output directory.
     local_output_dir = configure_output_dir(cfg.output)
 
-
     # ======================== CREATE INPUT SAMPLES =======================
 
     with jax.default_device(jax.devices("cpu")[0]):
-        key, input_key, mask_key = random.split(key, 3)
+        key, input_key = random.split(key, 2)
         samples = get_input_samples(cfg.input, bfn, dm_handlers, input_key)
         num_samples = list(samples.values())[0].shape[0]
 
         mask_fn = instantiate(cfg.sampling.mask_fn)
-        masks = mask_fn(mask_key, samples, dm_handlers)
+        masks = mask_fn(samples, dm_handlers)
         for dm, handler in dm_handlers.items():
             if isinstance(handler, SequenceDataModeHandler):
+
                 def get_sequence_mask(dm, mask_fn, padding_visible):
                     if isinstance(mask_fn, ConditionDataModeMaskFn):
                         # For conditioning, we want 1s (visible) if the DM is in data_modes
                         if dm in mask_fn.data_modes:
                             return np.ones(masks[dm].shape, dtype=int)
                         # Otherwise, we want 0s (hidden) unless padding is visible
-                        return np.zeros(masks[dm].shape, dtype=int) if not padding_visible else None
+                        return (
+                            np.zeros(masks[dm].shape, dtype=int)
+                            if not padding_visible
+                            else None
+                        )
 
                     if isinstance(mask_fn, PredictDataModeMaskFn):
                         # For prediction, we want 0s (hidden) if the DM is in data_modes
                         if dm in mask_fn.data_modes:
-                            return np.zeros(masks[dm].shape, dtype=int) if not padding_visible else None
+                            return (
+                                np.zeros(masks[dm].shape, dtype=int)
+                                if not padding_visible
+                                else None
+                            )
                         # Otherwise, we want 1s (visible)
                         return np.ones(masks[dm].shape, dtype=int)
 
@@ -127,7 +136,9 @@ def main(full_config: DictConfig) -> None:
 
         # Not compatible with custom masks being provided.
         if cfg.input.mask_weight_overrides:
-            assert not cfg.input.override_masks_file, "Not compatible with custom masks being provided."
+            assert (
+                not cfg.input.override_masks_file
+            ), "Not compatible with custom masks being provided."
             for dm, mask_weight in cfg.input.mask_weight_overrides.items():
                 logging.info(f"Detected a mask weight override: {dm}")
                 if (
@@ -155,8 +166,12 @@ def main(full_config: DictConfig) -> None:
     logging.info(
         f"Padding from {num_samples} to {num_samples_padded} padded for {num_batches} batch(es) of {cfg.sampling.num_samples_per_batch} sample(s).",
     )
-    samples = jax.tree_util.tree_map(lambda x: pad_and_reshape(x, num_samples_padded, num_batches), samples)
-    masks = jax.tree_util.tree_map(lambda x: pad_and_reshape(x, num_samples_padded, num_batches), masks)
+    samples = jax.tree_util.tree_map(
+        lambda x: pad_and_reshape(x, num_samples_padded, num_batches), samples
+    )
+    masks = jax.tree_util.tree_map(
+        lambda x: pad_and_reshape(x, num_samples_padded, num_batches), masks
+    )
 
     inputs_info = {
         "num_batches": num_batches,
@@ -200,7 +215,6 @@ def main(full_config: DictConfig) -> None:
         key, sample_key = jax.random.split(key, 2)
         samples = batched_sample(params, sample_key, x, mask)
         samples_raw.append(jax.device_get(samples))
-
 
     # ============================= POST-PROCESSING ===========================
 
@@ -247,6 +261,7 @@ def main(full_config: DictConfig) -> None:
             samples_raw[dm] = np.where(masks[dm] == 1, initial_sample, samples_raw[dm])
 
     save_samples(samples_raw, dm_handlers, local_output_dir)
+
 
 if __name__ == "__main__":
     main()

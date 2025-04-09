@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from dataclasses import dataclass
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -6,15 +9,13 @@ from hydra.utils import instantiate
 from jax import Array
 from omegaconf import DictConfig
 
-
 from abbfn2.bfn.types import (
     OutputNetworkPrediction,
     OutputNetworkPredictionMM,
     Theta,
     ThetaMM,
 )
-from collections.abc import Callable
-from dataclasses import dataclass
+
 
 @dataclass
 class BackboneConfig:
@@ -27,11 +28,13 @@ class BackboneConfig:
         ffn_embed_dim (int): Feedforward embedding dimension size.
         num_layers (int): Number of layers in the model.
     """
+
     embed_dim: int = 1280
     key_size: int = 64
     attention_heads: int = 20
     ffn_embed_dim: int = 5120
     num_layers: int = 33
+
 
 class BackboneRMSNorm(nn.RMSNorm):
     def __init__(
@@ -47,10 +50,10 @@ class BackboneRMSNorm(nn.RMSNorm):
             dtype=jnp.float32,
         )
 
-    def __call__(self, x, *, mask: jax.Array | None = None):
+    def __call__(self, x):
         x_dtype = x.dtype
         x = x.astype(jnp.float32)
-        x = super().__call__(x, mask=mask)
+        x = super().__call__(x)
         return x.astype(x_dtype)
 
 
@@ -117,6 +120,7 @@ class RoPE(nn.Module):
 
         return head_batched(x.astype(jnp.float32)).astype(x.dtype)
 
+
 class MergeNLastAndLinear(nn.Module):
     """Merge the last N dimensions of input before applying a Linear layer.
 
@@ -151,6 +155,7 @@ class MergeNLastAndLinear(nn.Module):
         y = self._linear(x)
         # (B,T,E)
         return y
+
 
 class MultiHeadProjection(nn.Module):
     """Projection for key and query in Backbone models.
@@ -188,6 +193,7 @@ class MultiHeadProjection(nn.Module):
         x = x.reshape((*x.shape[:-1], self.num_head, self.head_size))
         # (B,T,H,D)
         return x
+
 
 class Attention(nn.Module):
     """Attention block for the Backbone model.
@@ -240,6 +246,7 @@ class Attention(nn.Module):
         # (B,T,E)
         return x
 
+
 class MultiHeadAttention(nn.Module):
     """Configurable Multi-Head Attention module for Backbone model.
 
@@ -263,7 +270,9 @@ class MultiHeadAttention(nn.Module):
             sqrt_key_size = jnp.sqrt(key_size).astype(jnp.float32)
             attn_logits = attn_logits / sqrt_key_size
             attn_weights = jax.nn.softmax(attn_logits, axis=-1)
-            ret = jnp.einsum("...htT,...Thd->...thd", attn_weights, v).astype(jnp.float32)
+            ret = jnp.einsum("...htT,...Thd->...thd", attn_weights, v).astype(
+                jnp.float32
+            )
             return ret
 
         self.project_query = MultiHeadProjection(
@@ -309,6 +318,7 @@ class MultiHeadAttention(nn.Module):
         """
         return self.attention_fn(x)
 
+
 class Mlp(nn.Module):
     """MLP block for Backbone model's transformer block.
 
@@ -320,12 +330,12 @@ class Mlp(nn.Module):
 
     def setup(self):
         """Set up the MLP layers."""
-        ffn_embed_dim = int(2/3 * self.config.ffn_embed_dim) * 2
+        ffn_embed_dim = int(2 / 3 * self.config.ffn_embed_dim) * 2
 
         self._fc1 = nn.Dense(
             ffn_embed_dim,
             use_bias=False,
-            kernel_init= nn.linear.default_kernel_init,
+            kernel_init=nn.linear.default_kernel_init,
             dtype=jnp.float32,
         )
         self._fc2 = nn.Dense(
@@ -350,6 +360,7 @@ class Mlp(nn.Module):
         x = self._activation(x1) * x2
         x = self._fc2(x)
         return x
+
 
 class TransformerBlock(nn.Module):
     """Implementation of the transformer block for Backbone model.
@@ -398,8 +409,6 @@ class TransformerBlock(nn.Module):
 class BackboneBlock(nn.Module):
     """Specialization of a Transformer block for Backbone.
 
-    Uses specific configurations and submodules like multi-head attention and an MLP.
-
     Attributes:
         config (BackboneConfig): Configuration object for the Backbone model.
     """
@@ -429,8 +438,6 @@ class BackboneBlock(nn.Module):
 
 class BackboneScanBlock(BackboneBlock):
     """Specialization of a Transformer block for Backbone designed to work with scan loop.
-
-    Uses specific configurations and submodules like multi-head attention and an MLP.
 
     Attributes:
         config (BackboneConfig): Configuration object for the Backbone model.
@@ -485,7 +492,6 @@ class BackboneModel(nn.Module):
         return x.astype(jnp.float32)
 
 
-
 class TransformerBackbone(nn.Module):
     """AbBFN Transformer Backbone."""
 
@@ -495,14 +501,11 @@ class TransformerBackbone(nn.Module):
     def __call__(
         self,
         embeddings: dict[str, Array],
-        mask: dict[str, Array],
-        t: float,
     ) -> tuple[Array, dict[str | Array]]:
         """Processes the input through the Transformer backbone.
 
         Args:
             embeddings (dict[str, Array]): Dictionary of input embeddings of shape (...var_shape..., dim).
-            t (float): The time as a float.
 
         Returns:
             A dictionary containing the final embeddings.
@@ -539,25 +542,21 @@ class TransformerBackbone(nn.Module):
 
 
 class BFNOutput(nn.Module):
-    """Full BFN model. Equivalent to build_output_network_fn."""
+    """Full BFN output network model."""
 
     bfn_cfg: DictConfig
     network_cfg: DictConfig
 
     @nn.compact
-    def __call__(
-        self, theta: Theta, mask: dict[str, Array | None], t: float, beta: Array
-    ) -> OutputNetworkPrediction:
-        """Full BFN Forward Pass."""
+    def __call__(self, theta: Theta, t: float, beta: Array) -> OutputNetworkPrediction:
+        """Full BFN output network forward pass."""
         dim = self.network_cfg.backbone.embed_dim
         encoder = instantiate(self.bfn_cfg.encoder, output_dim=dim)
 
-        x, skip_args = encoder(theta, t)
+        x, skip_args = encoder(theta)
 
         x, _ = TransformerBackbone(self.network_cfg.backbone, name="backbone")(
             {"dm": x[None]},
-            t,
-            {"dm": mask},
         )
         x = x["dm"]
 
@@ -569,7 +568,7 @@ class BFNOutput(nn.Module):
 
 
 class BFNMultimodalOutput(nn.Module):
-    """Multimodal BFN. Equivalent to build_multimodal_output_network_fn."""
+    """Multimodal BFN."""
 
     bfn_cfgs: dict[str, DictConfig]
     network_cfg: DictConfig
@@ -578,11 +577,10 @@ class BFNMultimodalOutput(nn.Module):
     def __call__(
         self,
         theta: ThetaMM,
-        mask: dict[str, Array | None],
         t: float,
         beta: dict[str, Array],
     ) -> OutputNetworkPredictionMM:
-        """Forward Pass Multimodal BFN."""
+        """Forward pass for Multimodal BFN."""
         data_modes = sorted(self.bfn_cfgs.keys())
         xs, skip_args = {}, {}
         dim = self.network_cfg.backbone.cfg.embed_dim
@@ -595,11 +593,9 @@ class BFNMultimodalOutput(nn.Module):
             )
             xs[dm] = x
             skip_args[dm] = sa
-            if "mask" in sa:
-                mask[dm] = sa["mask"]
 
         backbone = instantiate(self.network_cfg.backbone, name="backbone")
-        xs = backbone(xs, t, mask)
+        xs = backbone(xs)
 
         pred: OutputNetworkPredictionMM = {}
         for dm in data_modes:

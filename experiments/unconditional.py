@@ -17,8 +17,9 @@ from abbfn2.utils.inference_utils import configure_output_dir, load_params
 warnings.filterwarnings(
     "ignore",
     message=".*Explicitly requested dtype <class 'jax\\.numpy\\.float64'> requested in astype is not available.*",
-    category=UserWarning
+    category=UserWarning,
 )
+
 
 @hydra.main(version_base="1.1", config_path="./configs", config_name="unconditional")
 def main(full_config: DictConfig) -> None:
@@ -95,6 +96,7 @@ def main(full_config: DictConfig) -> None:
                 exist_ok=cfg.output.overwrite_local_if_exists,
             )
             jnp.save(dm_raw_dir / "samples.npy", samples_raw[dm])
+
 
 if __name__ == "__main__":
     main()
