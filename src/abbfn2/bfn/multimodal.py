@@ -1,7 +1,6 @@
 from typing import Any
 
 import jax
-import jax.numpy as jnp
 from jax import Array
 from jax.random import PRNGKey, split
 from omegaconf import DictConfig
@@ -28,8 +27,6 @@ class MultimodalBFN:
         self.bfns = bfns
         self.data_modes = sorted(list(self.bfns.keys()))  # noqa
         self.output_network_cfg = output_network_cfg
-
-        # Define helper functions for working with the data modes.
         self._split_key_for_dms = lambda key: {  # noqa
             dm: k for dm, k in zip(self.data_modes, split(key, len(self.data_modes)))
         }
@@ -44,8 +41,6 @@ class MultimodalBFN:
         Returns:
             params (Any): The learnable params of the BFN
         """
-        # pass
-
         network_key, bfn_key = jax.random.split(key, 2)
 
         # Initialise the noise schedule for each BFN.
@@ -61,17 +56,12 @@ class MultimodalBFN:
         )
 
         theta = self.get_prior_input_distribution()
-        mask = jax.tree_util.tree_map(
-            lambda bfn: jnp.ones(bfn.cfg.variables_shape),
-            self.bfns,
-        )
         t = 0.5
         beta = self.compute_beta(noise_schedule_params, t)
 
         output_network_params = output_network_fn.init(
             network_key,
             theta,
-            mask,
             t,
             beta,
         )
@@ -96,12 +86,8 @@ class MultimodalBFN:
     def apply_output_network(
         self,
         params: dict[str, Any],
-        key: PRNGKey,
         theta: ThetaMM,
         t: float,
-        mask: dict[str, Array | None] | None = None,
-        pred_cond: OutputNetworkPredictionMM | None = None,
-        t_cond: float | None = None,
     ) -> OutputNetworkPredictionMM:
         """Apply the output network to compute parameters of the output distribution.
 
@@ -110,40 +96,14 @@ class MultimodalBFN:
             key (PRNGKey): A random seed for the output network
             theta (ThetaMM): Parameters of the input distribution.
             t (float): The time.
-            mask (Optional[Array]): Optional per-variable mask for the output network.  Default is None
-              which is no masking.  Valid masks have shape [N] and are 1 (0) if a variable visible (masked).
-            pred_cond (Optional[OutputNetworkPredictionMM]): Output network prediction for self-conditioning.  Default is None.
-            t_cond (Optional[float]): Time for self-conditioning.  Default is None.
-
         Returns:
             OutputNetworkPredictionMM: Prediction of the output network.
         """
         beta = self.compute_beta(params, t)
         if "output_network" in params:
             params = params["output_network"]
-        pred = self._apply_output_network_fn(params, theta, mask, t, beta, pred_cond, t_cond)
+        pred = self._apply_output_network_fn(params, theta, t, beta)
         return pred
-
-    def compute_alpha(self, params: dict[str, Any], t: float) -> dict[str, Array]:
-        """Compute the accuracy parameter at time t.
-
-        α is a real, positive number defined such that at α=0 the sender distribution samples are
-        entirely uninformative.
-
-        Args:
-           params (Any): The learnable params of the BFN (specifically, of the noise schedule).
-           t (float): The time.
-
-        Returns:
-            Dict[str, Array]: Per-variable accuracy parameters (i.e. each with shape [N]).
-        """
-        if "noise_schedule" in params:
-            params = params["noise_schedule"]
-        return jax.tree_util.tree_map(
-            lambda bfn, params: bfn.compute_alpha(params, t),
-            self.bfns,
-            params,
-        )
 
     def compute_beta(self, params: Any, t: float) -> Array:
         """Compute the accuracy schedule at time t.
@@ -183,9 +143,9 @@ class MultimodalBFN:
         """
         keys = self._split_key_for_dms(key)
         return jax.tree_util.tree_map(
-            lambda bfn, x, alpha, key: None
-            if x is None
-            else bfn.sample_sender_distribution(x, alpha, key),
+            lambda bfn, x, alpha, key: (
+                None if x is None else bfn.sample_sender_distribution(x, alpha, key)
+            ),
             self.bfns,
             x,
             alpha,
@@ -221,31 +181,6 @@ class MultimodalBFN:
             keys,
         )
 
-    def sample_flow_distribution(
-        self,
-        x: dict[str, Array],
-        beta: dict[str, Array],
-        key: PRNGKey,
-    ) -> ThetaMM:
-        """Generate the ground-truth (x) and accuracy schedule (β(t)), sample from the Bayesian flow distribution.
-
-        Args:
-            x (Dict[str, Array]): The ground truth data (shape [N,...]).
-            beta (Dict[str, Array]): A per-variable value of the accuracy schedule (shape [D]).
-            key: PRNGKey for sampling.
-
-        Returns:
-            theta (ThetaMM): Sampled input parameters to the network.
-        """
-        keys = self._split_key_for_dms(key)
-        return jax.tree_util.tree_map(
-            lambda bfn, x, beta, key: bfn.sample_flow_distribution(x, beta, key),
-            self.bfns,
-            x,
-            beta,
-            keys,
-        )
-
     def update_distribution(
         self,
         theta: ThetaMM,
@@ -276,12 +211,7 @@ class MultimodalBFN:
         if conditional_mask is None:
             conditional_mask = self._replicate_across_dms(conditional_mask)
         return jax.tree_util.tree_map(
-            lambda bfn,
-            theta,
-            y,
-            alpha,
-            conditional_score,
-            conditional_mask: bfn.update_distribution(
+            lambda bfn, theta, y, alpha, conditional_score, conditional_mask: bfn.update_distribution(
                 theta, y, alpha, conditional_score, conditional_mask
             ),
             self.bfns,
@@ -312,7 +242,9 @@ class MultimodalBFN:
             The summed log prob over all the variables in x where mask=True
         """
         log_probs = jax.tree_util.tree_map(
-            lambda bfn, pred, x, mask, theta: bfn.conditional_log_prob(pred, x, mask, theta),
+            lambda bfn, pred, x, mask, theta: bfn.conditional_log_prob(
+                pred, x, mask, theta
+            ),
             self.bfns,
             pred,
             x,

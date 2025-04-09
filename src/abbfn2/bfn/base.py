@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import Any
 
-import jax
 import jax.numpy as jnp
 from hydra.utils import instantiate
 from jax import Array
@@ -48,10 +47,9 @@ class BFNBase(ABC):
         Returns:
             params (Any): The learnable params of the BFN.
         """
-        network_key, schedule_key = jax.random.split(key, 2)
 
         self.noise_schedule: NoiseSchedule = instantiate(self.cfg.noise_schedule)
-        schedule_params = self.noise_schedule.init(schedule_key)
+        schedule_params = self.noise_schedule.init()
 
         params = {"noise_schedule": schedule_params}
 
@@ -62,14 +60,12 @@ class BFNBase(ABC):
             )
 
             theta = self.get_prior_input_distribution()
-            mask = jnp.ones(self.cfg.variables_shape)
             t = 0.0
             beta = self.compute_beta(schedule_params, t)
 
             output_network_params = output_network_fn.init(
-                network_key,
+                key,
                 theta,
-                mask,
                 0.0,
                 beta,
             )
@@ -78,26 +74,6 @@ class BFNBase(ABC):
             params["output_network"] = output_network_params
 
         return params
-
-    def compute_alpha(
-        self, params: Any, t: float
-    ) -> Array:
-        """Compute the accuracy parameter at time t.
-
-        α is a real, positive number defined such that at α=0 the sender distribution samples are
-        entirely uninformative.
-
-        Args:
-           params (Any): The learnable params of the BFN (specifically, of the noise schedule).
-           t (float): The time.
-
-        Returns:
-            Array: Per-variable accuracy parameters (i.e. has shape with cfg.variables_shape).
-        """
-        if "noise_schedule" in params:
-            params = params["noise_schedule"]
-        t = jnp.full(self.cfg.variables_shape, fill_value=t)
-        return self.noise_schedule.alpha(params, t)
 
     def compute_beta(self, params: Any, t: float) -> Array:
         """Compute the accuracy schedule at time t.
@@ -114,15 +90,13 @@ class BFNBase(ABC):
         if "noise_schedule" in params:
             params = params["noise_schedule"]
         t = jnp.full(self.cfg.variables_shape, fill_value=t)
-        return self.noise_schedule.beta(params, t)
+        return self.noise_schedule.beta(t)
 
     def apply_output_network(
         self,
         params: Any,
-        key: PRNGKey,
         theta: Theta,
         t: float,
-        mask: Array | None = None,
     ) -> OutputNetworkPrediction:
         """Apply the output network to compute parameters of the output distribution.
 
@@ -131,16 +105,13 @@ class BFNBase(ABC):
             key (PRNGKey): A random seed for the output network
             theta (Theta): Parameters of the input distribution.
             t (float): The time.
-            mask (Optional[Array]): Optional per-variable mask for the output network.  Default is None
-              which is no masking.  Valid masks match variables shape and are 1 (0) if a variable visible (masked).
-
         Returns:
             OutputNetworkPrediction: Prediction of the output network.
         """
         beta = self.compute_beta(params, t)
         if "output_network" in params:
             params = params["output_network"]
-        return self._apply_output_network_fn(params, key, theta, mask, t, beta)
+        return self._apply_output_network_fn(params, theta, t, beta)
 
     @abstractmethod
     def get_prior_input_distribution(self) -> Theta:
@@ -188,32 +159,6 @@ class BFNBase(ABC):
 
         Returns:
             y (Array): The sample from the receiver distribution.
-        """
-        pass
-
-    @abstractmethod
-    def sample_flow_distribution(
-        self,
-        x: Array,
-        beta: Array,
-        key: PRNGKey,
-    ) -> Theta:
-        """Generate the ground-truth (x) and accuracy schedule (β(t)), sample from the Bayesian flow distribution.
-
-        The Bayesian flow distribution is the marginal distribution over input parameters at time t, and is a function
-        of prior parameters θ_0, ground-truth (x) and accuracy schedule (β(t)).  Note for each implementation of a BFN,
-        the prior parameters are fixed, therefore they are not required as input to the function.
-
-        Overall, this function is therefore sampling θ ~ p_F(θ|x;t) = p_U(θ|θ_0,x;β(t)), where p_U is the Bayesian
-        update distribution.
-
-        Args:
-            x (Array): The ground truth data.
-            beta (Array): A per-variable value of the accuracy schedule.
-            key: PRNGKey for sampling.
-
-        Returns:
-            theta (Theta): Sampled input parameters to the network.
         """
         pass
 

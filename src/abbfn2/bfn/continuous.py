@@ -1,5 +1,3 @@
-from typing import Any
-
 import distrax
 import jax.numpy as jnp
 from distrax import Normal
@@ -18,41 +16,6 @@ class ContinuousBFN(BFNBase):
         mu = jnp.zeros(self.cfg.variables_shape)
         rho = jnp.ones(self.cfg.variables_shape)
         return ThetaContinuous(mu=mu, rho=rho)
-
-    def apply_output_network(
-        self,
-        params: Any,
-        key: PRNGKey,
-        theta: ThetaContinuous,
-        t: float,
-        mask: Array | None = None,
-        pred_cond: OutputNetworkPredictionContinuous | None = None,
-        t_cond: float | None = None,
-    ) -> OutputNetworkPredictionContinuous:
-        """Apply the output network to compute parameters of the output distribution.
-
-        Args:
-            params (Any): The learnable params of the BFN
-            key (PRNGKey): A random seed for the output network
-            theta (Theta): Parameters of the input distribution over the variables.
-            t (float): The time.
-            mask (Optional[Array]): Optional per-variable mask for the output network.  Default is None
-              which is no masking.  Valid masks match variables shape and are 1 (0) if a variable visible (masked).
-            pred_cond (Optional[OutputNetworkPredictionContinuous]): Output network prediction for self-conditioning.  Default is None.
-            t_cond (Optional[float]): Time for self-conditioning.  Default is None.
-
-        Returns:
-            OutputNetworkPredictionContinuous: A prediction of the ground truth data.
-
-        Note:
-            This function implements the CTS_OUTPUT_PREDICTION agorithm from pg. 19 Graves et al.
-        """
-        beta = self.compute_beta(params, t)
-        if "output_network" in params:
-            params = params["output_network"]
-        return self._apply_output_network_fn(
-            params, key, theta.mu, mask, t, beta, pred_cond, t_cond
-        )
 
     def sample_sender_distribution(
         self,
@@ -104,39 +67,6 @@ class ContinuousBFN(BFNBase):
               this function internally.
         """
         return self.sample_sender_distribution(pred.x, alpha, key)
-
-    def sample_flow_distribution(
-        self,
-        x: Array,
-        beta: Array,
-        key: PRNGKey,
-    ) -> ThetaContinuous:
-        """Generate the ground-truth (x) and accuracy schedule (β(t)), sample from the Bayesian flow distribution.
-
-        Specifically, this function is sampling;
-            µ ~ N(µ|γ(t)x, γ(t)(1-γ(t))I)
-        where θ={µ,ρ}.
-
-        Args:
-            x (Array): The ground truth data (shape [...var_shape...]).
-            beta (Array): A per-variable value of the accuracy schedule (shape [...var_shape...]).
-            key: PRNGKey for sampling.
-
-        Returns:
-            theta (Theta): Input parameters to the network (with µ ~ p_F(...) and ρ=1+β(t)).
-        """
-        gamma = beta / (1 + beta)
-
-        # µ ~ N(µ|γ(t)x, γ(t)(1-γ(t))I) --> µ = γ(t)x + γ(t)(1-γ(t)) * z; z ~ N(0,I)
-        # Note sqrt[ γ(t)(1-γ(t)) ] is used as the scale parameter for Normal is s.d.
-        z = distrax.Normal(0, 1).sample(seed=key, sample_shape=x.shape)
-        mu = gamma * x + jnp.sqrt(gamma * (1 - gamma)) * z
-
-        # ρ is entirely defined by t, so the network doesn't model it explicitly.
-        # However, we return it anyway in ThetaContinuous as we already have the value here.
-        rho = 1 + beta
-
-        return ThetaContinuous(mu=mu, rho=rho)
 
     def update_distribution(
         self,

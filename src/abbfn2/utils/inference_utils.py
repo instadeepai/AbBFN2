@@ -13,13 +13,13 @@ from omegaconf import DictConfig
 from tabulate import tabulate
 
 from abbfn2.bfn import BFN, ContinuousBFN, DiscreteBFN, MultimodalBFN
-from abbfn2.data.data_mode_handler.oas_paired.constants import IMGT2IDX 
 from abbfn2.bfn.types import (
     OutputNetworkPrediction,
     OutputNetworkPredictionContinuous,
     OutputNetworkPredictionDiscrete,
 )
-from abbfn2.data.data_mode_handler import DataModeHandler, load_samples
+from abbfn2.data_mode_handler import DataModeHandler, load_samples
+from abbfn2.data_mode_handler.oas_paired.constants import IMGT2IDX
 
 
 def show_conditioning_settings(num_samples, samples, masks):
@@ -39,6 +39,7 @@ def show_conditioning_settings(num_samples, samples, masks):
     log_str += "\n\t" + tab_str.replace("\n", "\n\t")
     logging.info(log_str)
 
+
 def flatten_and_crop(x, inputs_info=None):
     nb, bs, *dims = x.shape
     trg_shp = [
@@ -46,6 +47,7 @@ def flatten_and_crop(x, inputs_info=None):
     ] + dims
     x = x.reshape(*trg_shp)
     return x[: inputs_info["num_samples"]] if inputs_info is not None else x
+
 
 def pad_and_reshape(x, num_samples_padded, num_batches):
     """Pads the input array to a specified size and reshapes it for batch processing across multiple devices.
@@ -74,6 +76,7 @@ def pad_and_reshape(x, num_samples_padded, num_batches):
     trg_shp = [num_batches, -1] + list(x.shape[1:])
     x = x.reshape(*trg_shp)
     return x
+
 
 def get_input_samples(
     cfg: DictConfig,
@@ -151,14 +154,14 @@ def get_input_samples(
         def get_prior_pred(bfn: BFN) -> OutputNetworkPrediction:
             """Generates a prior prediction for a given Bayesian Functional Network (BFN) based on its type.
 
-            This function supports ContinuousBFN, DiscreteBFN, and DiscretizedBFN, creating a default prior
+            This function supports ContinuousBFN and DiscreteBFN creating a default prior
             prediction for each. The prior prediction is then used to sample initial values for the network's
             input variables. For continuous BFNs, the prediction includes means and variances,
             while for discrete BFNs, it comprises logits representing class probabilities.
 
             Args:
                 bfn: An instance of BFN (Bayesian Functional Network), which can be of type ContinuousBFN,
-                     DiscreteBFN, or DiscretizedBFN. The specific type of BFN determines the structure and
+                     DiscreteBFN. The specific type of BFN determines the structure and
                      content of the generated prior prediction.
 
             Returns:
@@ -200,9 +203,9 @@ def get_input_samples(
             logging.info(f"Setting '{dm}' to {dm_data} for all input samples.")
             if not isinstance(dm_data, list):
                 dm_data = [dm_data]
-            dm_data = np.array(dm_data) #
+            dm_data = np.array(dm_data)
             dm_sample = dm_handlers[dm].data_to_sample(dm_data)
-            dm_sample = dm_sample.squeeze() #
+            dm_sample = dm_sample.squeeze()
             samples[dm] = np.broadcast_to(dm_sample, samples[dm].shape)
     return samples
 
@@ -290,6 +293,7 @@ def configure_imgt_position_overrides(
 
     return samples, masks
 
+
 def generate_random_mask_from_array_visible_pad(arr, frac_fill=0.5, exclusions=None):
     """Generate a mask (same shape as arr) where:
       - Each row has a% of non-exclusion positions set to 0 (chosen randomly).
@@ -328,6 +332,7 @@ def generate_random_mask_from_array_visible_pad(arr, frac_fill=0.5, exclusions=N
 
     return mask
 
+
 def configure_output_dir(
     cfg: DictConfig,
 ) -> Path:
@@ -344,9 +349,7 @@ def configure_output_dir(
     exp_name = cfg.exp_name
     if exp_name is None:
         exp_name = datetime.now().strftime("%d-%m-%y_%H-%M")
-    local_output_dir = (
-        Path(cfg.local_validation_dir) / "inpaint" / exp_name
-    )
+    local_output_dir = Path(cfg.local_validation_dir) / exp_name
     local_output_dir.mkdir(parents=True, exist_ok=cfg.overwrite_local_if_exists)
 
     if not cfg.overwrite_local_if_exists:
@@ -362,22 +365,29 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
     if cfg.load_from_hf:
         # TODO: Once HF is open source, remove the token login:
         import os
+
         token = os.getenv("HF_ACCESS_TOKEN")
         if not token:
             raise ValueError("HF_ACCESS_TOKEN is not set!")
-        file_path = hf_hub_download(repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl", token=token)
+        file_path = hf_hub_download(
+            repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl", token=token
+        )
         with open(file_path, "rb") as f:
             params = pickle.load(f)
     else:
-        try: 
+        try:
             with open(cfg.model_weights_path, "rb") as f:
                 params = pickle.load(f)
         except FileNotFoundError:
-            raise FileNotFoundError("No parameters file /app/params.pkl found. Please set load_from_hf to True.")
+            raise FileNotFoundError(
+                "No parameters file /app/params.pkl found. Please set load_from_hf to True."
+            )
     return params
 
 
-def create_fasta_from_sequences(l_seq: str, h_seq: str, output_file: str = "sequences.fasta") -> None:
+def create_fasta_from_sequences(
+    l_seq: str, h_seq: str, output_file: str = "sequences.fasta"
+) -> None:
     """
     Create a FASTA file from light and heavy chain sequences.
 
@@ -395,7 +405,7 @@ def create_fasta_from_sequences(l_seq: str, h_seq: str, output_file: str = "sequ
     fasta_content = f">L_chain\n{l_seq}\n>H_chain\n{h_seq}\n"
 
     try:
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             f.write(fasta_content)
     except IOError as e:
         logging.error(f"Error writing FASTA file: {e}", exc_info=True)

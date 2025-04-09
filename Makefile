@@ -26,7 +26,7 @@ DOCKER_RUN_FLAGS_CPU = --rm \
 	--shm-size=1024m \
 	-v $(WORK_DIR):/app
 
-DOCKER_RUN_FLAGS_GPU = ${DOCKER_RUN_FLAGS_CPU} --gpus all 
+DOCKER_RUN_FLAGS_GPU = ${DOCKER_RUN_FLAGS_CPU} --gpus all
 
 DOCKER_RUN_FLAGS_TPU = --rm --user root --privileged \
 	-v $(WORK_DIR):/app

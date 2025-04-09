@@ -2,11 +2,12 @@ defaults:
   - run: run
   - _self_
 
-cfg:
-  hydra:
-    searchpath:
-      - file://./configs
+hydra:
+  searchpath:
+    - file://./configs
 
+cfg:
+  load_from_hf: false
   model_weights_path: /app/params.pkl
 
   input:
@@ -19,20 +20,20 @@ cfg:
 
     dm_overwrites: # Select the data mode for the input samples.
       species: "mouse"
-      
+
   sampling:
     seed: 0
     num_samples_per_batch: 1
     padding_visible: false
     force_conditioning_information: true
     inpaint_fn:
-      _target_: abbfn2.sample.functions.twisted_sde_sample.TwistedSDESampleFn
+      _target_: abbfn2.sample.functions.TwistedSDESampleFn
       greedy: true
       num_steps: 300 # 300-1000
       twist_scale: 1.0 # 1.0
       num_particles: 4 # 4-8
       time_schedule:
-        _target_: abbfn2.sample.schedules.LinearScheduleFn
+        _target_: abbfn2.sample.schedule.LinearScheduleFn
     mask_fn:
       _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn  # For inpaint_mask_fn/condition_data_mode or predict_data_mode
       data_modes:
@@ -40,8 +41,6 @@ cfg:
 
   output:
     local_validation_dir: "./validation"
-    exp_name: null
+    exp_name: "inpaint"
     overwrite_local_if_exists: true
     save_raw: false
-
-  load_from_hf: false

@@ -1,5 +1,3 @@
-from typing import Any
-
 import jax
 import jax.numpy as jnp
 from distrax import Categorical, Normal
@@ -21,40 +19,6 @@ class DiscreteBFN(BFNBase):
         """
         logits = jnp.zeros(self.cfg.variables_shape + (self.cfg.num_classes,))
         return ThetaDiscrete(logits=logits)
-
-    def apply_output_network(
-        self,
-        params: Any,
-        key: PRNGKey,
-        theta: Array,
-        t: float,
-        mask: Array | None = None,
-        pred_cond: OutputNetworkPredictionDiscrete | None = None,
-        t_cond: float | None = None,
-    ) -> OutputNetworkPredictionDiscrete:
-        """Apply the output network to compute parameters of the output distribution.
-
-        Args:
-            params (Any): The learnable params of the BFN
-            key (PRNGKey): A random seed for the output network
-            theta (Array): Parameters of the input distribution over variables (shape [...var_shape...]).
-              Typically these are per-variables logits ("y").
-            t (float): The time.
-            mask (Optional[Array]): Optional per-variable mask for the output network.  Default is None
-              which is no masking.  Valid masks can be broadcast to the variables and are 1 (0) if a variable visible (masked).
-            pred_cond (Optional[OutputNetworkPredictionDiscrete]): Output network prediction for self-conditioning.  Default is None.
-            t_cond (Optional[float]): Time for self-conditioning.  Default is None.
-
-        Returns:
-            OutputNetworkPredictionDiscrete: Parameters of the output distribution.
-        """
-        beta = self.compute_beta(params, t)
-        if "output_network" in params:
-            params = params["output_network"]
-        logits = self._apply_output_network_fn(
-            params, key, theta.logits, t, beta, mask, pred_cond, t_cond
-        )
-        return OutputNetworkPredictionDiscrete(logits=logits)
 
     def sample_sender_distribution(
         self,
@@ -128,35 +92,6 @@ class DiscreteBFN(BFNBase):
         y = mu + sigma * z
 
         return y
-
-    def sample_flow_distribution(
-        self,
-        x: Array,
-        beta: Array,
-        key: PRNGKey,
-    ) -> ThetaDiscrete:
-        """Generate the ground-truth (x) and accuracy schedule (β(t)), sample from the Bayesian flow distribution.
-
-        The Bayesian flow distribution is the marginal distribution over input parameters at time t, and is a function
-        of prior parameters θ_0, ground-truth (x) and accuracy schedule (β(t)).
-
-        In the case of a discrete BFN, θ ~ p_F(θ|x;t) can be sampled as;
-            y ~ N(y|β(t)(K e_x − 1), β(t)KI),
-            θ = softmax(y).
-
-        Args:
-            x (Array): The ground truth data (shape [...var_shape...]).
-            beta (Array): A per-variable value of the accuracy schedule (shape [...var_shape...]).
-            key: PRNGKey for sampling.
-
-        Returns:
-            theta (ThetaDiscrete): Sampled input parameters to the network.
-
-        Notes:
-            This function implements eq. 185 in Graves et al.
-        """
-        y = self.sample_sender_distribution(x, beta, key)
-        return ThetaDiscrete(logits=y)
 
     def update_distribution(
         self,
