@@ -1,12 +1,14 @@
 defaults:
   - run: run
   - _self_
-cfg:
-  hydra:
-    searchpath:
-      - file://./configs
 
-  model_weights_path: /Users/m.braganca/Documents/AbBFN2/params.pkl
+hydra:
+  searchpath:
+    - file://./configs
+
+cfg:
+  load_from_hf: false
+  model_weights_path: /app/params.pkl
 
   input:
     path: null
@@ -18,11 +20,11 @@ cfg:
 
   sampling:
     seed: 0
-    recycling_steps: 1
+    recycling_steps: 3
     enforce_cdr_sequence: true
     inpaint_fn:
       _target_: abbfn2.sample.functions.SDESampleFn
-      num_steps: 1
+      num_steps: 300
       time_schedule:
         _target_: abbfn2.sample.schedule.LinearScheduleFn
     mask_fn: # For inpaint_mask_fn/condition_data_mode or predict_data_mode
@@ -32,5 +34,3 @@ cfg:
     exp_name: "humanization"
     overwrite_local_if_exists: true
     save_raw: false
-
-  load_from_hf: false

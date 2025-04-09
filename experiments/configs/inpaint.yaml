@@ -2,12 +2,13 @@ defaults:
   - run: run
   - _self_
 
-cfg:
-  hydra:
-    searchpath:
-      - file://./configs
+hydra:
+  searchpath:
+    - file://./configs
 
-  model_weights_path: /Users/m.braganca/Documents/AbBFN2/params.pkl
+cfg:
+  load_from_hf: false
+  model_weights_path: /app/params.pkl
 
   input:
     path: null
@@ -28,7 +29,7 @@ cfg:
     inpaint_fn:
       _target_: abbfn2.sample.functions.TwistedSDESampleFn
       greedy: true
-      num_steps: 1 # 300-1000
+      num_steps: 300 # 300-1000
       twist_scale: 1.0 # 1.0
       num_particles: 4 # 4-8
       time_schedule:
@@ -44,4 +45,4 @@ cfg:
     overwrite_local_if_exists: true
     save_raw: false
 
-  load_from_hf: false
+  

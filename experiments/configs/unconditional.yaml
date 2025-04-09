@@ -7,7 +7,8 @@ hydra:
     - file://./configs
 
 cfg:
-  model_weights_path: /Users/m.braganca/Documents/AbBFN2/params.pkl
+  load_from_hf: false
+  model_weights_path: /app/params.pkl
   
   sampling:
     num_samples_per_batch: 1
@@ -15,7 +16,7 @@ cfg:
     seed: 0
     sample_fn:
       _target_: abbfn2.sample.functions.SampleFn
-      num_steps: 1 # The recommended number of steps is between 300-1000.
+      num_steps: 300 # The recommended number of steps is between 300-1000.
       time_schedule:
         _target_: abbfn2.sample.schedule.LinearScheduleFn
 
@@ -24,5 +25,3 @@ cfg:
     exp_name: "unconditional_gen" # null will create a name based on the current date and time.
     save_raw: false
     overwrite_local_if_exists: true
-
-  load_from_hf: false
