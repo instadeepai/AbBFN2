@@ -1,6 +1,6 @@
 # AbBFN2: A flexible antibody foundation model based on Bayesian Flow Networks
 
-Welcome to the inference code of AbBFN2, a state-of-the-art model for antibody sequence generation.
+Welcome to the inference code of AbBFN2, a state-of-the-art model for antibody sequence generation and labelling.
 
 ## Overview
 [Overview to be added]
