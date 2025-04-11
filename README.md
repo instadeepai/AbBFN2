@@ -2,9 +2,6 @@
 
 Welcome to the inference code of AbBFN2, a state-of-the-art model for antibody sequence generation and labelling.
 
-## Overview
-[Overview to be added]
-
 ## Prerequisites
 - Docker installed on your system
 - Sufficient computational resources (TPU/GPU recommended)
@@ -167,6 +164,3 @@ If you use AbBFN2 in your research, please cite our work:
 ```
 [Citation information to be added]
 ```
-
-## License
-[License information to be added]
