@@ -24,14 +24,14 @@ cfg:
     inpaint_fn:
       _target_: abbfn2.sample.functions.TwistedSDESampleFn
       greedy: true
-      num_steps: 1 # 300-1000
+      num_steps: 300 # 300-1000
       twist_scale: 1.0 # 1.0
-      num_particles: 1 # 4-8
+      num_particles: 4 # 4-8
       time_schedule:
         _target_: abbfn2.sample.schedule.LinearScheduleFn
     mask_fn:
       _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn  # For inpaint_mask_fn/condition_data_mode or predict_data_mode
-      data_modes:
+      data_modes: # Set the data modes to use for the mask, either to condition on or predict.
         - "species"
 
   output:

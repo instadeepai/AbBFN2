@@ -458,7 +458,7 @@ def main(full_config: DictConfig) -> None:
             {k: v for k, v in samples.items() if k in FW_DMS},
             {k: v for k, v in prev_samples.items() if k in FW_DMS},
         )
-        nbr_mutations.append(sum(cp.sum() for cp in changed_positions.values()))
+        nbr_mutations.append(int(sum(cp.sum() for cp in changed_positions.values())))
 
         # Increment the ages tree if a position has been changed
         ages = jax.tree_util.tree_map(lambda x: x + 1, ages)
