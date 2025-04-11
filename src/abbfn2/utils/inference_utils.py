@@ -368,7 +368,9 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
         dict[str, jax.Array]: The parameters.
     """
     if cfg.load_from_hf:
-        file_path = hf_hub_download(repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl")
+        file_path = hf_hub_download(
+            repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl"
+        )
         with open(file_path, "rb") as f:
             params = pickle.load(f)
     else:

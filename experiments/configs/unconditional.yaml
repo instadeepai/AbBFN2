@@ -4,7 +4,7 @@ defaults:
 
 cfg:
   loading:
-    load_from_hf: false
+    load_from_hf: true
     model_weights_path: /app/params.pkl # If load_from_hf is false, this path is used to load the model weights.
 
   sampling:

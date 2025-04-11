@@ -4,7 +4,7 @@ defaults:
 
 cfg:
   loading:
-    load_from_hf: false
+    load_from_hf: true
     model_weights_path: /app/params.pkl # If load_from_hf is false, this path is used to load the model weights.
 
   input:
@@ -24,8 +24,6 @@ cfg:
       num_steps: 300
       time_schedule:
         _target_: abbfn2.sample.schedule.LinearScheduleFn
-    mask_fn: # For inpaint_mask_fn/condition_data_mode or predict_data_mode
-      _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn
   output:
     local_validation_dir: "./validation"
     exp_name: "humanization"

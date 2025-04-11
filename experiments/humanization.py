@@ -17,13 +17,13 @@ from abbfn2.bfn import BFN, get_bfn
 from abbfn2.data_mode_handler import save_samples
 from abbfn2.utils.igblast import run_igblast_pipeline
 from abbfn2.utils.inference_utils import (
+    configure_output_dir,
     create_fasta_from_sequences,
     flatten_and_crop,
     get_input_samples,
     load_params,
     pad_and_reshape,
     show_conditioning_settings,
-    configure_output_dir,
 )
 from abbfn2.utils.pre_humanisation import process_prehumanisation
 
@@ -68,6 +68,7 @@ CDR_DMS = [
     "l_cdr2_seq",
     "l_cdr3_seq",
 ]
+
 
 def process_input_overrides(dm_handlers, precursors, regions=None, num_devices=1):
     if regions is None:
@@ -231,6 +232,13 @@ def main(full_config: DictConfig) -> None:
     cfg.input.path = None
 
     cfg.sampling.inpaint_fn._target_ = "abbfn2.sample.functions.SDESampleFn"
+
+    if "mask_fn" not in cfg.sampling:
+        cfg.sampling.mask_fn = {}
+
+    cfg.sampling.mask_fn._target_ = (
+        "abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn"
+    )
     cfg.sampling.mask_fn.data_modes = ["species"]
     cfg.sampling.inpaint_fn.score_scale = {
         k: 16.0 for k in cfg.sampling.mask_fn.data_modes
@@ -498,8 +506,8 @@ def main(full_config: DictConfig) -> None:
             logging.info("Humanness level reached 95% - stopping")
             break
 
-    logging.info(f"Hummaness values across recycling steps: {humanness_vals}")
-    logging.info(f"Number of mutations across recycling steps: {nbr_mutations}")
+    logging.info(f"Hummaness values on each recycling step: {humanness_vals}")
+    logging.info(f"Number of mutations on each recycling step: {nbr_mutations}")
 
 
 if __name__ == "__main__":
