@@ -2,10 +2,6 @@ defaults:
   - run: run
   - _self_
 
-hydra:
-  searchpath:
-    - file://./configs
-
 cfg:
   load_from_hf: false
   model_weights_path: /app/params.pkl
@@ -43,4 +39,8 @@ cfg:
     local_validation_dir: "./validation"
     exp_name: "inpaint"
     overwrite_local_if_exists: true
+<<<<<<< Updated upstream
     save_raw: false
+=======
+    save_raw: false
+>>>>>>> Stashed changes

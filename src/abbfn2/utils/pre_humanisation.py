@@ -70,7 +70,6 @@ def process_prehumanisation(
         target_score: Target germline likeness score
         allow_cdr_mutations: Whether to allow mutations in CDR regions
         fixed_imgt_positions: IMGT positions to keep fixed
-        log_level: Logging level
 
     Returns:
         Tuple containing:
@@ -104,7 +103,6 @@ def process_prehumanisation(
     heavy_seqs = [seq.replace("-", "") for seq in heavy_seqs]
     light_seqs = [seq.replace("-", "") for seq in light_seqs]
 
-    logging.info("Creating output data")
     prehumanised_data = {}
     precursor_data = {}
 
@@ -114,5 +112,4 @@ def process_prehumanisation(
         prehumanised_data.update(create_sequence_data(name, h, l))
         precursor_data.update(create_sequence_data(name, h_input, l_input))
 
-    logging.info("Processing completed successfully")
     return prehumanised_data, precursor_data

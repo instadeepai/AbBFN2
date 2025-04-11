@@ -268,11 +268,6 @@ def main(full_config: DictConfig) -> None:
 
     cfg.input.num_input_samples = len(l_vfams)
 
-    logging.info(f"h_vfams: {h_vfams}")
-    logging.info(f"l_vfams: {l_vfams}")
-    logging.info(f"h_seq: {h_seq}")
-    logging.info(f"l_seq: {l_seq}")
-
     # Pre-Humanization
     prehumanised_data, non_prehumanised_data = process_prehumanisation(
         input_heavy_seqs=[h_seq],
@@ -280,9 +275,6 @@ def main(full_config: DictConfig) -> None:
         hv_families=h_vfams,
         lv_families=l_vfams,
     )
-
-    logging.info(f"prehumanised_data: {prehumanised_data}")
-    logging.info(f"non_prehumanised_data: {non_prehumanised_data}")
 
     # Prepare input samples and masks.
     with jax.default_device(jax.devices("cpu")[0]):
@@ -357,13 +349,13 @@ def main(full_config: DictConfig) -> None:
         .probs[:, :, 0]
         .reshape(samples["species"].shape)
     )
-    logging.info(f"initial humanness: {humanness}")
     hum_cond_vals = np.clip(
         np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)),
         SAMPLING_CFG["min_cond"],
         1,
     )
-    humanness_vals.append(humanness)
+    humanness_vals.append(np.array(humanness).tolist()[0][0])
+    logging.info(f"initial humanness: {humanness_vals[-1]}")
 
     # Initialise the ages tree to keep track of when positions were changed - start ages off high
     ages = jax.tree_util.tree_map(lambda x: np.full(x.shape, 10), samples)
@@ -452,13 +444,13 @@ def main(full_config: DictConfig) -> None:
             .probs[:, :, 0]
             .reshape(samples["species"].shape)
         )
-        logging.info(f"humanness: {humanness}")
         hum_cond_vals = np.clip(
             np.interp(humanness, SAMPLING_CFG["hum_cond_logit_bounds"], (0, 1)),
             SAMPLING_CFG["min_cond"],
             1,
         )
-        humanness_vals.append(humanness)
+        humanness_vals.append(np.array(humanness).tolist()[0][0])
+        logging.info(f"humanness: {humanness_vals[-1]}")
 
         # Identify changed positions
         changed_positions = jax.tree_util.tree_map(
@@ -506,8 +498,8 @@ def main(full_config: DictConfig) -> None:
             logging.info("Humanness level reached 95% - stopping")
             break
 
-    logging.info(f"humanness_vals: {humanness_vals}")
-    logging.info(f"nbr_mutations: {nbr_mutations}")
+    logging.info(f"Hummaness values across recycling steps: {humanness_vals}")
+    logging.info(f"Number of mutations across recycling steps: {nbr_mutations}")
 
 
 if __name__ == "__main__":

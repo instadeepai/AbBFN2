@@ -1,9 +1,17 @@
+# Environment
 .env
+__pycache__/
+*.py[cod]
+*$py.class
+.DS_Store
+
+# Project-specific
 /outputs/*
-*.pyc
-/src/abbfn2.egg-info/
-params.pkl
-/s3_results/*
 /tmp/*
-/humanization_results/*
 /notebooks/*
+*.pkl
+/src/abbfn2.egg-info/
+
+# Other
+*.log
+.vscode/

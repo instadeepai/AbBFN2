@@ -344,7 +344,7 @@ def configure_output_dir(
         run_step (int): The step of the run being sampled.
 
     Returns:
-        Tuple[dict[str, Path], dict[str, AnyPath]]: The local and s3 output directories and paths.
+        Path: The local directory.
     """
     exp_name = cfg.exp_name
     if exp_name is None:
@@ -361,17 +361,16 @@ def configure_output_dir(
 
 
 def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
+    """Load the parameters from the model weights path or from the Hugging Face Hub.
 
+    Args:
+        cfg (DictConfig): The configuration.
+
+    Returns:
+        dict[str, jax.Array]: The parameters.
+    """
     if cfg.load_from_hf:
-        # TODO: Once HF is open source, remove the token login:
-        import os
-
-        token = os.getenv("HF_ACCESS_TOKEN")
-        if not token:
-            raise ValueError("HF_ACCESS_TOKEN is not set!")
-        file_path = hf_hub_download(
-            repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl", token=token
-        )
+        file_path = hf_hub_download(repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl")
         with open(file_path, "rb") as f:
             params = pickle.load(f)
     else:

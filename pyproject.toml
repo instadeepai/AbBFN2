@@ -14,10 +14,12 @@ requires-python = ">=3.11"
 dependencies = [
     "biopython==1.84",
     "distrax==0.1.4",
+    "flax==0.8.4",
     "jax==0.4.34",
     "jaxlib==0.4.34",
-    "flax==0.8.4",
     "hydra-core",
+    "huggingface-hub",
+    "humatch @git+https://github.com/oxpig/Humatch.git",
     "numpy",
     "omegaconf",
     "tabulate",
@@ -25,6 +27,4 @@ dependencies = [
     "h5py==3.11.0",
     "setuptools",
     "regex",
-    "humatch @git+https://github.com/oxpig/Humatch.git",
-    "huggingface-hub"
 ]

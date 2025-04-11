@@ -150,7 +150,6 @@ def main(full_config: DictConfig) -> None:
                 elif (
                     cfg.input.soft_inpaint_strategy == "soft"
                 ):  # If soft, we directly pass the conditioning freq.
-                    # masks[dm] = np.full_like(masks[dm], mask_weight)
                     masks[dm] = np.where(
                         np.isin(samples[dm], [1, 4, 5]), 1, mask_weight
                     )
