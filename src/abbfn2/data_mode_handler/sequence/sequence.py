@@ -14,7 +14,7 @@ class SequenceDataModeHandler(DataModeHandler):
     """Handles data modes specific to sequence data, providing necessary dataset transformations.
 
     Attributes:
-        tokenizer (FixedSizeStandardTokenizer): The tokenizer used for preparing the data.
+        tokenizer (BFNTokenizer): The tokenizer used for preparing the data.
     """
 
     def __init__(
@@ -26,7 +26,7 @@ class SequenceDataModeHandler(DataModeHandler):
         """Initializes the SequenceDataModeHandler with a tokenizer.
 
         Args:
-            tokenizer (Tokenizer): The tokenizer to use for data preparation.
+            tokenizer (BFNTokenizer): The tokenizer to use for data preparation.
             sequence_variable (str): The name of the variable in the raw data corresponding to sequence data.
         """
         self.tokenizer = tokenizer
@@ -140,7 +140,7 @@ def sample_to_string(sample: Array, tokenizer: BFNTokenizer) -> str:
     """'Detokenize' a sample, converting it back into string
     Args:
         sample (jnp.array): The sample of dtype integer to convert to string. Each element corresponds to an index.
-        tokenizer (BaseTokenizer): The tokenizer associated with the sample.
+        tokenizer (BFNTokenizer): The tokenizer associated with the sample.
 
     Returns:
         string_representation (str): The string representation of the sample.

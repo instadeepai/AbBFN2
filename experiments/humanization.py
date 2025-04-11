@@ -27,6 +27,13 @@ from abbfn2.utils.inference_utils import (
 )
 from abbfn2.utils.pre_humanisation import process_prehumanisation
 
+warnings.filterwarnings(
+    "ignore",
+    message=".*Explicitly requested dtype <class 'jax\\.numpy\\.float64'> requested in astype is not available.*",
+    category=UserWarning,
+)
+
+
 SEQ_DMS = [
     "h_fwr1_seq",
     "h_cdr1_seq",
@@ -61,13 +68,6 @@ CDR_DMS = [
     "l_cdr2_seq",
     "l_cdr3_seq",
 ]
-
-warnings.filterwarnings(
-    "ignore",
-    message=".*Explicitly requested dtype <class 'jax\\.numpy\\.float64'> requested in astype is not available.*",
-    category=UserWarning,
-)
-
 
 def process_input_overrides(dm_handlers, precursors, regions=None, num_devices=1):
     if regions is None:
@@ -201,7 +201,7 @@ def main(full_config: DictConfig) -> None:
 
     bfn.init(bfn_key)
 
-    params = load_params(cfg)
+    params = load_params(cfg.loading)
 
     # Initialise the data mode handlers.
     dm_handlers = {

@@ -223,6 +223,7 @@ def run_igblast_pipeline(
         igblast_path (str | Path | None, optional): Path to IgBLAST executable. If None, uses appropriate version for platform.
         v_gene_db_path (str | Path | None, optional): Path to V gene database.
         j_gene_db_path (str | Path | None, optional): Path to J gene database.
+        local_igblast_raw (str | Path | None, optional): Path to local IgBLAST output file.
 
     Returns:
         dict: Dictionary containing parsed IgBLAST results with alignment summaries and hit tables

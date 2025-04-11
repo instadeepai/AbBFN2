@@ -55,7 +55,7 @@ def main(full_config: DictConfig) -> None:
 
     bfn.init(bfn_key)
 
-    params = load_params(cfg)
+    params = load_params(cfg.loading)
 
     # Initialise the data mode handlers.
     dm_handlers = {

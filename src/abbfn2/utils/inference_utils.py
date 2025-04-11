@@ -86,7 +86,7 @@ def get_input_samples(
 ) -> dict[str, Array]:
     """Retrieves input samples based on configuration settings and data mode handlers.
 
-    This function supports loading input samples from a specified path (potentially from S3)
+    This function supports loading input samples from a specified path
     or generating them based on provided Bayesian Functional Network (BFN) configurations.
     When loading from a path, it ensures the loaded samples match the requested data modes (DMs),
     and can filter or adjust samples based on the number of samples specified in the configuration.
@@ -340,8 +340,6 @@ def configure_output_dir(
 
     Args:
         cfg (DictConfig): The current configuration.
-        run_id (str): The run id from the configuration.
-        run_step (int): The step of the run being sampled.
 
     Returns:
         Path: The local directory.

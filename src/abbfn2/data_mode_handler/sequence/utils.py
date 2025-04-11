@@ -25,7 +25,7 @@ class Tokenizer(Protocol):
 
 
 class BFNTokenizer(Tokenizer):
-    """A tokenizer that extends StandardTokenizer with additional capabilities such
+    """A tokenizer that extends Tokenizer with additional capabilities such
     as fixed length padding and optional cropping of sequences.
 
     Attributes:
@@ -62,7 +62,6 @@ class BFNTokenizer(Tokenizer):
         extra_special_tokens: list[str] | None = None,
         tokens_to_ids: dict[str, int] | None = None,
     ):
-        # From: Trix Standard Tokenizer init
         self._standard_tokens = standard_tokens
         self._unk_token = unk_token
         self._pad_token = pad_token

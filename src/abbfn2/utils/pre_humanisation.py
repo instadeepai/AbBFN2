@@ -64,9 +64,10 @@ def process_prehumanisation(
     Process pre-humanisation sequences and return results.
 
     Args:
-        fasta_path: Path to input FASTA file with precursor sequences
-        heavy_igblast_path: Path to heavy chain IgBlast results
-        light_igblast_path: Path to light chain IgBlast results
+        input_heavy_seqs: List of heavy chain sequences
+        input_light_seqs: List of light chain sequences
+        lv_families: List of light chain target germline families
+        hv_families: List of heavy chain target germline families
         target_score: Target germline likeness score
         allow_cdr_mutations: Whether to allow mutations in CDR regions
         fixed_imgt_positions: IMGT positions to keep fixed

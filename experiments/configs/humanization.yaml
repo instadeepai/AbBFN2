@@ -2,13 +2,10 @@ defaults:
   - run: run
   - _self_
 
-hydra:
-  searchpath:
-    - file://./configs
-
 cfg:
-  load_from_hf: false
-  model_weights_path: /app/params.pkl
+  loading:
+    load_from_hf: false
+    model_weights_path: /app/params.pkl # If load_from_hf is false, this path is used to load the model weights.
 
   input:
     path: null

@@ -3,17 +3,16 @@ defaults:
   - _self_
 
 cfg:
-  load_from_hf: false
-  model_weights_path: /app/params.pkl
+  loading:
+    load_from_hf: false
+    model_weights_path: /app/params.pkl # If load_from_hf is false, this path is used to load the model weights.
 
   input:
     path: null
     num_input_samples: 2
     override_masks_file: null
-
     mask_weight_overrides: null
     soft_inpaint_strategy: soft # random or soft
-
     dm_overwrites: # Select the data mode for the input samples.
       species: "mouse"
 
@@ -25,9 +24,9 @@ cfg:
     inpaint_fn:
       _target_: abbfn2.sample.functions.TwistedSDESampleFn
       greedy: true
-      num_steps: 300 # 300-1000
+      num_steps: 1 # 300-1000
       twist_scale: 1.0 # 1.0
-      num_particles: 4 # 4-8
+      num_particles: 1 # 4-8
       time_schedule:
         _target_: abbfn2.sample.schedule.LinearScheduleFn
     mask_fn:
@@ -39,8 +38,4 @@ cfg:
     local_validation_dir: "./validation"
     exp_name: "inpaint"
     overwrite_local_if_exists: true
-<<<<<<< Updated upstream
     save_raw: false
-=======
-    save_raw: false
->>>>>>> Stashed changes
