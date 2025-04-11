@@ -27,6 +27,14 @@ make build
 ```
 This process typically takes 5-20 minutes depending on your hardware.
 
+
+### For Apple Silicon users
+Build the conda environment instead directly using:
+```bash
+conda env create -f environment.yaml
+conda activate abbfn2
+```
+
 ## Usage
 
 AbBFN2 supports three main generation modes, each with its own configuration file in the `experiments/configs/` directory.
@@ -46,7 +54,7 @@ cfg:
 
 Run:
 ```bash
-make unconditional
+make unconditional # or python experiments/unconditional.py for Apple Silicon users.
 ```
 
 ### 2. Inpainting
@@ -73,7 +81,7 @@ cfg:
 
 Run:
 ```bash
-make inpaint
+make inpaint # or python experiments/inpaint.py for Apple Silicon users.
 ```
 
 ### 3. Sequence Humanization
@@ -95,7 +103,7 @@ cfg:
 
 Run:
 ```bash
-make humanization
+make humanization # or python experiments/humanization.py Apple Silicon users.
 ```
 
 ## Data Modes
