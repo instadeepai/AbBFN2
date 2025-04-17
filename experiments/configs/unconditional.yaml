@@ -1,0 +1,24 @@
+defaults:
+  - run: run
+  - _self_
+
+cfg:
+  loading:
+    load_from_hf: true
+    model_weights_path: /app/params.pkl # If load_from_hf is false, this path is used to load the model weights.
+
+  sampling:
+    num_samples_per_batch: 1
+    num_batches: 1
+    seed: 0
+    sample_fn:
+      _target_: abbfn2.sample.functions.SampleFn
+      num_steps: 300 # The recommended number of steps is between 300-1000.
+      time_schedule:
+        _target_: abbfn2.sample.schedule.LinearScheduleFn
+
+  output:
+    local_validation_dir: "./validation"
+    exp_name: "unconditional" # null will create a name based on the current date and time.
+    save_raw: false
+    overwrite_local_if_exists: true

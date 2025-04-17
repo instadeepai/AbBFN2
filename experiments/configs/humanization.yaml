@@ -1,0 +1,31 @@
+defaults:
+  - run: run
+  - _self_
+
+cfg:
+  loading:
+    load_from_hf: true
+    model_weights_path: /app/params.pkl # If load_from_hf is false, this path is used to load the model weights.
+
+  input:
+    path: null
+    override_masks_file: null
+    l_seq: "DIVLTQSPASLAVSLGQRATISCKASQSVDYDGHSYMNWYQQKPGQPPKLLIYAASNLESGIPARFSGSGSGTDFTLNIHPVEEEDAATYYCQQSDENPLTFGTGTKLELK"
+    h_seq: "QVQLQQSGPELVKPGALVKISCKASGYTFTSYDINWVKQRPGQGLEWIGWIYPGDGSIKYNEKFKGKATLTVDKSSSTAYMQVSSLTSENSAVYFCARRGEYGNYEGAMDYWGQGTTVTVSS"
+    #h_vfams: null
+    #l_vfams: null
+
+  sampling:
+    seed: 0
+    recycling_steps: 5
+    enforce_cdr_sequence: true
+    inpaint_fn:
+      _target_: abbfn2.sample.functions.SDESampleFn
+      num_steps: 300
+      time_schedule:
+        _target_: abbfn2.sample.schedule.LinearScheduleFn
+  output:
+    local_validation_dir: "./validation"
+    exp_name: "humanization"
+    overwrite_local_if_exists: true
+    save_raw: false

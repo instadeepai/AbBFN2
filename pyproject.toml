@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "abbfn2"
+version = "0.1.0"
+description = "Official Repo of AbBFN2."
+authors = [
+    { name = "InstaDeep", email = "b.goluglu@instadeep.com" }
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "biopython==1.84",
+    "distrax==0.1.4",
+    "flax==0.8.4",
+    "jax==0.4.34",
+    "jaxlib==0.4.34",
+    "hydra-core",
+    "huggingface-hub",
+    "humatch @git+https://github.com/oxpig/Humatch.git",
+    "numpy",
+    "omegaconf",
+    "tabulate",
+    "tqdm",
+    "h5py==3.11.0",
+    "setuptools",
+    "regex",
+]

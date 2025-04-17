@@ -1,0 +1,65 @@
+defaults:
+  - run: run
+  - _self_
+
+cfg:
+  loading:
+    load_from_hf: true
+    model_weights_path: /app/params.pkl # If load_from_hf is false, this path is used to load the model weights.
+
+  input:
+    path: null
+    num_input_samples: 2
+    override_masks_file: null
+    mask_weight_overrides: null
+    soft_inpaint_strategy: soft # random or soft
+    dm_overwrites: # Set the data mode values for the input samples.
+      species: "mouse"
+
+      # Some dm_overwrites examples:
+      # h_cdr1_seq: GFTFSSYA
+      # h_cdr2_seq: ISGSSSNT
+      # h_cdr3_seq: AKDNSLIVGPTMYVFDI
+      # l3_length: 9
+      # tap_psh: 142.74
+      # tap_ppc: 0.0
+      # tap_pnc: 0.06
+      # tap_sfvcsp: -0.1
+      # lv_gene: "IGKV1-12"
+      # light_locus: "K"
+
+  sampling:
+    seed: 0
+    num_samples_per_batch: 1
+    padding_visible: false
+    force_conditioning_information: true # If true, the conditioning information will be forced in the results.
+    inpaint_fn:
+      _target_: abbfn2.sample.functions.TwistedSDESampleFn
+      greedy: true
+      num_steps: 300 # 300-1000
+      twist_scale: 1.0 # 1.0
+      num_particles: 4 # 4-8
+      time_schedule:
+        _target_: abbfn2.sample.schedule.LinearScheduleFn
+    mask_fn:
+      _target_: abbfn2.sample.inpaint_masks.ConditionDataModeMaskFn  # For ConditionDataModeMaskFn or PredictDataModeMaskFn
+      data_modes: # Set the data modes to use for the mask, either to condition on or predict.
+        - "species"
+
+        # Some data_modes examples:
+        # - "h_cdr1_seq"
+        # - "h_cdr2_seq"
+        # - "h_cdr3_seq"
+        # - "l3_length"
+        # - "tap_psh"
+        # - "tap_ppc"
+        # - "tap_pnc"
+        # - "tap_sfvcsp"
+        # - "lv_gene"
+        # - "light_locus"
+
+  output:
+    local_validation_dir: "./validation"
+    exp_name: "inpaint"
+    overwrite_local_if_exists: true
+    save_raw: false
