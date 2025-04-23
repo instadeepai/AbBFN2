@@ -115,64 +115,88 @@ make humanization # or python experiments/humanization.py Apple Silicon users.
 
 ## Data Modes
 
-The data modes supported by AbBFN2 are:
+The data modes supported by AbBFN2 are detailed below.
 
-```
-# NB for sequence data modes, a wide range of unusual lengths are possible due to these lengths having been observed in the training data.
-# During testing, we have limited our exploration to more common sequence lengths.
-# All sequence regions are defined using the IMGT scheme.
+##### Heavy-Chain IMGT Regions
 
-"h_fwr1_seq" (string) # 20 amino acids, length between (18, 41), inclusive
-"h_fwr2_seq" (string) # 20 amino acids, length between (6, 30), inclusive
-"h_fwr3_seq" (string) # 20 amino acids, length between (29, 58), inclusive
-"h_fwr4_seq" (string) # 20 amino acids, length between (3, 12), inclusive
-"h_cdr1_seq" (string) # 20 amino acids, length between (1, 22), inclusive
-"h_cdr2_seq" (string) # 20 amino acids, length between (1, 25), inclusive
-"h_cdr3_seq" (string) # 20 amino acids, length between (2, 58), inclusive
+| Field         | Type   | Region (IMGT)           | Description                                | Length Range (AA) |
+|---------------|--------|-------------------------|--------------------------------------------|-------------------|
+| `h_fwr1_seq`  | string | FWR1                    | Framework region 1                         | 18 – 41           |
+| `h_fwr2_seq`  | string | FWR2                    | Framework region 2                         | 6 – 30            |
+| `h_fwr3_seq`  | string | FWR3                    | Framework region 3                         | 29 – 58           |
+| `h_fwr4_seq`  | string | FWR4                    | Framework region 4                         | 3 – 12            |
+| `h_cdr1_seq`  | string | CDR1                    | Complementarity-determining region 1       | 1 – 22            |
+| `h_cdr2_seq`  | string | CDR2                    | Complementarity-determining region 2       | 1 – 25            |
+| `h_cdr3_seq`  | string | CDR3                    | Complementarity-determining region 3       | 2 – 58            |
 
-"l_fwr1_seq" (string) # 20 amino acids, length between (18, 36), inclusive
-"l_fwr2_seq" (string) # 20 amino acids, length between (11, 27), inclusive
-"l_fwr3_seq" (string) # 20 amino acids, length between (25, 48), inclusive
-"l_fwr4_seq" (string) # 20 amino acids, length between (3, 13), inclusive
-"l_cdr1_seq" (string) # 20 amino acids, length between (1, 20), inclusive
-"l_cdr2_seq" (string) # 20 amino acids, length between (1, 16), inclusive
-"l_cdr3_seq" (string) # 20 amino acids, length between (1, 27), inclusive
+##### Light-Chain IMGT Regions
 
-# Possible values provided in src/abbfn2/data_mode_handler/oas_paired/constants.py
-"h1_length" (int)
-"h2_length" (int)
-"h3_length" (int)
-"l1_length" (int)
-"l2_length" (int)
-"l3_length" (int)
+| Field         | Type   | Region (IMGT)           | Description                                | Length Range (AA) |
+|---------------|--------|-------------------------|--------------------------------------------|-------------------|
+| `l_fwr1_seq`  | string | FWR1                    | Framework region 1                         | 18 – 36           |
+| `l_fwr2_seq`  | string | FWR2                    | Framework region 2                         | 11 – 27           |
+| `l_fwr3_seq`  | string | FWR3                    | Framework region 3                         | 25 – 48           |
+| `l_fwr4_seq`  | string | FWR4                    | Framework region 4                         | 3 – 13            |
+| `l_cdr1_seq`  | string | CDR1                    | Complementarity-determining region 1       | 1 – 20            |
+| `l_cdr2_seq`  | string | CDR2                    | Complementarity-determining region 2       | 1 – 16            |
+| `l_cdr3_seq`  | string | CDR3                    | Complementarity-determining region 3       | 1 – 27            |
 
-# Possible values provided in src/abbfn2/data_mode_handler/oas_paired/constants.py
-"hv_gene"  (string)
-"hd_gene"  (string)
-"hj_gene"  (string)
-"lv_gene"  (string)
-"lj_gene"  (string)
-"hv_family" (string)
-"hd_family"  (string)
-"hj_family"  (string)
-"lv_family"  (string)
-"lj_family"  (string)
-"species" (string) # one of "human", "rat", "mouse"
-"light_locus" (string) # one of "K", "L"
-"tap_psh" (float) # [72.0, 300.0]
-"tap_pnc" (float) # [0.0, 10.0]
-"tap_ppc" (float) # [0.0, 7.5]
-"tap_sfvcsp" (float) # [-55.0, 55.0]
-"tap_psh_flag" (string) # "red", "amber", "green" 
-"tap_pnc_flag" (string) # "red", "amber", "green" 
-"tap_ppc_flag" (string) # "red", "amber", "green" 
-"tap_sfvcsp_flag" (string) # "red", "amber", "green" 
-"h_v_identity" (float) # [64.0, 100.0]
-"h_d_identity" (float) # [74.0, 100.0]
-"h_j_identity" (float) # [74.0, 100.0]
-"l_v_identity" (float) # [66.0, 100.0]
-"l_j_identity" (float) # [77.0, 100.0]
-```
+##### CDR Length Metrics
+
+Possible values provided in [src/abbfn2/data_mode_handler/oas_paired/constants.py](src/abbfn2/data_mode_handler/oas_paired/constants.py).
+
+
+| Field       | Type | Description                     |
+|-------------|------|---------------------------------|
+| `h1_length` | int  | CDR1 length (heavy chain)       |
+| `h2_length` | int  | CDR2 length (heavy chain)       |
+| `h3_length` | int  | CDR3 length (heavy chain)       |
+| `l1_length` | int  | CDR1 length (light chain)       |
+| `l2_length` | int  | CDR2 length (light chain)       |
+| `l3_length` | int  | CDR3 length (light chain)       |
+
+##### Gene and Family Annotations
+
+Possible values provided in [src/abbfn2/data_mode_handler/oas_paired/constants.py](src/abbfn2/data_mode_handler/oas_paired/constants.py).
+
+| Field         | Type   | Description                        |
+|---------------|--------|------------------------------------|
+| `hv_gene`     | string | V gene segment (heavy)            |
+| `hd_gene`     | string | D gene segment (heavy)            |
+| `hj_gene`     | string | J gene segment (heavy)            |
+| `lv_gene`     | string | V gene segment (light)            |
+| `lj_gene`     | string | J gene segment (light)            |
+| `hv_family`   | string | V gene family (heavy)             |
+| `hd_family`   | string | D gene family (heavy)             |
+| `hj_family`   | string | J gene family (heavy)             |
+| `lv_family`   | string | V gene family (light)             |
+| `lj_family`   | string | J gene family (light)             |
+| `species`     | string | One of “human”, “rat”, “mouse”    |
+| `light_locus` | string | One of “K” (kappa) or “L” (lambda)|
+
+##### TAP Physicochemical Metrics
+
+| Field              | Type   | Description                                 | Range           |
+|--------------------|--------|---------------------------------------------|-----------------|
+| `tap_psh`          | float  | Patch hydrophobicity                        | 72.0 – 300.0    |
+| `tap_pnc`          | float  | Proportion of non-covalent contacts         | 0.0 – 10.0      |
+| `tap_ppc`          | float  | Proportion of polar contacts                | 0.0 – 7.5       |
+| `tap_sfvcsp`       | float  | Surface-exposed variable-chain charge score | –55.0 – 55.0    |
+| `tap_psh_flag`     | string | Hydrophobicity flag                         | “red“ / “amber“ / “green“ |
+| `tap_pnc_flag`     | string | Non-covalent contacts flag                  | “red“ / “amber“ / “green“ |
+| `tap_ppc_flag`     | string | Polar contacts flag                         | “red“ / “amber“ / “green“ |
+| `tap_sfvcsp_flag`  | string | Charge score flag                           | “red“ / “amber“ / “green“ |
+
+
+##### V- and J- Identity Scores
+
+| Field           | Type   | Description                       | Range (%)     |
+|-----------------|--------|-----------------------------------|---------------|
+| `h_v_identity`  | float  | Heavy-chain V segment identity    | 64.0 – 100.0  |
+| `h_d_identity`  | float  | Heavy-chain D segment identity    | 74.0 – 100.0  |
+| `h_j_identity`  | float  | Heavy-chain J segment identity    | 74.0 – 100.0  |
+| `l_v_identity`  | float  | Light-chain V segment identity    | 66.0 – 100.0  |
+| `l_j_identity`  | float  | Light-chain J segment identity    | 77.0 – 100.0  |
 
 ## Citation
 If you use AbBFN2 in your research, please cite our work:
