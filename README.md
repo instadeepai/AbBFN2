@@ -174,11 +174,6 @@ The data modes supported by AbBFN2 are:
 "l_j_identity" (float) # [77.0, 100.0]
 ```
 
-# Loading Weights
-
-
-
-
 ## Citation
 If you use AbBFN2 in your research, please cite our work:
 ```
