@@ -1,18 +1,3 @@
-# Copyright 2025 InstaDeep Ltd
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-#!/usr/bin/env python
 """
 Script to grab "coding_sequence" in OGRDB germline set JSON file and generate
  BLAST databases for V, D, J sequences, respectively.
@@ -25,11 +10,17 @@ import os
 import re
 from pathlib import Path
 
-parser = argparse.ArgumentParser(description = "Script to build blast dbs from OGRDB germline sets JSON files")
-parser.add_argument('--germline_file', required=True,
-                    help="JSON file name(s). Need to put multiple files inside quotation marks, i.e., \"file1 file2 file3\"")
-parser.add_argument('--output_file', required=True,
-                    help="output file name for blast database")
+parser = argparse.ArgumentParser(
+    description="Script to build blast dbs from OGRDB germline sets JSON files"
+)
+parser.add_argument(
+    "--germline_file",
+    required=True,
+    help='JSON file name(s). Need to put multiple files inside quotation marks, i.e., "file1 file2 file3"',
+)
+parser.add_argument(
+    "--output_file", required=True, help="output file name for blast database"
+)
 args = parser.parse_args()
 
 
@@ -57,7 +48,7 @@ for each_in_file in input_file_names:
 
     title = germline_set["germline_set_name"] + " " + germline_set["germline_set_ref"]
     for i in germline_set["allele_descriptions"]:
-        seq = re.sub('\.+', '', i["coding_sequence"])
+        seq = re.sub("\.+", "", i["coding_sequence"])
         outfile_handles[i["sequence_type"]].write(">" + i["label"] + "\n")
         outfile_handles[i["sequence_type"]].write(seq + "\n")
         if not title in db_titles[i["sequence_type"]].keys():
@@ -71,8 +62,10 @@ for i in sequence_type:
     final_title = ""
     for key, value in db_titles[i].items():
         final_title = final_title + " " + key
-    if (os.path.getsize(outfile_names[i]) > 0):
-        os.system(f"./makeblastdb  -in {outfile_names[i]} -dbtype nucl -parse_seqids -title \"{final_title}\"")
+    if os.path.getsize(outfile_names[i]) > 0:
+        os.system(
+            f'./makeblastdb  -in {outfile_names[i]} -dbtype nucl -parse_seqids -title "{final_title}"'
+        )
     else:
         Path(outfile_names[i]).unlink(missing_ok=True)
 
