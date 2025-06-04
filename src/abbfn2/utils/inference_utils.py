@@ -382,6 +382,9 @@ def load_params(cfg: DictConfig) -> dict[str, jax.Array]:
         dict[str, jax.Array]: The parameters.
     """
     if cfg.load_from_hf:
+        dummy_config_path = hf_hub_download(
+            repo_id="InstaDeepAI/AbBFN2", filename="config.json"
+        )
         file_path = hf_hub_download(
             repo_id="InstaDeepAI/AbBFN2", filename="model_params.pkl"
         )
